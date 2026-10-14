@@ -1,0 +1,47 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.10", "3.11", "3.12", "3.13", "3.14"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: ${{ matrix.python }}
+      - run: uv sync --all-extras --locked
+      - run: uv run ruff check src tests
+      - run: uv run pytest -q
+
+  package:
+    # The path a stranger takes: build the wheel, install it into a clean venv, use it.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+      - run: uv build
+      - run: |
+          uv venv /tmp/fresh
+          uv pip install --python /tmp/fresh/bin/python dist/*.whl
+          /tmp/fresh/bin/skillgraph --version
+          /tmp/fresh/bin/skillgraph lint examples/suite.yaml --skills release-notes
+          /tmp/fresh/bin/skillgraph reference examples/references/release-sop.md -o /tmp/ref.yaml
+          /tmp/fresh/bin/skillgraph install-skill --project /tmp/proj
+          test -f /tmp/proj/.claude/skills/skillgraph/references/build-spec.md

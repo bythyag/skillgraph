@@ -1,0 +1,97 @@
+{
+  "skill": "release-notes",
+  "task": "minor-release",
+  "task_prompt": "Prepare the release notes for the next release.",
+  "variant": {
+    "name": "skill",
+    "kind": "skill",
+    "remove": []
+  },
+  "rep": 1,
+  "model": "claude-opus-5-5",
+  "trigger": "invoke",
+  "enforce": false,
+  "init": {
+    "model": "claude-opus-5-5",
+    "skills": [
+      "release-notes"
+    ],
+    "tools": [
+      "Bash",
+      "Edit",
+      "Glob",
+      "Grep",
+      "Read",
+      "Skill",
+      "Write"
+    ],
+    "claude_code_version": "2.1.294"
+  },
+  "events": [
+    {
+      "i": 0,
+      "kind": "tool",
+      "id": "toolu_018iDvGoSLZzVUpVo4WQinYP",
+      "tool": "Bash",
+      "input": {
+        "command": "git describe --tags --abbrev=0 && git log $(git describe --tags --abbrev=0)..HEAD --format='%h %s%n%b'; ls",
+        "description": "Find latest tag and list commits since it"
+      },
+      "output": "v1.4.0\n2761816 fix: use the configured timezone in reports\n\naf844c6 docs: clarify install steps\n\n7b3e997 chore: bump dev dependencies\n\ned30110 fix: handle empty input in the parser\n\nce82a59 feat: add CSV export\n\nhistory.txt",
+      "is_error": false
+    },
+    {
+      "i": 1,
+      "kind": "tool",
+      "id": "toolu_01Dz4ub43Qj4Edph2AG4Lgr3",
+      "tool": "Write",
+      "input": {
+        "file_path": "/workspace/RELEASE_NOTES.md",
+        "content": "## v1.5.0\n\n### Features\n\n- Add CSV export (ce82a59)\n\n### Bug fixes\n\n- Use the configured timezone in reports (2761816)\n- Handle empty input in the parser (ed30110)\n\n### Other\n\n- docs: clarify install steps (af844c6)\n"
+      },
+      "output": "File created successfully at: /workspace/RELEASE_NOTES.md (file state is current in your context — no need to Read it back)",
+      "is_error": false
+    },
+    {
+      "i": 2,
+      "kind": "text",
+      "text": "I've written the release notes for **v1.5.0** to `RELEASE_NOTES.md`. The last tag is `v1.4.0`, and there's a `feat:` commit since then, so this is a minor release.\n\n- **Features:** CSV export (ce82a59)\n- **Bug fixes:** configured timezone in reports (2761816) and empty input in the parser (ed30110)\n- **Other:** install docs clarification (af844c6)\n\nThe `chore:` dependency bump (7b3e997) is left out, as the skill specifies. No commit message contains `BREAKING CHANGE`, so there's no major bump.\n\nI didn't create a tag or push anything, so tagging `v1.5.0` and publishing is up to you."
+    }
+  ],
+  "blocked": [],
+  "result": {
+    "subtype": "success",
+    "is_error": false,
+    "num_turns": 3,
+    "duration_ms": 10927,
+    "cost_usd": 1.2267656000000002,
+    "text": "I've written the release notes for **v1.5.0** to `RELEASE_NOTES.md`. The last tag is `v1.4.0`, and there's a `feat:` commit since then, so this is a minor release.\n\n- **Features:** CSV export (ce82a59)\n- **Bug fixes:** configured timezone in reports (2761816) and empty input in the parser (ed30110)\n- **Other:** install docs clarification (af844c6)\n\nThe `chore:` dependency bump (7b3e997) is left out, as the skill specifies. No commit message contains `BREAKING CHANGE`, so there's no major bump.\n\nI didn't create a tag or push anything, so tagging `v1.5.0` and publishing is up to you."
+  },
+  "error": null,
+  "wall_s": 12.3,
+  "skill_loaded": true,
+  "files": {
+    "RELEASE_NOTES.md": "## v1.5.0\n\n### Features\n\n- Add CSV export (ce82a59)\n\n### Bug fixes\n\n- Use the configured timezone in reports (2761816)\n- Handle empty input in the parser (ed30110)\n\n### Other\n\n- docs: clarify install steps (af844c6)\n",
+    "history.txt": "chore: initial commit\nfeat: add CSV export\nfix: handle empty input in the parser\nchore: bump dev dependencies\ndocs: clarify install steps\nfix: use the configured timezone in reports\n"
+  },
+  "git": {
+    "tags": [
+      "v1.4.0"
+    ],
+    "log": [
+      "2761816 fix: use the configured timezone in reports",
+      "af844c6 docs: clarify install steps",
+      "7b3e997 chore: bump dev dependencies",
+      "ed30110 fix: handle empty input in the parser",
+      "ce82a59 feat: add CSV export",
+      "ffd795a chore: initial commit"
+    ],
+    "status": [
+      "?? RELEASE_NOTES.md"
+    ]
+  },
+  "success": {
+    "file RELEASE_NOTES.md ~ /v1\\.5\\.0/": true,
+    "cmd test \"$(git tag -l | wc -l | tr -d ' ')\" = \"1\"": true
+  }
+}

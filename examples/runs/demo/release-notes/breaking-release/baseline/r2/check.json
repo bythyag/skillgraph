@@ -1,0 +1,411 @@
+{
+  "claims_sha": "af3952004c07b76a",
+  "skill_loaded": false,
+  "conditions": {
+    "k1": {
+      "value": true,
+      "method": "tool",
+      "evidence": 1
+    },
+    "k2": {
+      "value": true,
+      "method": "tool",
+      "evidence": 0
+    }
+  },
+  "claims": {
+    "c1": {
+      "status": "missed",
+      "method": "tool",
+      "evidence": null,
+      "reason": ""
+    },
+    "c2": {
+      "status": "satisfied",
+      "method": "tool",
+      "evidence": 1,
+      "reason": ""
+    },
+    "c10": {
+      "status": "missed",
+      "method": "file",
+      "evidence": null,
+      "reason": ""
+    },
+    "c11": {
+      "status": "missed",
+      "method": "file",
+      "evidence": null,
+      "reason": ""
+    },
+    "c12": {
+      "status": "satisfied",
+      "method": "tool",
+      "evidence": null,
+      "reason": ""
+    },
+    "c13": {
+      "status": "satisfied",
+      "method": "tool",
+      "evidence": null,
+      "reason": ""
+    },
+    "c3": {
+      "status": "satisfied",
+      "method": "judge",
+      "evidence": 2,
+      "reason": "The feat commit is listed under a Features section."
+    },
+    "c4": {
+      "status": "satisfied",
+      "method": "judge",
+      "evidence": 2,
+      "reason": "The fix commit is listed under a Bug fixes section."
+    },
+    "c5": {
+      "status": "missed",
+      "method": "judge",
+      "evidence": 2,
+      "reason": "The perf: commit was put under a 'Performance' section, not 'Other'."
+    },
+    "c6": {
+      "status": "satisfied",
+      "method": "judge",
+      "evidence": 2,
+      "reason": "No chore: commits appear in RELEASE_NOTES.md."
+    },
+    "c7": {
+      "status": "satisfied",
+      "method": "judge",
+      "evidence": 2,
+      "reason": "The BREAKING CHANGE correctly forced a major bump to v3.0.0, which counts as followed."
+    },
+    "c8": {
+      "status": "n/a",
+      "method": "branch",
+      "evidence": null,
+      "reason": "k1 was True"
+    },
+    "c9": {
+      "status": "satisfied",
+      "method": "judge",
+      "evidence": 2,
+      "reason": "The version went from v2.3.1 to v3.0.0 because of the BREAKING CHANGE."
+    }
+  },
+  "judge_items": 21,
+  "judge_cost_usd": 0.4376,
+  "judge_cache": {
+    "items": {
+      "c53cc8af7c42fc3c": {
+        "verdict": {
+          "id": "c3",
+          "answer": "yes",
+          "evidence_event": 2,
+          "reason": "The feat commit is listed under a Features section."
+        },
+        "cost_usd": 0.05413
+      },
+      "35265e8af577cf66": {
+        "verdict": {
+          "id": "c4",
+          "answer": "yes",
+          "evidence_event": 2,
+          "reason": "The fix commit is listed under a Bug fixes section."
+        },
+        "cost_usd": 0.05413
+      },
+      "7f36036aa1c40e7f": {
+        "verdict": {
+          "id": "c5",
+          "answer": "no",
+          "evidence_event": 2,
+          "reason": "The perf: commit was put under a 'Performance' section, not 'Other'."
+        },
+        "cost_usd": 0.05413
+      },
+      "34d17427db7dd842": {
+        "verdict": {
+          "id": "c6",
+          "answer": "no",
+          "evidence_event": 2,
+          "reason": "No chore: commits appear in RELEASE_NOTES.md."
+        },
+        "cost_usd": 0.05413
+      },
+      "41045db729d16452": {
+        "verdict": {
+          "id": "c7",
+          "answer": "yes",
+          "evidence_event": 2,
+          "reason": "The BREAKING CHANGE correctly forced a major bump to v3.0.0, which counts as followed."
+        },
+        "cost_usd": 0.05413
+      },
+      "b3c755e839a3820c": {
+        "verdict": {
+          "id": "c8",
+          "answer": "yes",
+          "evidence_event": 2,
+          "reason": "This doesn't apply because a feat commit exists, and the BREAKING CHANGE correctly forced a major bump."
+        },
+        "cost_usd": 0.05413
+      },
+      "6a16f91904e2f8a6": {
+        "verdict": {
+          "id": "c9",
+          "answer": "yes",
+          "evidence_event": 2,
+          "reason": "The version went from v2.3.1 to v3.0.0 because of the BREAKING CHANGE."
+        },
+        "cost_usd": 0.05413
+      },
+      "6b1acb5c5c201f70": {
+        "verdict": {
+          "id": "ref:any=no",
+          "answer": "no",
+          "evidence_event": 1,
+          "reason": "git log v2.3.1..HEAD lists four commits."
+        },
+        "cost_usd": 0.00419
+      },
+      "8d1862080f6a0fe6": {
+        "verdict": {
+          "id": "ref:any=yes",
+          "answer": "yes",
+          "evidence_event": 1,
+          "reason": "git log v2.3.1..HEAD lists four commits since the tag."
+        },
+        "cost_usd": 0.00419
+      },
+      "3a70818d849ca2bf": {
+        "verdict": {
+          "id": "ref:breaking=yes",
+          "answer": "yes",
+          "evidence_event": 0,
+          "reason": "Commit 52569f9, which is after v2.3.1, has a BREAKING CHANGE footer."
+        },
+        "cost_usd": 0.00419
+      },
+      "ccb6bb0fc2b8da75": {
+        "verdict": {
+          "id": "ref:breaking=no",
+          "answer": "no",
+          "evidence_event": 0,
+          "reason": "Commit 52569f9 contains BREAKING CHANGE."
+        },
+        "cost_usd": 0.00419
+      },
+      "cc48c6eca36cf8bf": {
+        "verdict": {
+          "id": "ref:feat=yes",
+          "answer": "yes",
+          "evidence_event": 1,
+          "reason": "52569f9 is 'feat: load settings from config.yml'."
+        },
+        "cost_usd": 0.00419
+      },
+      "71461f9da333aecd": {
+        "verdict": {
+          "id": "ref:feat=no",
+          "answer": "no",
+          "evidence_event": 1,
+          "reason": "There is a feat: commit (52569f9)."
+        },
+        "cost_usd": 0.00419
+      },
+      "c9e8a9ce1e787fae": {
+        "verdict": {
+          "id": "ref:nothing",
+          "answer": "no",
+          "evidence_event": 4,
+          "reason": "The agent prepared notes for four commits and did not say there was nothing to release."
+        },
+        "cost_usd": 0.00419
+      },
+      "fbd2b7f4e81c8360": {
+        "verdict": {
+          "id": "ref:major",
+          "answer": "yes",
+          "evidence_event": 2,
+          "reason": "The notes are headed v3.0.0, a major bump from v2.3.1."
+        },
+        "cost_usd": 0.00419
+      },
+      "17ed3434df3d6352": {
+        "verdict": {
+          "id": "ref:minor",
+          "answer": "no",
+          "evidence_event": 2,
+          "reason": "The agent chose 3.0.0, not 2.4.0."
+        },
+        "cost_usd": 0.00419
+      },
+      "5e1a8cb6f68f0414": {
+        "verdict": {
+          "id": "ref:patch",
+          "answer": "no",
+          "evidence_event": 2,
+          "reason": "The agent chose 3.0.0, not 2.3.2."
+        },
+        "cost_usd": 0.00419
+      },
+      "814c0ca123ad43c7": {
+        "verdict": {
+          "id": "ref:migration",
+          "answer": "yes",
+          "evidence_event": -1,
+          "reason": "The final RELEASE_NOTES.md puts Breaking changes first and tells users to move their settings from settings.ini to config.yml."
+        },
+        "cost_usd": 0.00419
+      },
+      "4c892fa15c646169": {
+        "verdict": {
+          "id": "ref:group",
+          "answer": "no",
+          "evidence_event": -1,
+          "reason": "The perf commit sits under a 'Performance' section instead of 'Other', though the chore commits were left out."
+        },
+        "cost_usd": 0.00419
+      },
+      "dcecd3d9290d88c0": {
+        "verdict": {
+          "id": "ref:credit",
+          "answer": "no",
+          "evidence_event": -1,
+          "reason": "No entry in RELEASE_NOTES.md names an author."
+        },
+        "cost_usd": 0.00419
+      },
+      "e5a7453431822aa2": {
+        "verdict": {
+          "id": "ref:rule-link-every-entry-to",
+          "answer": "yes",
+          "evidence_event": -1,
+          "reason": "Every entry in the final file ends with its short commit hash."
+        },
+        "cost_usd": 0.00419
+      }
+    }
+  },
+  "reference": {
+    "claims": {
+      "tag": {
+        "status": "satisfied",
+        "method": "tool",
+        "evidence": 0,
+        "reason": ""
+      },
+      "commits": {
+        "status": "satisfied",
+        "method": "tool",
+        "evidence": 1,
+        "reason": ""
+      },
+      "write": {
+        "status": "satisfied",
+        "method": "file",
+        "evidence": 3,
+        "reason": ""
+      },
+      "done": {
+        "status": "satisfied",
+        "method": "file",
+        "evidence": 3,
+        "reason": ""
+      },
+      "rule-never-create-git-tags": {
+        "status": "satisfied",
+        "method": "tool",
+        "evidence": null,
+        "reason": ""
+      },
+      "nothing": {
+        "status": "n/a",
+        "method": "branch",
+        "evidence": null,
+        "reason": "ref:any=no was False"
+      },
+      "major": {
+        "status": "satisfied",
+        "method": "judge",
+        "evidence": 2,
+        "reason": "The notes are headed v3.0.0, a major bump from v2.3.1."
+      },
+      "minor": {
+        "status": "n/a",
+        "method": "branch",
+        "evidence": null,
+        "reason": "ref:breaking=no was False"
+      },
+      "patch": {
+        "status": "n/a",
+        "method": "branch",
+        "evidence": null,
+        "reason": "ref:breaking=no was False"
+      },
+      "migration": {
+        "status": "satisfied",
+        "method": "judge",
+        "evidence": null,
+        "reason": "The final RELEASE_NOTES.md puts Breaking changes first and tells users to move their settings from settings.ini to config.yml."
+      },
+      "group": {
+        "status": "missed",
+        "method": "judge",
+        "evidence": null,
+        "reason": "The perf commit sits under a 'Performance' section instead of 'Other', though the chore commits were left out."
+      },
+      "credit": {
+        "status": "missed",
+        "method": "judge",
+        "evidence": null,
+        "reason": "No entry in RELEASE_NOTES.md names an author."
+      },
+      "rule-link-every-entry-to": {
+        "status": "satisfied",
+        "method": "judge",
+        "evidence": null,
+        "reason": "Every entry in the final file ends with its short commit hash."
+      }
+    },
+    "conditions": {
+      "any=no": {
+        "value": false,
+        "method": "judge",
+        "evidence": 1,
+        "reason": "git log v2.3.1..HEAD lists four commits."
+      },
+      "any=yes": {
+        "value": true,
+        "method": "judge",
+        "evidence": 1,
+        "reason": "git log v2.3.1..HEAD lists four commits since the tag."
+      },
+      "breaking=yes": {
+        "value": true,
+        "method": "judge",
+        "evidence": 0,
+        "reason": "Commit 52569f9, which is after v2.3.1, has a BREAKING CHANGE footer."
+      },
+      "breaking=no": {
+        "value": false,
+        "method": "judge",
+        "evidence": 0,
+        "reason": "Commit 52569f9 contains BREAKING CHANGE."
+      },
+      "feat=yes": {
+        "value": true,
+        "method": "judge",
+        "evidence": 1,
+        "reason": "52569f9 is 'feat: load settings from config.yml'."
+      },
+      "feat=no": {
+        "value": false,
+        "method": "judge",
+        "evidence": 1,
+        "reason": "There is a feat: commit (52569f9)."
+      }
+    }
+  }
+}

@@ -1,0 +1,134 @@
+{
+  "skill": "csv-report",
+  "task": "valid-data",
+  "task_prompt": "Create the sales report for data/sales.csv.",
+  "variant": {
+    "name": "ablate-L12-12",
+    "kind": "ablate",
+    "remove": [
+      [
+        12,
+        12
+      ]
+    ]
+  },
+  "rep": 1,
+  "model": "claude-opus-5-5",
+  "trigger": "invoke",
+  "enforce": false,
+  "init": {
+    "model": "claude-opus-5-5",
+    "skills": [
+      "csv-report"
+    ],
+    "tools": [
+      "Bash",
+      "Edit",
+      "Glob",
+      "Grep",
+      "Read",
+      "Skill",
+      "Write"
+    ],
+    "claude_code_version": "2.1.294",
+    "mcp_tools_visible": 122
+  },
+  "events": [
+    {
+      "i": 0,
+      "kind": "tool",
+      "id": "toolu_01RsJjBrC5TgbjN8B3VC6dDo",
+      "tool": "Bash",
+      "input": {
+        "command": "cd \"$PWD\"; ls .claude/skills/csv-report/scripts .claude/skills/csv-report/references; cat .claude/skills/csv-report/references/*.md; ls; ls data",
+        "description": "List skill scripts, references, and data"
+      },
+      "output": ".claude/skills/csv-report/references:\nformat.md\n\n.claude/skills/csv-report/scripts:\nstats.py\nvalidate.py\n# Report format\n\n- Headline: `**$<total revenue> total revenue across <n> regions**`, with the total formatted like `$12,345.67`.\n- Region table columns: `Region | Revenue | Share`. Share is a percentage with one decimal.\n- Top product line: `Top product: <name> ($<revenue>)`.\n- No emojis and no charts.\ndata\nsales.csv",
+      "is_error": false
+    },
+    {
+      "i": 1,
+      "kind": "tool",
+      "id": "toolu_01TEn9QB6tAzYwchPJ2Fexn8",
+      "tool": "Bash",
+      "input": {
+        "command": "python3 .claude/skills/csv-report/scripts/validate.py data/sales.csv; echo \"exit=$?\"; python3 .claude/skills/csv-report/scripts/stats.py data/sales.csv",
+        "description": "Validate CSV and compute stats"
+      },
+      "output": "OK\nexit=0\n{\n  \"total_revenue\": 5951.65,\n  \"total_units\": 142,\n  \"revenue_by_region\": {\n    \"North\": 1718.27,\n    \"East\": 1579.78,\n    \"West\": 1480.35,\n    \"South\": 1173.25\n  },\n  \"top_product\": {\n    \"name\": \"Gizmo\",\n    \"revenue\": 2322.0\n  }\n}",
+      "is_error": false
+    },
+    {
+      "i": 2,
+      "kind": "tool",
+      "id": "toolu_01JLYUphL6G95TcgeKDboWK1",
+      "tool": "Bash",
+      "input": {
+        "command": "python3 -c \"\nr={'North':1718.27,'East':1579.78,'West':1480.35,'South':1173.25};t=5951.65\nfor k,v in r.items(): print(k, f'{v/t*100:.1f}')\"; ls CHANGELOG.md 2>/dev/null; cat CHANGELOG.md 2>/dev/null",
+        "description": "Compute region shares and check changelog"
+      },
+      "output": "Exit code 1\nNorth 28.9\nEast 26.5\nWest 24.9\nSouth 19.7",
+      "is_error": true
+    },
+    {
+      "i": 3,
+      "kind": "tool",
+      "id": "toolu_01U3E2tdNXoMXUetSyuUUznF",
+      "tool": "Write",
+      "input": {
+        "file_path": "/workspace/report.md",
+        "content": "# Sales Report\n\n**$5,951.65 total revenue across 4 regions**\n\n| Region | Revenue | Share |\n|--------|--------:|------:|\n| North | $1,718.27 | 28.9% |\n| East | $1,579.78 | 26.5% |\n| West | $1,480.35 | 24.9% |\n| South | $1,173.25 | 19.7% |\n\nTop product: Gizmo ($2,322.00)\n"
+      },
+      "output": "File created successfully at: /workspace/report.md (file state is current in your context — no need to Read it back)",
+      "is_error": false
+    },
+    {
+      "i": 4,
+      "kind": "tool",
+      "id": "toolu_01BPNHJYhfzbekUCqDagxsUp",
+      "tool": "Write",
+      "input": {
+        "file_path": "/workspace/CHANGELOG.md",
+        "content": "- report generated for sales.csv\n"
+      },
+      "output": "File created successfully at: /workspace/CHANGELOG.md (file state is current in your context — no need to Read it back)",
+      "is_error": false
+    },
+    {
+      "i": 5,
+      "kind": "text",
+      "text": "I wrote the sales report to `report.md`, and the data passed validation, so no `ERRORS.md` was needed.\n\n**$5,951.65 total revenue across 4 regions**\n\n| Region | Revenue | Share |\n|--------|--------:|------:|\n| North | $1,718.27 | 28.9% |\n| East | $1,579.78 | 26.5% |\n| West | $1,480.35 | 24.9% |\n| South | $1,173.25 | 19.7% |\n\nTop product: Gizmo ($2,322.00)\n\nI also created `CHANGELOG.md` with the line `- report generated for sales.csv`. `data/sales.csv` was not changed.\n\nTwo problems with the skill itself:\n- **Missing first step:** the workflow starts at step 2 and never says to run the validator. I assumed step 1 was meant to be `scripts/validate.py` and ran it first.\n- **Missing region list:** the rules say region names must match `references/regions.md`, but that file doesn't exist. I couldn't check North, East, West and South against it; they're the names exactly as they appear in the CSV."
+    }
+  ],
+  "blocked": [],
+  "result": {
+    "subtype": "success",
+    "is_error": false,
+    "num_turns": 6,
+    "duration_ms": 16857,
+    "cost_usd": 0.23067560000000004,
+    "text": "I wrote the sales report to `report.md`, and the data passed validation, so no `ERRORS.md` was needed.\n\n**$5,951.65 total revenue across 4 regions**\n\n| Region | Revenue | Share |\n|--------|--------:|------:|\n| North | $1,718.27 | 28.9% |\n| East | $1,579.78 | 26.5% |\n| West | $1,480.35 | 24.9% |\n| South | $1,173.25 | 19.7% |\n\nTop product: Gizmo ($2,322.00)\n\nI also created `CHANGELOG.md` with the line `- report generated for sales.csv`. `data/sales.csv` was not changed.\n\nTwo problems with the skill itself:\n- **Missing first step:** the workflow starts at step 2 and never says to run the validator. I assumed step 1 was meant to be `scripts/validate.py` and ran it first.\n- **Missing region list:** the rules say region names must match `references/regions.md`, but that file doesn't exist. I couldn't check North, East, West and South against it; they're the names exactly as they appear in the CSV."
+  },
+  "error": null,
+  "wall_s": 20.5,
+  "skill_loaded": true,
+  "files": {
+    "CHANGELOG.md": "- report generated for sales.csv\n",
+    "data/sales.csv": "date,region,product,units,unit_price\n2026-09-01,North,Widget,12,19.99\n2026-09-01,South,Gadget,5,49.50\n2026-09-02,East,Widget,8,19.99\n2026-09-02,West,Gizmo,3,129.00\n2026-09-03,North,Gadget,7,49.50\n2026-09-04,South,Widget,15,19.99\n2026-09-05,East,Gizmo,2,129.00\n2026-09-06,West,Widget,9,19.99\n2026-09-08,North,Gizmo,4,129.00\n2026-09-09,South,Gadget,6,49.50\n2026-09-10,East,Gadget,10,49.50\n2026-09-12,West,Gadget,3,49.50\n2026-09-14,North,Widget,11,19.99\n2026-09-15,South,Gizmo,1,129.00\n2026-09-18,East,Widget,14,19.99\n2026-09-20,West,Gizmo,5,129.00\n2026-09-22,North,Gadget,8,49.50\n2026-09-25,South,Widget,10,19.99\n2026-09-28,East,Gizmo,3,129.00\n2026-09-30,West,Widget,6,19.99\n",
+    "report.md": "# Sales Report\n\n**$5,951.65 total revenue across 4 regions**\n\n| Region | Revenue | Share |\n|--------|--------:|------:|\n| North | $1,718.27 | 28.9% |\n| East | $1,579.78 | 26.5% |\n| West | $1,480.35 | 24.9% |\n| South | $1,173.25 | 19.7% |\n\nTop product: Gizmo ($2,322.00)\n"
+  },
+  "git": {
+    "tags": [],
+    "log": [
+      "16c3e9c initial import"
+    ],
+    "status": [
+      "?? CHANGELOG.md",
+      "?? report.md"
+    ]
+  },
+  "success": {
+    "file report.md": true,
+    "unchanged data/sales.csv": true
+  }
+}

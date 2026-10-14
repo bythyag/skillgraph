@@ -1,0 +1,343 @@
+{
+  "skill": "csv-report",
+  "source_sha256": "d226e4ae5830b44093cf270bad61516fbf5bc37dc4790d8d46d4ab8754b9859e",
+  "classification": "procedural",
+  "summary": "Validates a sales CSV with a bundled script, then either records the errors in ERRORS.md and stops, or computes stats and writes a formatted markdown report (report.md) plus a CHANGELOG entry.",
+  "conditions": [
+    {
+      "id": "k1",
+      "text": "The input CSV contains invalid data that fails validation",
+      "span": [
+        13,
+        13
+      ],
+      "check": {
+        "type": "judge",
+        "question": "Does the input sales CSV contain invalid or malformed data (for example missing columns, bad values, or unparseable rows) that would fail validation?"
+      }
+    }
+  ],
+  "claims": [
+    {
+      "id": "c1",
+      "kind": "step",
+      "text": "Validate the input first by running python3 scripts/validate.py <csv-path>",
+      "span": [
+        12,
+        12
+      ],
+      "after": [],
+      "when": null,
+      "check": {
+        "type": "tool",
+        "tools": [
+          "Bash"
+        ],
+        "input_any": [
+          "validate\\.py"
+        ],
+        "output_any": []
+      }
+    },
+    {
+      "id": "c2",
+      "kind": "must_not",
+      "text": "Never compute any statistics before validation passes",
+      "span": [
+        12,
+        12
+      ],
+      "after": [],
+      "when": null,
+      "check": {
+        "type": "judge",
+        "question": "Did the agent compute any statistics (e.g. run stats.py or calculate revenue figures) before validate.py had been run and passed?"
+      }
+    },
+    {
+      "id": "c3",
+      "kind": "artifact",
+      "text": "If validation fails, copy the validator's error lines into ERRORS.md in the project root",
+      "span": [
+        13,
+        13
+      ],
+      "after": [
+        "c1"
+      ],
+      "when": {
+        "cond": "k1",
+        "value": true
+      },
+      "check": {
+        "type": "file",
+        "path_glob": "ERRORS.md",
+        "content_any": []
+      }
+    },
+    {
+      "id": "c4",
+      "kind": "must_not",
+      "text": "If validation fails, stop (do not continue to compute stats or write the report)",
+      "span": [
+        13,
+        13
+      ],
+      "after": [
+        "c3"
+      ],
+      "when": {
+        "cond": "k1",
+        "value": true
+      },
+      "check": {
+        "type": "judge",
+        "question": "After validation failed, did the agent continue the workflow anyway, such as computing statistics, writing report.md, or updating CHANGELOG.md?"
+      }
+    },
+    {
+      "id": "c5",
+      "kind": "must_not",
+      "text": "Do not try to repair the data when validation fails",
+      "span": [
+        13,
+        13
+      ],
+      "after": [],
+      "when": {
+        "cond": "k1",
+        "value": true
+      },
+      "check": {
+        "type": "judge",
+        "question": "Did the agent attempt to repair, clean, or fix the invalid CSV data (in place or via a corrected copy)?"
+      }
+    },
+    {
+      "id": "c6",
+      "kind": "step",
+      "text": "If validation passes, compute the numbers with python3 scripts/stats.py <csv-path>",
+      "span": [
+        14,
+        14
+      ],
+      "after": [
+        "c1"
+      ],
+      "when": {
+        "cond": "k1",
+        "value": false
+      },
+      "check": {
+        "type": "tool",
+        "tools": [
+          "Bash"
+        ],
+        "input_any": [
+          "stats\\.py"
+        ],
+        "output_any": []
+      }
+    },
+    {
+      "id": "c7",
+      "kind": "must_read",
+      "text": "Read references/format.md before writing the report",
+      "span": [
+        15,
+        15
+      ],
+      "after": [],
+      "when": {
+        "cond": "k1",
+        "value": false
+      },
+      "check": {
+        "type": "tool",
+        "tools": [
+          "Read",
+          "Bash"
+        ],
+        "input_any": [
+          "format\\.md"
+        ],
+        "output_any": []
+      }
+    },
+    {
+      "id": "c8",
+      "kind": "artifact",
+      "text": "Write report.md in the project root",
+      "span": [
+        16,
+        16
+      ],
+      "after": [
+        "c7"
+      ],
+      "when": {
+        "cond": "k1",
+        "value": false
+      },
+      "check": {
+        "type": "file",
+        "path_glob": "report.md",
+        "content_any": []
+      }
+    },
+    {
+      "id": "c9",
+      "kind": "artifact",
+      "text": "report.md contains a one-line headline",
+      "span": [
+        16,
+        16
+      ],
+      "after": [],
+      "when": {
+        "cond": "k1",
+        "value": false
+      },
+      "check": {
+        "type": "judge",
+        "question": "Does report.md begin with (or contain) a single-line headline summarizing the sales?"
+      }
+    },
+    {
+      "id": "c10",
+      "kind": "artifact",
+      "text": "report.md contains a table of revenue per region sorted from highest to lowest",
+      "span": [
+        16,
+        16
+      ],
+      "after": [],
+      "when": {
+        "cond": "k1",
+        "value": false
+      },
+      "check": {
+        "type": "judge",
+        "question": "Does report.md contain a markdown table of revenue per region with rows sorted from highest to lowest revenue?"
+      }
+    },
+    {
+      "id": "c11",
+      "kind": "artifact",
+      "text": "report.md states the top product by revenue",
+      "span": [
+        16,
+        16
+      ],
+      "after": [],
+      "when": {
+        "cond": "k1",
+        "value": false
+      },
+      "check": {
+        "type": "judge",
+        "question": "Does report.md identify the top product by revenue, consistent with the computed statistics?"
+      }
+    },
+    {
+      "id": "c12",
+      "kind": "artifact",
+      "text": "Make sure the report looks professional",
+      "span": [
+        17,
+        17
+      ],
+      "after": [],
+      "when": {
+        "cond": "k1",
+        "value": false
+      },
+      "check": {
+        "type": "judge",
+        "question": "Is report.md clean, well-formatted, and professional in tone and presentation?"
+      }
+    },
+    {
+      "id": "c13",
+      "kind": "artifact",
+      "text": "Finally, append a line '- report generated for <csv file name>' to CHANGELOG.md, creating it if needed",
+      "span": [
+        18,
+        18
+      ],
+      "after": [
+        "c8"
+      ],
+      "when": {
+        "cond": "k1",
+        "value": false
+      },
+      "check": {
+        "type": "file",
+        "path_glob": "CHANGELOG.md",
+        "content_any": [
+          "(?m)^-\\s*report generated for\\s+\\S+"
+        ]
+      }
+    },
+    {
+      "id": "c14",
+      "kind": "must_not",
+      "text": "Never modify the input CSV",
+      "span": [
+        22,
+        22
+      ],
+      "after": [],
+      "when": null,
+      "check": {
+        "type": "judge",
+        "question": "Did the agent modify, overwrite, or delete the input CSV file (via Write/Edit or shell commands such as sed -i or redirection)?"
+      }
+    },
+    {
+      "id": "c15",
+      "kind": "artifact",
+      "text": "Round all currency values to 2 decimals",
+      "span": [
+        23,
+        23
+      ],
+      "after": [],
+      "when": {
+        "cond": "k1",
+        "value": false
+      },
+      "check": {
+        "type": "judge",
+        "question": "Are all currency values in report.md shown rounded to exactly 2 decimal places?"
+      }
+    },
+    {
+      "id": "c16",
+      "kind": "artifact",
+      "text": "Region names must match references/regions.md",
+      "span": [
+        24,
+        24
+      ],
+      "after": [],
+      "when": {
+        "cond": "k1",
+        "value": false
+      },
+      "check": {
+        "type": "judge",
+        "question": "Do the region names in report.md match the canonical names listed in references/regions.md?"
+      }
+    }
+  ],
+  "extracted": {
+    "model": "claude-opus-5-5",
+    "at": "2026-10-13T20:01:10+00:00",
+    "cost_usd": 0.1108
+  },
+  "review_notes": [
+    "c7: removed 'after c6' (list position only; the text anchors the read to writing the report, which c8 already encodes)"
+  ]
+}

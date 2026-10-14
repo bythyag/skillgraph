@@ -1,0 +1,65 @@
+# A suite pairs skills with tasks. Each task copies a fixture into a fresh
+# workspace (running its setup.sh if present), gives the agent the prompt, and
+# afterwards runs the success checks in that workspace.
+#
+# success checks:
+#   - file: path                  # exists
+#   - file: path, contains: re    # exists and matches a regex
+#   - unchanged: path             # byte-identical to the fixture
+#   - cmd: shell command          # exits 0
+
+skills:
+  - path: skills/csv-report
+    claims: claims/csv-report.claims.json
+    tasks:
+      - id: valid-data
+        fixture: fixtures/sales-valid
+        prompt: Create the sales report for data/sales.csv.
+        success:
+          - file: report.md
+          - unchanged: data/sales.csv
+      - id: broken-data
+        fixture: fixtures/sales-broken
+        prompt: Create the sales report for data/sales.csv.
+        success:
+          - file: ERRORS.md
+          - unchanged: data/sales.csv
+
+  - path: skills/bugfix-tdd
+    claims: claims/bugfix-tdd.claims.json
+    tasks:
+      - id: slugify
+        fixture: fixtures/textutils
+        prompt: >
+          Bug report: slugify("Hello,  World!") returns "hello---world-" but it should
+          return "hello-world". Please fix it.
+        success:
+          - cmd: python3 -m unittest discover -s tests -t .
+          - cmd: python3 -c "from textutils import slugify; assert slugify('Hello,  World!') == 'hello-world'"
+      - id: word-count
+        fixture: fixtures/textutils
+        prompt: >
+          Bug report: word_count("") returns 1 and word_count("a  b") returns 3; they
+          should return 0 and 2. Please fix it.
+        success:
+          - cmd: python3 -m unittest discover -s tests -t .
+          - cmd: python3 -c "from textutils import word_count; assert word_count('') == 0 and word_count('a  b') == 2"
+
+  - path: skills/release-notes
+    claims: claims/release-notes.claims.json
+    reference: references/release-sop.ref.yaml   # the team SOP this skill is meant to encode
+    tasks:
+      - id: minor-release
+        fixture: fixtures/repo-minor
+        prompt: Prepare the release notes for the next release.
+        success:
+          - file: RELEASE_NOTES.md
+            contains: v1\.5\.0
+          - cmd: test "$(git tag -l | wc -l | tr -d ' ')" = "1"
+      - id: breaking-release
+        fixture: fixtures/repo-breaking
+        prompt: Prepare the release notes for the next release.
+        success:
+          - file: RELEASE_NOTES.md
+            contains: v3\.0\.0
+          - cmd: test "$(git tag -l | wc -l | tr -d ' ')" = "1"

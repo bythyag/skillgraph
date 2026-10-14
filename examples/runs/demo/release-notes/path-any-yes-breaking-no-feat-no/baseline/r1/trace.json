@@ -1,0 +1,124 @@
+{
+  "skill": "release-notes",
+  "task": "path-any-yes-breaking-no-feat-no",
+  "task_prompt": "Can you draft the release notes for our next version of csvkit-lite? There have been a few commits since the last release. Write them to RELEASE_NOTES.md so I can review them before I cut the release myself.",
+  "variant": {
+    "name": "baseline",
+    "kind": "baseline",
+    "remove": []
+  },
+  "rep": 1,
+  "model": "claude:claude-opus-5-5",
+  "trigger": null,
+  "enforce": false,
+  "init": {
+    "model": "claude-opus-5-5",
+    "skills": [],
+    "tools": [
+      "Bash",
+      "Edit",
+      "Glob",
+      "Grep",
+      "Read",
+      "Write"
+    ],
+    "claude_code_version": "2.1.294",
+    "harness": "claude-code"
+  },
+  "events": [
+    {
+      "i": 0,
+      "kind": "tool",
+      "id": "toolu_01CK2dmgEeoVxJpJydRK2eZb",
+      "tool": "Bash",
+      "input": {
+        "command": "git tag -l && git log --oneline --decorate --all && ls -a && cat package.json pyproject.toml setup.py 2>/dev/null; ls RELEASE_NOTES.md CHANGELOG* 2>/dev/null",
+        "description": "Inspect tags, history, and files"
+      },
+      "output": "Exit code 1\nv1.4.1\nv1.4.2\n7561b98 (HEAD -> main) fix: return empty array for empty line\n32a56c1 chore: add gitignore\na35e00e docs: add usage example to README\nfde7a6f fix: strip trailing carriage return from lines\n8f296ef (tag: v1.4.2) fix: support tab separator\ncb06ed7 (tag: v1.4.1) feat: initial parser\n.\n..\n.git\n.gitignore\nREADME.md\npackage.json\nsrc\n{\n  \"name\": \"csvkit-lite\",\n  \"version\": \"1.4.2\",\n  \"main\": \"src/parse.js\",\n  \"license\": \"MIT\"\n}\n(eval):1: no matches found: CHANGELOG*",
+      "is_error": true
+    },
+    {
+      "i": 1,
+      "kind": "tool",
+      "id": "toolu_01UF7AmndFuQu9KFuFn4GL4Q",
+      "tool": "Bash",
+      "input": {
+        "command": "git log v1.4.2..HEAD --format='--- %h %s%n%b' -p && git show v1.4.2 --stat --format='%h %ad %s' --date=short",
+        "description": "Show commits and diffs since v1.4.2"
+      },
+      "output": "--- 7561b98 fix: return empty array for empty line\n\n\ndiff --git a/src/parse.js b/src/parse.js\nindex d0c1f84..e8056e8 100644\n--- a/src/parse.js\n+++ b/src/parse.js\n@@ -3,3 +3,4 @@ function parseLine(line, sep = ',') {\n }\n \n module.exports = { parseLine };\n+// handle empty input\n--- 32a56c1 chore: add gitignore\n\n\ndiff --git a/.gitignore b/.gitignore\nnew file mode 100644\nindex 0000000..c2658d7\n--- /dev/null\n+++ b/.gitignore\n@@ -0,0 +1 @@\n+node_modules/\n--- a35e00e docs: add usage example to README\nMentions the new feature request template too.\n\n\ndiff --git a/README.md b/README.md\nindex 9ff6b54..4e84ccf 100644\n--- a/README.md\n+++ b/README.md\n@@ -1,3 +1,7 @@\n # csvkit-lite\n \n A tiny CSV parser.\n+\n+## Usage\n+\n+    parseLine('a,b,c')\n--- fde7a6f fix: strip trailing carriage return from lines\nWindows-style files left a stray \\r on the last field. No breaking changes to the API.\n\n\ndiff --git a/src/parse.js b/src/parse.js\nindex ff176ae..d0c1f84 100644\n--- a/src/parse.js\n+++ b/src/parse.js\n@@ -1,6 +1,5 @@\n function parseLine(line, sep = ',') {\n-  return line.split(sep);\n+  return line.replace(/\\r$/, '').split(sep);\n }\n \n module.exports = { parseLine };\n-// tabs supported\n8f296ef 2026-08-20 fix: support tab separator\n\n src/parse.js | 1 +\n 1 file changed, 1 insertion(+)",
+      "is_error": false
+    },
+    {
+      "i": 2,
+      "kind": "tool",
+      "id": "toolu_01RNxMqn7XLJKmgz8dmZNqKB",
+      "tool": "Bash",
+      "input": {
+        "command": "node -e 'const {parseLine}=require(\"./src/parse.js\"); console.log(JSON.stringify(parseLine(\"\")), JSON.stringify(parseLine(\"a,b\\r\")))'",
+        "description": "Check parseLine behavior on empty and CRLF input"
+      },
+      "output": "[\"\"] [\"a\",\"b\"]",
+      "is_error": false
+    },
+    {
+      "i": 3,
+      "kind": "tool",
+      "id": "toolu_01FGCbqCE2Dz6y8SxW7bYT34",
+      "tool": "Write",
+      "input": {
+        "file_path": "/workspace/RELEASE_NOTES.md",
+        "content": "# csvkit-lite 1.4.3\n\n_Draft: changes since v1.4.2_\n\nThis patch release fixes one bug and adds documentation. There are no breaking changes and no new features.\n\n## Bug fixes\n\n- **Windows line endings:** `parseLine` now strips a trailing carriage return (`\\r`) before it splits the line. In earlier versions, lines from files with CRLF line endings kept a stray `\\r` on the last field. For example, `parseLine('a,b\\r')` now returns `['a', 'b']` instead of `['a', 'b\\r']`. (fde7a6f)\n\n## Documentation\n\n- Added a usage example to the README. (a35e00e)\n\n## Maintenance\n\n- Added a `.gitignore` file that excludes `node_modules/`. (32a56c1)\n"
+      },
+      "output": "File created successfully at: /workspace/RELEASE_NOTES.md (file state is current in your context — no need to Read it back)",
+      "is_error": false
+    },
+    {
+      "i": 4,
+      "kind": "text",
+      "text": "I wrote the draft to `RELEASE_NOTES.md` and called it **1.4.3**. That's a patch release, because the four commits since `v1.4.2` contain no new features and no breaking changes. The notes cover the Windows line-ending (`\\r`) fix, the new README usage example, and the `.gitignore` addition.\n\nI read the actual code changes as well as the commit messages, and the code doesn't back up two of the messages. Please check these before you cut the release:\n\n1. **I left out commit `7561b98` (\"fix: return empty array for empty line\") on purpose.** Its only change is a comment (`// handle empty input`), so the bug it describes isn't fixed. I confirmed this by running it: `parseLine('')` still returns `[\"\"]`, not `[]`. If that fix is supposed to ship, the code still needs to be written. Otherwise the notes are correct as they are.\n2. **The README commit (`a35e00e`) mentions a \"new feature request template\", but no template file was added** in that commit or any other. I left it out of the notes.\n\nAlso, `package.json` still says `\"version\": \"1.4.2\"`, so you'll need to bump it when you cut the release. I haven't changed anything else and haven't committed anything."
+    }
+  ],
+  "blocked": [],
+  "result": {
+    "subtype": "success",
+    "is_error": false,
+    "num_turns": 5,
+    "duration_ms": 23597,
+    "cost_usd": 1.3098402,
+    "text": "I wrote the draft to `RELEASE_NOTES.md` and called it **1.4.3**. That's a patch release, because the four commits since `v1.4.2` contain no new features and no breaking changes. The notes cover the Windows line-ending (`\\r`) fix, the new README usage example, and the `.gitignore` addition.\n\nI read the actual code changes as well as the commit messages, and the code doesn't back up two of the messages. Please check these before you cut the release:\n\n1. **I left out commit `7561b98` (\"fix: return empty array for empty line\") on purpose.** Its only change is a comment (`// handle empty input`), so the bug it describes isn't fixed. I confirmed this by running it: `parseLine('')` still returns `[\"\"]`, not `[]`. If that fix is supposed to ship, the code still needs to be written. Otherwise the notes are correct as they are.\n2. **The README commit (`a35e00e`) mentions a \"new feature request template\", but no template file was added** in that commit or any other. I left it out of the notes.\n\nAlso, `package.json` still says `\"version\": \"1.4.2\"`, so you'll need to bump it when you cut the release. I haven't changed anything else and haven't committed anything."
+  },
+  "error": null,
+  "wall_s": 25.9,
+  "skill_loaded": false,
+  "files": {
+    ".gitignore": "node_modules/\n",
+    "README.md": "# csvkit-lite\n\nA tiny CSV parser.\n\n## Usage\n\n    parseLine('a,b,c')\n",
+    "RELEASE_NOTES.md": "# csvkit-lite 1.4.3\n\n_Draft: changes since v1.4.2_\n\nThis patch release fixes one bug and adds documentation. There are no breaking changes and no new features.\n\n## Bug fixes\n\n- **Windows line endings:** `parseLine` now strips a trailing carriage return (`\\r`) before it splits the line. In earlier versions, lines from files with CRLF line endings kept a stray `\\r` on the last field. For example, `parseLine('a,b\\r')` now returns `['a', 'b']` instead of `['a', 'b\\r']`. (fde7a6f)\n\n## Documentation\n\n- Added a usage example to the README. (a35e00e)\n\n## Maintenance\n\n- Added a `.gitignore` file that excludes `node_modules/`. (32a56c1)\n",
+    "package.json": "{\n  \"name\": \"csvkit-lite\",\n  \"version\": \"1.4.2\",\n  \"main\": \"src/parse.js\",\n  \"license\": \"MIT\"\n}\n",
+    "src/parse.js": "function parseLine(line, sep = ',') {\n  return line.replace(/\\r$/, '').split(sep);\n}\n\nmodule.exports = { parseLine };\n// handle empty input\n"
+  },
+  "git": {
+    "tags": [
+      "v1.4.1",
+      "v1.4.2"
+    ],
+    "log": [
+      "7561b98 fix: return empty array for empty line",
+      "32a56c1 chore: add gitignore",
+      "a35e00e docs: add usage example to README",
+      "fde7a6f fix: strip trailing carriage return from lines",
+      "8f296ef fix: support tab separator",
+      "cb06ed7 feat: initial parser"
+    ],
+    "status": [
+      "?? RELEASE_NOTES.md"
+    ]
+  },
+  "success": {
+    "file RELEASE_NOTES.md ~ /(?m)^## v1\\.4\\.3\\b/": false,
+    "cmd for h in $(git log v1.4.2..HEAD --format='%h %s' | grep -v ' chore:' | cut -d' ' -f1); do grep -q \"$h\" RELEASE_NOTES.md || exit 1; done; ! grep -q \"$(git log v1.4.2..HEAD --format='%h %s' | grep ' chore:' | cut -d' ' -f1)\" RELEASE_NOTES.md && grep -q 'Marcus' RELEASE_NOTES.md && grep -q 'Lena' RELEASE_NOTES.md && grep -q 'Priya' RELEASE_NOTES.md": false,
+    "cmd test \"$(git tag | sort | tr '\\n' ' ')\" = \"v1.4.1 v1.4.2 \" && ! grep -qi 'breaking changes' RELEASE_NOTES.md && test -z \"$(git status --porcelain -- src package.json README.md .gitignore)\"": false
+  }
+}

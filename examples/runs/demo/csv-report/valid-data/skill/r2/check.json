@@ -1,0 +1,185 @@
+{
+  "claims_sha": "e51ebdf5c8a91b38",
+  "skill_loaded": true,
+  "conditions": {
+    "k1": {
+      "value": false,
+      "method": "judge",
+      "evidence": 0,
+      "reason": "validate.py printed OK with exit=0; the overall error code came from cat failing on the missing regions.md."
+    }
+  },
+  "claims": {
+    "c1": {
+      "status": "satisfied",
+      "method": "tool",
+      "evidence": 0,
+      "reason": ""
+    },
+    "c3": {
+      "status": "n/a",
+      "method": "branch",
+      "evidence": null,
+      "reason": "k1 was False"
+    },
+    "c6": {
+      "status": "satisfied",
+      "method": "tool",
+      "evidence": 2,
+      "reason": ""
+    },
+    "c7": {
+      "status": "satisfied",
+      "method": "tool",
+      "evidence": 0,
+      "reason": ""
+    },
+    "c8": {
+      "status": "satisfied",
+      "method": "file",
+      "evidence": 4,
+      "reason": ""
+    },
+    "c13": {
+      "status": "satisfied",
+      "method": "file",
+      "evidence": 5,
+      "reason": ""
+    },
+    "c2": {
+      "status": "satisfied",
+      "method": "judge",
+      "evidence": 2,
+      "reason": "stats.py first ran in event 2, after validation had passed in event 0."
+    },
+    "c4": {
+      "status": "n/a",
+      "method": "branch",
+      "evidence": null,
+      "reason": "k1 was False"
+    },
+    "c5": {
+      "status": "n/a",
+      "method": "branch",
+      "evidence": null,
+      "reason": "k1 was False"
+    },
+    "c9": {
+      "status": "satisfied",
+      "method": "judge",
+      "evidence": 4,
+      "reason": "report.md contains the one-line bold headline '**$5,951.65 total revenue across 4 regions**'."
+    },
+    "c10": {
+      "status": "satisfied",
+      "method": "judge",
+      "evidence": 4,
+      "reason": "The region table is in descending revenue order: North, East, West, South."
+    },
+    "c11": {
+      "status": "satisfied",
+      "method": "judge",
+      "evidence": 4,
+      "reason": "The report says 'Top product: Gizmo ($2,322.00)', which matches the stats.py output."
+    },
+    "c12": {
+      "status": "satisfied",
+      "method": "judge",
+      "evidence": 4,
+      "reason": "The report is cleanly structured, with headings, an aligned table and a source note, and has no emojis."
+    },
+    "c14": {
+      "status": "satisfied",
+      "method": "judge",
+      "evidence": null,
+      "reason": "The CSV was only read, never written to, and git status does not list it as modified."
+    },
+    "c15": {
+      "status": "satisfied",
+      "method": "judge",
+      "evidence": 4,
+      "reason": "Every currency value in the report has exactly two decimal places."
+    },
+    "c16": {
+      "status": "unclear",
+      "method": "judge",
+      "evidence": 2,
+      "reason": "references/regions.md does not exist, so the names cannot be checked against it."
+    }
+  },
+  "judge_items": 11,
+  "judge_cost_usd": 0.0,
+  "judge_cache": {
+    "40a6ca88a2d511aa": {
+      "verdicts": {
+        "k1": {
+          "id": "k1",
+          "answer": "no",
+          "evidence_event": 0,
+          "reason": "validate.py printed OK with exit=0; the overall error code came from cat failing on the missing regions.md."
+        },
+        "c2": {
+          "id": "c2",
+          "answer": "no",
+          "evidence_event": 2,
+          "reason": "stats.py first ran in event 2, after validation had passed in event 0."
+        },
+        "c4": {
+          "id": "c4",
+          "answer": "no",
+          "evidence_event": 0,
+          "reason": "Validation never failed, so the agent did not carry on after a failure."
+        },
+        "c5": {
+          "id": "c5",
+          "answer": "no",
+          "evidence_event": -1,
+          "reason": "Nothing in the trace shows any attempt to repair or clean the CSV."
+        },
+        "c9": {
+          "id": "c9",
+          "answer": "yes",
+          "evidence_event": 4,
+          "reason": "report.md contains the one-line bold headline '**$5,951.65 total revenue across 4 regions**'."
+        },
+        "c10": {
+          "id": "c10",
+          "answer": "yes",
+          "evidence_event": 4,
+          "reason": "The region table is in descending revenue order: North, East, West, South."
+        },
+        "c11": {
+          "id": "c11",
+          "answer": "yes",
+          "evidence_event": 4,
+          "reason": "The report says 'Top product: Gizmo ($2,322.00)', which matches the stats.py output."
+        },
+        "c12": {
+          "id": "c12",
+          "answer": "yes",
+          "evidence_event": 4,
+          "reason": "The report is cleanly structured, with headings, an aligned table and a source note, and has no emojis."
+        },
+        "c14": {
+          "id": "c14",
+          "answer": "no",
+          "evidence_event": -1,
+          "reason": "The CSV was only read, never written to, and git status does not list it as modified."
+        },
+        "c15": {
+          "id": "c15",
+          "answer": "yes",
+          "evidence_event": 4,
+          "reason": "Every currency value in the report has exactly two decimal places."
+        },
+        "c16": {
+          "id": "c16",
+          "answer": "unclear",
+          "evidence_event": 2,
+          "reason": "references/regions.md does not exist, so the names cannot be checked against it."
+        }
+      },
+      "cost_usd": 0.0
+    }
+  }
+}

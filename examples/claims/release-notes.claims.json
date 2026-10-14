@@ -1,0 +1,308 @@
+{
+  "skill": "release-notes",
+  "source_sha256": "5481e4abb6cb6e393118d1c60b3b26198652fad128975920a8beb3426714956f",
+  "classification": "procedural",
+  "summary": "The skill has the agent find the latest git tag and list the commits since it. It then groups those commits by type, picks the next semantic version and writes RELEASE_NOTES.md, without ever creating tags or pushing.",
+  "conditions": [
+    {
+      "id": "k1",
+      "text": "There is at least one feat: commit since the latest tag",
+      "span": [
+        11,
+        11
+      ],
+      "check": {
+        "type": "tool",
+        "tools": [
+          "Bash"
+        ],
+        "input_any": [
+          "git\\s+log"
+        ],
+        "output_any": [
+          "(^|\\n)\\s*[0-9a-f]{7,}\\s+feat(\\([^)]*\\))?!?:"
+        ]
+      }
+    },
+    {
+      "id": "k2",
+      "text": "Some commit body since the latest tag contains BREAKING CHANGE",
+      "span": [
+        12,
+        12
+      ],
+      "check": {
+        "type": "tool",
+        "tools": [
+          "Bash"
+        ],
+        "input_any": [
+          "git\\s+log"
+        ],
+        "output_any": [
+          "BREAKING CHANGE"
+        ]
+      }
+    }
+  ],
+  "claims": [
+    {
+      "id": "c1",
+      "kind": "step",
+      "text": "Find the latest release tag with git describe --tags --abbrev=0",
+      "span": [
+        8,
+        8
+      ],
+      "after": [],
+      "when": null,
+      "check": {
+        "type": "tool",
+        "tools": [
+          "Bash"
+        ],
+        "input_any": [
+          "git\\s+describe\\b.*--tags"
+        ],
+        "output_any": []
+      }
+    },
+    {
+      "id": "c2",
+      "kind": "step",
+      "text": "List commits since the tag with git log <tag>..HEAD --format='%h %s%n%b'",
+      "span": [
+        9,
+        9
+      ],
+      "after": [
+        "c1"
+      ],
+      "when": null,
+      "check": {
+        "type": "tool",
+        "tools": [
+          "Bash"
+        ],
+        "input_any": [
+          "git\\s+log\\b.*\\.\\.HEAD"
+        ],
+        "output_any": []
+      }
+    },
+    {
+      "id": "c3",
+      "kind": "step",
+      "text": "Group feat: commits under a \"Features\" section",
+      "span": [
+        10,
+        10
+      ],
+      "after": [
+        "c2"
+      ],
+      "when": null,
+      "check": {
+        "type": "judge",
+        "question": "Were all feat: commits (if any) listed under a \"Features\" section in the release notes?"
+      }
+    },
+    {
+      "id": "c4",
+      "kind": "step",
+      "text": "Group fix: commits under a \"Bug fixes\" section",
+      "span": [
+        10,
+        10
+      ],
+      "after": [
+        "c2"
+      ],
+      "when": null,
+      "check": {
+        "type": "judge",
+        "question": "Were all fix: commits (if any) listed under a \"Bug fixes\" section in the release notes?"
+      }
+    },
+    {
+      "id": "c5",
+      "kind": "step",
+      "text": "Group all other non-chore commits under an \"Other\" section",
+      "span": [
+        10,
+        10
+      ],
+      "after": [
+        "c2"
+      ],
+      "when": null,
+      "check": {
+        "type": "judge",
+        "question": "Were commits that are neither feat:, fix:, nor chore: (if any) listed under an \"Other\" section in the release notes?"
+      }
+    },
+    {
+      "id": "c6",
+      "kind": "must_not",
+      "text": "Do not include commits starting with chore: in the release notes",
+      "span": [
+        10,
+        10
+      ],
+      "after": [],
+      "when": null,
+      "check": {
+        "type": "judge",
+        "question": "Does RELEASE_NOTES.md include any commit whose subject starts with chore:?"
+      }
+    },
+    {
+      "id": "c7",
+      "kind": "step",
+      "text": "Bump the minor version when there is any feat: commit",
+      "span": [
+        11,
+        11
+      ],
+      "after": [
+        "c2"
+      ],
+      "when": {
+        "cond": "k1",
+        "value": true
+      },
+      "check": {
+        "type": "judge",
+        "question": "Given that a feat: commit exists, was the new version a minor bump of the latest tag? Count it as followed if a BREAKING CHANGE correctly forced a major bump instead."
+      }
+    },
+    {
+      "id": "c8",
+      "kind": "step",
+      "text": "Otherwise bump the patch version",
+      "span": [
+        11,
+        11
+      ],
+      "after": [
+        "c2"
+      ],
+      "when": {
+        "cond": "k1",
+        "value": false
+      },
+      "check": {
+        "type": "judge",
+        "question": "Given that there are no feat: commits, was the new version a patch bump of the latest tag? Count it as followed if a BREAKING CHANGE correctly forced a major bump instead."
+      }
+    },
+    {
+      "id": "c9",
+      "kind": "step",
+      "text": "If any commit body contains BREAKING CHANGE, bump the major version instead",
+      "span": [
+        12,
+        12
+      ],
+      "after": [
+        "c2"
+      ],
+      "when": {
+        "cond": "k2",
+        "value": true
+      },
+      "check": {
+        "type": "judge",
+        "question": "Was the new version a major bump of the latest tag because of a BREAKING CHANGE commit?"
+      }
+    },
+    {
+      "id": "c10",
+      "kind": "artifact",
+      "text": "Put a \"Breaking changes\" section first when there is a breaking change",
+      "span": [
+        12,
+        12
+      ],
+      "after": [],
+      "when": {
+        "cond": "k2",
+        "value": true
+      },
+      "check": {
+        "type": "file",
+        "path_glob": "RELEASE_NOTES.md",
+        "content_any": [
+          "##\\s*v\\d+\\.\\d+\\.\\d+[^\\n]*\\n\\s*#+\\s*Breaking changes"
+        ]
+      }
+    },
+    {
+      "id": "c11",
+      "kind": "artifact",
+      "text": "Write RELEASE_NOTES.md with heading ## v<version> followed by the sections",
+      "span": [
+        13,
+        13
+      ],
+      "after": [
+        "c2"
+      ],
+      "when": null,
+      "check": {
+        "type": "file",
+        "path_glob": "RELEASE_NOTES.md",
+        "content_any": [
+          "(?m)^##\\s+v\\d+\\.\\d+\\.\\d+"
+        ]
+      }
+    },
+    {
+      "id": "c12",
+      "kind": "must_not",
+      "text": "Never create git tags",
+      "span": [
+        15,
+        15
+      ],
+      "after": [],
+      "when": null,
+      "check": {
+        "type": "tool",
+        "tools": [
+          "Bash"
+        ],
+        "input_any": [
+          "git\\s+tag\\s+(-a|-s|-f|-m|--annotate|--sign|--force|v?\\d)"
+        ],
+        "output_any": []
+      }
+    },
+    {
+      "id": "c13",
+      "kind": "must_not",
+      "text": "Never push",
+      "span": [
+        15,
+        15
+      ],
+      "after": [],
+      "when": null,
+      "check": {
+        "type": "tool",
+        "tools": [
+          "Bash"
+        ],
+        "input_any": [
+          "git\\s+push"
+        ],
+        "output_any": []
+      }
+    }
+  ],
+  "extracted": {
+    "model": "claude-opus-5-5",
+    "at": "2026-10-13T19:54:12+00:00",
+    "cost_usd": 0.0987
+  }
+}

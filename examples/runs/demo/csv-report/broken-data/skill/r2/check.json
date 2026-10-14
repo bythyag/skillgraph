@@ -1,0 +1,185 @@
+{
+  "claims_sha": "e51ebdf5c8a91b38",
+  "skill_loaded": true,
+  "conditions": {
+    "k1": {
+      "value": true,
+      "method": "judge",
+      "evidence": 0,
+      "reason": "The validator reported four errors (empty region, non-integer units, negative units, malformed price) and exited with status 1."
+    }
+  },
+  "claims": {
+    "c1": {
+      "status": "satisfied",
+      "method": "tool",
+      "evidence": 0,
+      "reason": ""
+    },
+    "c3": {
+      "status": "satisfied",
+      "method": "file",
+      "evidence": 3,
+      "reason": ""
+    },
+    "c6": {
+      "status": "n/a",
+      "method": "branch",
+      "evidence": null,
+      "reason": "k1 was True"
+    },
+    "c7": {
+      "status": "n/a",
+      "method": "branch",
+      "evidence": null,
+      "reason": "k1 was True"
+    },
+    "c8": {
+      "status": "n/a",
+      "method": "branch",
+      "evidence": null,
+      "reason": "k1 was True"
+    },
+    "c13": {
+      "status": "n/a",
+      "method": "branch",
+      "evidence": null,
+      "reason": "k1 was True"
+    },
+    "c2": {
+      "status": "satisfied",
+      "method": "judge",
+      "evidence": 0,
+      "reason": "The first action was running validate.py, and no statistics were ever computed."
+    },
+    "c4": {
+      "status": "satisfied",
+      "method": "judge",
+      "evidence": 3,
+      "reason": "After validation failed, the agent only wrote ERRORS.md and stopped, so no stats, report.md or CHANGELOG entry were produced."
+    },
+    "c5": {
+      "status": "satisfied",
+      "method": "judge",
+      "evidence": null,
+      "reason": "No step in the trace tries to repair or clean the CSV, and the final file is unchanged."
+    },
+    "c9": {
+      "status": "n/a",
+      "method": "branch",
+      "evidence": null,
+      "reason": "k1 was True"
+    },
+    "c10": {
+      "status": "n/a",
+      "method": "branch",
+      "evidence": null,
+      "reason": "k1 was True"
+    },
+    "c11": {
+      "status": "n/a",
+      "method": "branch",
+      "evidence": null,
+      "reason": "k1 was True"
+    },
+    "c12": {
+      "status": "n/a",
+      "method": "branch",
+      "evidence": null,
+      "reason": "k1 was True"
+    },
+    "c14": {
+      "status": "satisfied",
+      "method": "judge",
+      "evidence": null,
+      "reason": "The CSV was only read by the validator and git status shows only ERRORS.md as new, so the input file was not modified."
+    },
+    "c15": {
+      "status": "n/a",
+      "method": "branch",
+      "evidence": null,
+      "reason": "k1 was True"
+    },
+    "c16": {
+      "status": "n/a",
+      "method": "branch",
+      "evidence": null,
+      "reason": "k1 was True"
+    }
+  },
+  "judge_items": 11,
+  "judge_cost_usd": 0.0,
+  "judge_cache": {
+    "40a6ca88a2d511aa": {
+      "verdicts": {
+        "k1": {
+          "id": "k1",
+          "answer": "yes",
+          "evidence_event": 0,
+          "reason": "The validator reported four errors (empty region, non-integer units, negative units, malformed price) and exited with status 1."
+        },
+        "c2": {
+          "id": "c2",
+          "answer": "no",
+          "evidence_event": 0,
+          "reason": "The first action was running validate.py, and no statistics were ever computed."
+        },
+        "c4": {
+          "id": "c4",
+          "answer": "no",
+          "evidence_event": 3,
+          "reason": "After validation failed, the agent only wrote ERRORS.md and stopped, so no stats, report.md or CHANGELOG entry were produced."
+        },
+        "c5": {
+          "id": "c5",
+          "answer": "no",
+          "evidence_event": -1,
+          "reason": "No step in the trace tries to repair or clean the CSV, and the final file is unchanged."
+        },
+        "c9": {
+          "id": "c9",
+          "answer": "no",
+          "evidence_event": -1,
+          "reason": "No report.md was created, so it has no headline."
+        },
+        "c10": {
+          "id": "c10",
+          "answer": "no",
+          "evidence_event": -1,
+          "reason": "No report.md was created, so it has no region revenue table."
+        },
+        "c11": {
+          "id": "c11",
+          "answer": "no",
+          "evidence_event": -1,
+          "reason": "No report.md was created, so it names no top product."
+        },
+        "c12": {
+          "id": "c12",
+          "answer": "no",
+          "evidence_event": -1,
+          "reason": "No report.md exists to judge for presentation."
+        },
+        "c14": {
+          "id": "c14",
+          "answer": "no",
+          "evidence_event": -1,
+          "reason": "The CSV was only read by the validator and git status shows only ERRORS.md as new, so the input file was not modified."
+        },
+        "c15": {
+          "id": "c15",
+          "answer": "no",
+          "evidence_event": -1,
+          "reason": "No report.md exists, so it contains no currency values."
+        },
+        "c16": {
+          "id": "c16",
+          "answer": "no",
+          "evidence_event": -1,
+          "reason": "No report.md exists, so it contains no region names."
+        }
+      },
+      "cost_usd": 0.0
+    }
+  }
+}

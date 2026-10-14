@@ -1,0 +1,912 @@
+<title>Skillgraph Report</title>
+<style>
+/* Layout: masthead + skill tabs, then a summary strip; the SKILL.md source (lines tinted by verdict)
+   sits beside a sticky claim inspector; graph, claims, ablations, run matrix and lint follow. */
+:root {
+  --bg: #f4f4f1;
+  --surface: #fcfcfb;
+  --ink: #161615;
+  --ink-2: #52514e;
+  --muted: #7d7b75;
+  --line: #e1e0d9;
+  --axis: #c3c2b7;
+  --accent: #2a78d6;
+  --accent-wash: rgba(42, 120, 214, 0.12);
+  --baseline: #8a8880;
+  --good: #0ca30c;
+  --warning: #fab219;
+  --serious: #ec835a;
+  --critical: #d03b3b;
+  --good-wash: rgba(12, 163, 12, 0.10);
+  --warning-wash: rgba(250, 178, 25, 0.16);
+  --serious-wash: rgba(236, 131, 90, 0.16);
+  --critical-wash: rgba(208, 59, 59, 0.13);
+  --neutral-wash: rgba(125, 123, 117, 0.10);
+  --code-bg: #f8f8f6;
+  --shadow: 0 1px 2px rgba(22, 22, 21, 0.06);
+  --font-ui: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --radius: 6px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f0f0e; --surface: #1a1a19; --ink: #f3f2ee; --ink-2: #c3c2b7; --muted: #94928b;
+    --line: #2c2c2a; --axis: #45443f; --accent: #3987e5; --accent-wash: rgba(57, 135, 229, 0.20);
+    --baseline: #94928b;
+    --good-wash: rgba(12, 163, 12, 0.18); --warning-wash: rgba(250, 178, 25, 0.16);
+    --serious-wash: rgba(236, 131, 90, 0.18); --critical-wash: rgba(208, 59, 59, 0.22);
+    --neutral-wash: rgba(148, 146, 139, 0.12); --code-bg: #151514; --shadow: none;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f0f0e; --surface: #1a1a19; --ink: #f3f2ee; --ink-2: #c3c2b7; --muted: #94928b;
+  --line: #2c2c2a; --axis: #45443f; --accent: #3987e5; --accent-wash: rgba(57, 135, 229, 0.20);
+  --baseline: #94928b;
+  --good-wash: rgba(12, 163, 12, 0.18); --warning-wash: rgba(250, 178, 25, 0.16);
+  --serious-wash: rgba(236, 131, 90, 0.18); --critical-wash: rgba(208, 59, 59, 0.22);
+  --neutral-wash: rgba(148, 146, 139, 0.12); --code-bg: #151514; --shadow: none;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { background: var(--bg); color: var(--ink); font: 14px/1.5 var(--font-ui); margin: 0; }
+.wrap { max-width: 1320px; margin: 0 auto; padding-inline: 16px; padding-block: 20px 64px; display: grid; gap: 28px; }
+h1, h2, h3 { text-wrap: balance; margin: 0; font-weight: 600; }
+h1 { font-size: 20px; letter-spacing: -0.01em; }
+h2 { font-size: 16px; }
+h3 { font-size: 14px; }
+p { margin: 0; }
+code, .mono { font-family: var(--font-mono); font-size: 12.5px; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* masthead */
+.masthead { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 24px; }
+.brand { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.brand .tag { font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+.runmeta { color: var(--muted); font-size: 12.5px; display: flex; gap: 16px; flex-wrap: wrap; }
+.tabs { display: flex; gap: 4px; flex-wrap: wrap; border-bottom: 1px solid var(--line); }
+.tab { background: none; border: 0; border-bottom: 2px solid transparent; padding: 8px 12px; cursor: pointer; color: var(--ink-2); font-family: var(--font-mono); font-size: 13px; margin-bottom: -1px; }
+.tab:hover { color: var(--ink); }
+.tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+.skillhead { display: grid; gap: 4px; }
+.skillhead p { color: var(--ink-2); max-width: 80ch; }
+.pill { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); border-radius: 999px; padding: 1px 9px; font-size: 12px; color: var(--ink-2); background: var(--surface); white-space: nowrap; }
+.warnbar { border: 1px solid var(--serious); background: var(--serious-wash); border-radius: var(--radius); padding: 8px 12px; }
+
+/* summary tiles */
+.tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 900px) { .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.tile { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 14px; display: grid; gap: 4px; align-content: start; box-shadow: var(--shadow); }
+.tile .label { font-size: 12px; color: var(--muted); }
+.tile .value { font-size: 26px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.15; }
+.tile .sub { font-size: 12px; color: var(--ink-2); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+
+/* verdict chips */
+.chip { display: inline-flex; align-items: center; gap: 5px; border-radius: 4px; padding: 0 6px; font-size: 12px; line-height: 20px; white-space: nowrap; border: 1px solid transparent; color: var(--ink); }
+.chip .g { font-weight: 600; width: 1em; text-align: center; }
+.q-working { background: var(--good-wash); border-color: color-mix(in srgb, var(--good) 45%, transparent); }
+.q-followed { background: var(--good-wash); border-color: color-mix(in srgb, var(--good) 30%, transparent); }
+.q-inert { background: var(--neutral-wash); border-color: var(--axis); }
+.q-ignored { background: var(--serious-wash); border-color: color-mix(in srgb, var(--serious) 55%, transparent); }
+.q-interfering { background: var(--critical-wash); border-color: color-mix(in srgb, var(--critical) 55%, transparent); }
+.q-untested { background: transparent; border-color: var(--line); color: var(--muted); }
+.q-working .g, .q-followed .g { color: var(--good); }
+.q-ignored .g { color: var(--serious); }
+.q-interfering .g { color: var(--critical); }
+.q-inert .g, .q-untested .g { color: var(--muted); }
+
+/* source + inspector */
+.workbench { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); min-width: 0; }
+.panel > header { display: flex; justify-content: space-between; align-items: baseline; gap: 8px 16px; flex-wrap: wrap; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+.panel > header .hint { font-size: 12px; color: var(--muted); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; padding: 8px 14px; border-bottom: 1px solid var(--line); font-size: 12px; color: var(--ink-2); align-items: center; }
+.legend .item { display: inline-flex; align-items: center; gap: 6px; }
+.swatch { width: 14px; height: 10px; border-radius: 2px; display: inline-block; }
+.source { overflow-x: auto; padding-block: 6px; background: var(--code-bg); border-radius: 0 0 var(--radius) var(--radius); }
+.src-line { display: grid; grid-template-columns: 3.2em 7.5em minmax(0, 1fr); align-items: start; font-family: var(--font-mono); font-size: 12.5px; line-height: 1.65; border-left: 3px solid transparent; cursor: default; }
+.src-line.has-claims { cursor: pointer; }
+.src-line:hover.has-claims { filter: brightness(0.97); }
+.src-line .ln { color: var(--muted); text-align: right; padding-right: 10px; user-select: none; font-variant-numeric: tabular-nums; }
+.src-line .gut { display: flex; flex-wrap: wrap; gap: 3px; padding: 2px 6px 0 0; }
+.src-line .txt { white-space: pre-wrap; word-break: break-word; padding-right: 12px; }
+.src-line.l-working { background: var(--good-wash); border-left-color: var(--good); }
+.src-line.l-followed { background: var(--good-wash); border-left-color: color-mix(in srgb, var(--good) 50%, transparent); }
+.src-line.l-inert { background: var(--neutral-wash); border-left-color: var(--axis); }
+.src-line.l-ignored { background: var(--serious-wash); border-left-color: var(--serious); }
+.src-line.l-interfering { background: var(--critical-wash); border-left-color: var(--critical); }
+.src-line.l-untested { border-left-color: var(--line); }
+.src-line.l-noclaim .txt { color: var(--ink-2); }
+.src-line.sel { box-shadow: inset 0 0 0 1px var(--accent); background-image: linear-gradient(var(--accent-wash), var(--accent-wash)); }
+.cid { font-family: var(--font-mono); font-size: 10.5px; line-height: 16px; padding: 0 4px; border-radius: 3px; background: var(--surface); border: 1px solid var(--line); color: var(--ink-2); cursor: pointer; }
+.cid:hover, .cid.sel { border-color: var(--accent); color: var(--ink); }
+
+.inspector { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 12px); max-height: calc(100vh - 24px); overflow: auto; }
+.insp-body { padding: 14px; display: grid; gap: 14px; }
+.insp-empty { padding: 28px 14px; color: var(--muted); }
+.insp-title { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.insp-text { font-size: 15px; line-height: 1.45; }
+.kv { display: grid; grid-template-columns: 7.5em minmax(0, 1fr); gap: 4px 10px; font-size: 12.5px; }
+.kv dt { color: var(--muted); }
+.kv dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+pre.spec { margin: 0; background: var(--code-bg); border: 1px solid var(--line); border-radius: 4px; padding: 8px 10px; font-size: 11.5px; overflow-x: auto; white-space: pre-wrap; word-break: break-word; }
+.ratebars { display: grid; gap: 6px; }
+.ratebar { display: grid; grid-template-columns: 9.5em minmax(0, 1fr) 4.5em; gap: 8px; align-items: center; font-size: 12.5px; }
+.ratebar .track { height: 8px; background: var(--line); border-radius: 4px; position: relative; overflow: hidden; }
+.ratebar .fill { position: absolute; inset: 0 auto 0 0; border-radius: 0 4px 4px 0; }
+.ratebar .num { text-align: right; font-variant-numeric: tabular-nums; color: var(--ink-2); }
+.notes { margin: 0; padding-left: 18px; color: var(--ink-2); font-size: 12.5px; display: grid; gap: 4px; }
+
+/* graph */
+.graph { height: 460px; position: relative; }
+.graph canvas { touch-action: pan-y; }
+.graph-fallback { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); padding: 16px; text-align: center; }
+
+/* tables */
+.tablewrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th { text-align: left; font-weight: 500; color: var(--muted); font-size: 12px; padding: 8px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+td { padding: 7px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+tr:last-child td { border-bottom: 0; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+tbody tr.clickable { cursor: pointer; }
+tbody tr.clickable:hover { background: var(--accent-wash); }
+tbody tr.sel { background: var(--accent-wash); }
+.claimtext { max-width: 52ch; }
+.kind { font-family: var(--font-mono); font-size: 11.5px; color: var(--ink-2); }
+.dumb { display: block; }
+
+/* run matrix */
+.matrix td, .matrix th { padding: 4px 6px; }
+.matrix th.cidh { font-family: var(--font-mono); font-size: 10.5px; text-align: center; padding: 6px 2px; cursor: pointer; }
+.matrix td.runlabel { white-space: nowrap; font-size: 12.5px; position: sticky; left: 0; background: var(--surface); }
+.cell { width: 24px; height: 22px; border-radius: 3px; display: grid; place-items: center; font-size: 12px; font-weight: 600; margin: 0 auto; }
+.s-satisfied { background: var(--good-wash); color: var(--good); }
+.s-missed { background: var(--serious-wash); color: var(--serious); }
+.s-violated { background: var(--critical-wash); color: var(--critical); }
+.s-out_of_order { background: var(--warning-wash); color: color-mix(in srgb, var(--warning) 70%, var(--ink)); }
+.s-n\/a { background: transparent; color: var(--muted); }
+.s-unclear { background: var(--neutral-wash); color: var(--muted); }
+.okmark { font-weight: 600; }
+.okmark.yes { color: var(--good); }
+.okmark.no { color: var(--critical); }
+
+/* ablations */
+.ablations { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; }
+.abl { padding: 12px 14px; display: grid; gap: 10px; align-content: start; }
+.abl pre { margin: 0; background: var(--code-bg); border: 1px solid var(--line); border-radius: 4px; padding: 6px 8px; font-size: 11.5px; white-space: pre-wrap; word-break: break-word; text-decoration: line-through; text-decoration-color: color-mix(in srgb, var(--critical) 60%, transparent); }
+.v-load-bearing { background: var(--good-wash); border-color: color-mix(in srgb, var(--good) 45%, transparent); }
+.v-no-effect { background: var(--neutral-wash); border-color: var(--axis); }
+.v-removal-helped { background: var(--warning-wash); border-color: color-mix(in srgb, var(--warning) 55%, transparent); }
+.effect { display: grid; grid-template-columns: 3.2em minmax(0, 1fr); gap: 2px 8px; font-size: 12.5px; }
+.empty { padding: 18px 14px; color: var(--muted); }
+
+/* reference process */
+.ref-tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; padding: 12px 14px; border-bottom: 1px solid var(--line); }
+.ref-tiles .tile { box-shadow: none; background: var(--code-bg); }
+@media (max-width: 900px) { .ref-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.d-ok { background: var(--good-wash); border-color: color-mix(in srgb, var(--good) 45%, transparent); }
+.d-implicit { background: var(--neutral-wash); border-color: var(--axis); }
+.d-gap, .d-conflict { background: var(--critical-wash); border-color: color-mix(in srgb, var(--critical) 55%, transparent); }
+.d-ignored { background: var(--serious-wash); border-color: color-mix(in srgb, var(--serious) 55%, transparent); }
+.d-partial { background: var(--warning-wash); border-color: color-mix(in srgb, var(--warning) 55%, transparent); }
+.d-untested { background: transparent; border-color: var(--line); color: var(--muted); }
+.d-unreached { background: var(--warning-wash); border-color: color-mix(in srgb, var(--warning) 45%, transparent); }
+.d-ok .g { color: var(--good); }
+.d-gap .g, .d-conflict .g { color: var(--critical); }
+.d-ignored .g { color: var(--serious); }
+.d-partial .g { color: color-mix(in srgb, var(--warning) 70%, var(--ink)); }
+.d-implicit .g, .d-untested .g { color: var(--muted); }
+.rel { font-size: 12px; color: var(--ink-2); }
+.cidlist { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 3px; }
+tr.hl { background: var(--accent-wash); }
+.paths { display: flex; flex-wrap: wrap; gap: 6px; padding: 10px 14px; border-bottom: 1px solid var(--line); font-size: 12px; align-items: center; }
+.stepid { font-family: var(--font-mono); font-size: 11.5px; color: var(--ink-2); }
+
+/* lint */
+.lint { list-style: none; margin: 0; padding: 0; }
+.lint li { display: grid; grid-template-columns: 4.2em 10.5em minmax(0, 1fr); gap: 4px 12px; padding: 8px 14px; border-bottom: 1px solid var(--line); font-size: 13px; align-items: baseline; }
+.lint li:last-child { border-bottom: 0; }
+.sev { font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; }
+.sev-error { color: var(--critical); }
+.sev-warn { color: color-mix(in srgb, var(--serious) 80%, var(--ink)); }
+.sev-info { color: var(--muted); }
+.rule { font-family: var(--font-mono); font-size: 12px; color: var(--ink-2); }
+.linkish { background: none; border: 0; padding: 0; color: var(--accent); cursor: pointer; font-family: var(--font-mono); font-size: 12px; }
+
+.tip { position: fixed; z-index: 20; pointer-events: none; background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 6px 9px; font-size: 12px; max-width: 360px; box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
+.tip strong { display: block; font-size: 13px; }
+.tip .t2 { color: var(--ink-2); }
+
+@media (max-width: 900px) {
+  .workbench { grid-template-columns: minmax(0, 1fr); }
+  .inspector { position: static; max-height: none; }
+  .lint li { grid-template-columns: 4.2em minmax(0, 1fr); }
+  .lint li .rule { grid-column: 2; }
+  .lint li .msg { grid-column: 1 / -1; }
+}
+@media (max-width: 520px) {
+  .src-line { grid-template-columns: 2.6em minmax(0, 1fr); }
+  .src-line .gut { grid-column: 2; padding-top: 4px; }
+  .src-line .txt { grid-column: 2; }
+  .graph { height: 380px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+
+<div class="wrap" id="app">
+  <header class="masthead">
+    <div class="brand"><h1>Skill adherence report</h1><span class="tag" id="runset"></span></div>
+    <div class="runmeta" id="runmeta"></div>
+  </header>
+  <nav class="tabs" id="tabs" role="tablist" aria-label="Skills"></nav>
+  <section class="skillhead" id="skillhead"></section>
+  <section class="tiles" id="tiles" aria-label="Summary"></section>
+
+  <section class="workbench">
+    <div class="panel">
+      <header><h2>SKILL.md</h2><span class="hint">Lines are colored by the verdict of the claims anchored to them. Click a line or a claim id.</span></header>
+      <div class="legend" id="qlegend"></div>
+      <div class="source" id="source"></div>
+    </div>
+    <aside class="panel inspector" id="inspector" aria-live="polite"></aside>
+  </section>
+
+  <section class="panel" id="refpanel" hidden>
+    <header><h2 id="ref-title">Reference process</h2><span class="hint" id="ref-hint"></span></header>
+    <div class="ref-tiles" id="ref-tiles"></div>
+    <div class="legend" id="rlegend"></div>
+    <div class="graph" id="refgraph"></div>
+    <div class="paths" id="refpaths"></div>
+    <div class="tablewrap"><table id="reftable"></table></div>
+    <ul class="lint" id="reffindings"></ul>
+  </section>
+
+  <section class="panel">
+    <header><h2>Claim graph</h2><span class="hint">One column per branch, claims in SKILL.md order. Arrows mark ordering requirements, from what must happen first.</span></header>
+    <div class="legend" id="glegend"></div>
+    <div class="graph" id="graph"><div class="graph-fallback" id="graph-fallback">Loading graph…</div></div>
+  </section>
+
+  <section class="panel">
+    <header><h2>Claims, with and without the skill</h2><span class="hint">Follow rate = runs where the claim held ÷ runs where it applied.</span></header>
+    <div class="legend">
+      <span class="item"><svg width="14" height="10" aria-hidden="true"><circle cx="7" cy="5" r="4" fill="var(--accent)"/></svg>With the skill</span>
+      <span class="item"><svg width="14" height="10" aria-hidden="true"><circle cx="7" cy="5" r="3.5" fill="var(--surface)" stroke="var(--baseline)" stroke-width="1.5"/></svg>Without the skill</span>
+    </div>
+    <div class="tablewrap"><table id="claims"></table></div>
+  </section>
+
+  <section class="grid-section" style="display:grid; gap:10px">
+    <h2>Ablations</h2>
+    <p style="color:var(--ink-2); max-width:80ch">Each card removes a span of SKILL.md, reruns the same tasks, and compares the result with the full skill. A working span that is load-bearing confirms the method; spans with no effect are candidates to trim or rewrite.</p>
+    <div class="ablations" id="ablations"></div>
+  </section>
+
+  <section class="panel">
+    <header><h2>Runs</h2><span class="hint">One row per agent run; one column per claim.</span></header>
+    <div class="legend" id="slegend"></div>
+    <div class="tablewrap"><table class="matrix" id="matrix"></table></div>
+  </section>
+
+  <section class="panel">
+    <header><h2>Static findings</h2><span class="hint">From the claim graph and the skill text, before any run.</span></header>
+    <ul class="lint" id="lint"></ul>
+  </section>
+</div>
+<div class="tip" id="tip" hidden></div>
+
+<script type="application/json" id="sg-data">/*__SKILLGRAPH_DATA__*/null</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.30.2/cytoscape.min.js"></script>
+<script>
+(() => {
+  const DATA = JSON.parse(document.getElementById("sg-data").textContent);
+  const Q = {
+    working: { g: "✓", label: "Working" },
+    inert: { g: "≡", label: "Inert" },
+    ignored: { g: "!", label: "Ignored" },
+    interfering: { g: "✕", label: "Interfering" },
+    followed: { g: "✓", label: "Followed" },
+    untested: { g: "–", label: "Untested" },
+  };
+  const Q_PRIORITY = ["interfering", "ignored", "working", "followed", "inert", "untested"];
+  const S = {
+    satisfied: { g: "✓", label: "Satisfied" },
+    missed: { g: "✗", label: "Missed" },
+    violated: { g: "⊘", label: "Violated" },
+    out_of_order: { g: "⇄", label: "Out of order" },
+    "n/a": { g: "·", label: "Not applicable (branch not taken)" },
+    unclear: { g: "?", label: "Unclear" },
+  };
+  const FAIL = { missed: "missed", violated: "violated", out_of_order: "out of order" };
+  const KIND_SHAPE = { step: "round-rectangle", artifact: "rectangle", must_read: "round-tag", must_not: "octagon" };
+  const state = { skill: 0, selected: null };
+  let cy = null;
+
+  // ---------- helpers
+  function el(tag, attrs, ...kids) {
+    const n = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs || {})) {
+      if (v == null || v === false) continue;
+      if (k === "class") n.className = v;
+      else if (k.startsWith("on")) n.addEventListener(k.slice(2), v);
+      else if (k === "dataset") Object.assign(n.dataset, v);
+      else n.setAttribute(k, v === true ? "" : v);
+    }
+    for (const kid of kids.flat(Infinity)) {
+      if (kid == null || kid === false) continue;
+      n.append(kid instanceof Node ? kid : document.createTextNode(String(kid)));
+    }
+    return n;
+  }
+  const svgEl = (tag, attrs) => {
+    const n = document.createElementNS("http://www.w3.org/2000/svg", tag);
+    for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v);
+    return n;
+  };
+  const plural = (n, word) => `${n} ${word}${n === 1 ? "" : "s"}`;
+  const pct = (x) => (x == null ? "–" : `${Math.round(x * 100)}%`);
+  const variantLabel = (v) => v === "skill" ? "With skill" : v === "baseline" ? "Without skill"
+    : v.startsWith("ablate-") ? `Without ${v.slice(7).replace(/^L(\d+)-\1$/, "L$1")}` : v;
+  const chip = (quad, weak) => el("span", { class: `chip q-${quad}`, title: weak ? "Based on fewer than 3 runs per variant" : null },
+    el("span", { class: "g", "aria-hidden": "true" }, Q[quad].g), Q[quad].label + (weak ? " (weak)" : ""));
+  const token = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  const skill = () => DATA.skills[state.skill];
+
+  // ---------- tooltip
+  const tip = document.getElementById("tip");
+  function bindTip(node, lines) {
+    const show = (e) => {
+      tip.replaceChildren(el("strong", {}, lines[0]), ...lines.slice(1).map((l) => el("div", { class: "t2" }, l)));
+      tip.hidden = false;
+      const r = node.getBoundingClientRect();
+      const x = e && e.clientX != null ? e.clientX : r.left + r.width / 2;
+      const y = e && e.clientY != null ? e.clientY : r.bottom;
+      const w = tip.offsetWidth, h = tip.offsetHeight;
+      tip.style.left = Math.min(window.innerWidth - w - 8, Math.max(8, x + 12)) + "px";
+      tip.style.top = (y + h + 20 > window.innerHeight ? y - h - 12 : y + 14) + "px";
+    };
+    node.addEventListener("pointermove", show);
+    node.addEventListener("focus", show);
+    node.addEventListener("pointerleave", () => (tip.hidden = true));
+    node.addEventListener("blur", () => (tip.hidden = true));
+  }
+
+  // ---------- masthead & tabs
+  function renderHead() {
+    document.getElementById("runset").textContent = DATA.runset;
+    const meta = document.getElementById("runmeta");
+    meta.replaceChildren(
+      el("span", {}, `Agent model: ${DATA.model || "?"}`),
+      el("span", {}, `Skill loading: ${DATA.trigger === "auto" ? "agent decides" : "invoked by name"}`),
+      el("span", {}, `Generated ${DATA.generated}`),
+    );
+    const tabs = document.getElementById("tabs");
+    tabs.replaceChildren(...DATA.skills.map((s, i) =>
+      el("button", { class: "tab", role: "tab", "aria-selected": String(i === state.skill), id: `tab-${i}`,
+        onclick: () => { state.skill = i; state.selected = null; history.replaceState(null, "", `#${s.skill}`); renderSkill(); renderHead(); } }, s.skill)));
+  }
+
+  // ---------- summary
+  function renderSkillHead() {
+    const s = skill();
+    const head = document.getElementById("skillhead");
+    const t = s.totals;
+    head.replaceChildren(...[
+      el("div", { class: "chips" }, el("span", { class: "pill" }, s.classification), el("span", { class: "pill" }, `${s.claims.length} claims`),
+        el("span", { class: "pill" }, plural(s.conditions.length, "branch condition")), el("span", { class: "pill" }, plural(s.tasks.length, "task")),
+        el("span", { class: "pill" }, `${t.runs} runs`), el("span", { class: "pill" }, `≈ $${t.cost_usd.toFixed(2)} at API prices, incl. judging`)),
+      el("p", {}, s.summary || ""),
+      s.stale ? el("p", { class: "warnbar" }, "SKILL.md changed after these claims were extracted. Re-run `skillgraph extract` and `skillgraph check`.") : null,
+      s.stale_checks ? el("p", { class: "warnbar" }, `${plural(s.stale_checks, "run")} were graded against an older version of the claims, so their verdicts may be wrong. Run \`skillgraph check\` on this run directory.`) : null,
+    ].filter(Boolean));
+  }
+
+  function successTile(label, v) {
+    const runs = skill().runs.filter((r) => r.variant === v && r.all_success != null);
+    const ok = runs.filter((r) => r.all_success).length;
+    return el("div", { class: "tile" }, el("span", { class: "label" }, label),
+      el("span", { class: "value" }, runs.length ? `${ok} / ${runs.length}` : "–"),
+      el("span", { class: "sub" }, runs.length ? `${pct(ok / runs.length)} of runs passed every success check` : "no runs"));
+  }
+
+  function renderTiles() {
+    const s = skill(), t = s.totals;
+    const mech = s.claims.filter((c) => c.check.type !== "judge").length;
+    const quads = Q_PRIORITY.filter((q) => t.quadrants[q]).map((q) => {
+      const c = chip(q); c.append(` ${t.quadrants[q]}`); return c;
+    });
+    document.getElementById("tiles").replaceChildren(
+      successTile("Task success with the skill", "skill"),
+      successTile("Task success without it", "baseline"),
+      el("div", { class: "tile" }, el("span", { class: "label" }, "Claim verdicts"), el("div", { class: "chips" }, quads),
+        el("span", { class: "sub" }, "Compares follow rates with and without the skill.")),
+      el("div", { class: "tile" }, el("span", { class: "label" }, "Checked mechanically"), el("span", { class: "value" }, pct(t.mechanical_share)),
+        el("span", { class: "sub" }, `${mech} of ${s.claims.length} claims; the rest go to a judge model`)),
+    );
+  }
+
+  // ---------- source view
+  function lineQuads(s) {
+    const map = new Map();
+    for (const c of s.claims) for (let ln = c.span[0]; ln <= c.span[1]; ln++) {
+      if (!map.has(ln)) map.set(ln, []);
+      map.get(ln).push(c);
+    }
+    return map;
+  }
+
+  function renderLegend(id, entries) {
+    document.getElementById(id).replaceChildren(...entries);
+  }
+
+  function renderSource() {
+    const s = skill();
+    const byLine = lineQuads(s);
+    const starts = new Map();
+    for (const c of s.claims) { if (!starts.has(c.span[0])) starts.set(c.span[0], []); starts.get(c.span[0]).push(c); }
+    for (const k of s.conditions) { if (!starts.has(k.span[0])) starts.set(k.span[0], []); starts.get(k.span[0]).push({ ...k, isCond: true }); }
+    const noClaim = new Set();
+    for (const f of s.lint) if (f.rule === "no-claims" && f.span) for (let ln = f.span[0]; ln <= f.span[1]; ln++) noClaim.add(ln);
+    const sel = s.claims.find((c) => c.id === state.selected) || s.conditions.find((k) => k.id === state.selected);
+
+    const rows = s.lines.map((text, i) => {
+      const ln = i + 1;
+      const claims = byLine.get(ln) || [];
+      const quad = claims.length ? Q_PRIORITY.find((q) => claims.some((c) => c.quadrant === q)) : null;
+      const cls = ["src-line", quad ? `l-${quad}` : "", noClaim.has(ln) ? "l-noclaim" : "", claims.length ? "has-claims" : "",
+        sel && ln >= sel.span[0] && ln <= sel.span[1] ? "sel" : ""].join(" ");
+      const gut = el("span", { class: "gut" }, (starts.get(ln) || []).map((c) => {
+        const b = el("button", { class: `cid${state.selected === c.id ? " sel" : ""}`, type: "button",
+          "aria-label": `Select ${c.id}`, onclick: (e) => { e.stopPropagation(); select(c.id); } }, c.id);
+        bindTip(b, c.isCond ? [`${c.id} · condition`, c.text] : [`${c.id} · ${Q[c.quadrant].label}`, c.text,
+          `With skill ${pct(c.skill_rate)} · without ${pct(c.baseline_rate)}`]);
+        return b;
+      }));
+      const row = el("div", { class: cls, id: `L${ln}`, onclick: claims.length ? () => select(claims[0].id) : null },
+        el("span", { class: "ln" }, ln), gut, el("span", { class: "txt" }, text || " "));
+      if (noClaim.has(ln)) bindTip(row.lastChild, ["No checkable instruction", "The extractor found nothing to verify on this line."]);
+      return row;
+    });
+    document.getElementById("source").replaceChildren(...rows);
+
+    renderLegend("qlegend", Q_PRIORITY.filter((q) => s.claims.some((c) => c.quadrant === q)).map((q) => {
+      const c = chip(q); bindTip(c, [Q[q].label, DATA.quadrants[q]]); c.tabIndex = 0; return c;
+    }));
+  }
+
+  // ---------- inspector
+  function rateBar(label, r, color) {
+    const fill = el("span", { class: "fill" });
+    fill.style.width = r && r.followed != null ? `${r.followed * 100}%` : "0";
+    fill.style.background = color;
+    const counts = r ? Object.entries(r.counts).map(([k, v]) => `${v} ${k}`).join(", ") : "";
+    const row = el("div", { class: "ratebar" }, el("span", {}, label), el("span", { class: "track" }, fill),
+      el("span", { class: "num" }, r && r.followed != null ? `${pct(r.followed)} (${r.n})` : "n/a"));
+    if (counts) bindTip(row, [label, counts]);
+    return row;
+  }
+
+  function renderInspector() {
+    const s = skill();
+    const box = document.getElementById("inspector");
+    const c = s.claims.find((x) => x.id === state.selected);
+    const k = !c && s.conditions.find((x) => x.id === state.selected);
+    if (!c && !k) {
+      const worst = s.claims.filter((x) => x.quadrant === "ignored" || x.quadrant === "interfering");
+      box.replaceChildren(el("header", {}, el("h2", {}, "Claim inspector")),
+        el("div", { class: "insp-empty" }, el("p", {}, "Select a claim to see its check, its follow rate in each variant, and why runs missed it."),
+          worst.length ? el("p", { style: "margin-top:10px" }, `Start with ${worst.map((x) => x.id).join(", ")}: the skill asks for these and the agent doesn't do them.`) : null));
+      return;
+    }
+    if (k) {
+      box.replaceChildren(el("header", {}, el("div", { class: "insp-title" }, el("h2", { class: "mono" }, k.id), el("span", { class: "pill" }, "condition")),
+        el("span", { class: "hint" }, `L${k.span[0]}${k.span[1] !== k.span[0] ? "–" + k.span[1] : ""}`)),
+        el("div", { class: "insp-body" }, el("p", { class: "insp-text" }, k.text),
+          el("div", { class: "ratebars" }, Object.entries(k.held).map(([v, h]) =>
+            rateBar(variantLabel(v), { followed: h.n ? h.true / h.n : null, n: h.n, counts: { "held": h.true, "did not hold": h.n - h.true } }, "var(--accent)"))),
+          el("p", { class: "hint", style: "color:var(--muted);font-size:12px" }, "Share of runs where the condition held."),
+          el("pre", { class: "spec" }, JSON.stringify(k.check, null, 2))));
+      return;
+    }
+    const dl = el("dl", { class: "kv" },
+      el("dt", {}, "Kind"), el("dd", {}, c.kind.replace("_", " ")),
+      el("dt", {}, "Lines"), el("dd", {}, `${c.span[0]}${c.span[1] !== c.span[0] ? "–" + c.span[1] : ""}`),
+      el("dt", {}, "Must follow"), el("dd", {}, c.after.length ? c.after.join(", ") : "nothing"),
+      el("dt", {}, "Applies"), el("dd", {}, c.when ? `only when ${c.when.cond} is ${c.when.value ? "true" : "false"}` : "always"),
+      el("dt", {}, "Checked by"), el("dd", {}, c.check.type === "judge" ? "judge model" : c.check.type === "tool" ? "matching tool calls" : "final files"),
+      c.failure_mode ? el("dt", {}, "Usual failure") : null, c.failure_mode ? el("dd", {}, FAIL[c.failure_mode]) : null);
+    const bars = el("div", { class: "ratebars" }, Object.entries(c.rates).map(([v, r]) =>
+      rateBar(variantLabel(v), r, v === "skill" ? "var(--accent)" : v === "baseline" ? "var(--baseline)" : "var(--serious)")));
+    box.replaceChildren(
+      el("header", {}, el("div", { class: "insp-title" }, el("h2", { class: "mono" }, c.id), chip(c.quadrant, c.weak)),
+        el("span", { class: "hint" }, DATA.quadrants[c.quadrant] + (c.weak ? " Based on fewer than 3 runs per variant; add --runs before acting on it." : ""))),
+      el("div", { class: "insp-body" }, el("p", { class: "insp-text" }, c.text), dl,
+        el("div", {}, el("h3", { style: "margin-bottom:6px" }, "Follow rate"), bars),
+        el("div", {}, el("h3", { style: "margin-bottom:6px" }, "Check"), el("pre", { class: "spec" }, JSON.stringify(c.check, null, 2))),
+        c.miss_notes.length ? el("div", {}, el("h3", { style: "margin-bottom:6px" }, "Why runs with the skill fell short"),
+          el("ul", { class: "notes" }, c.miss_notes.map((n) => el("li", {}, n)))) : null));
+  }
+
+  // ---------- graph
+  // Lane layout: one column per branch (always / condition holds / otherwise), claims in SKILL.md
+  // order down each column, arrows only for ordering requirements.
+  function graphModel(s) {
+    const byLine = (a, b) => a.span[0] - b.span[0] || a.id.localeCompare(b.id, undefined, { numeric: true });
+    const lanes = [{ key: "always", title: "Always", claims: s.claims.filter((c) => !c.when).sort(byLine) }];
+    for (const k of s.conditions) for (const val of [true, false]) {
+      const cl = s.claims.filter((c) => c.when && c.when.cond === k.id && c.when.value === val).sort(byLine);
+      if (cl.length) lanes.push({ key: `${k.id}-${val}`, cond: k.id, val, title: val ? `If ${k.id} holds` : `If ${k.id} doesn't hold`, claims: cl });
+    }
+    return lanes.filter((l) => l.claims.length);
+  }
+
+  function renderGraph() {
+    const s = skill();
+    const fb = document.getElementById("graph-fallback");
+    const box = document.getElementById("graph");
+    renderLegend("glegend", [
+      ...Q_PRIORITY.filter((q) => s.claims.some((c) => c.quadrant === q)).map(chip),
+      el("span", { class: "item" }, "Shapes: rounded = step, square = artifact, tag = must read, octagon = must not, diamond = condition"),
+    ]);
+    if (typeof cytoscape === "undefined") { fb.hidden = false; fb.textContent = "The graph view needs network access to load Cytoscape.js."; return; }
+    fb.hidden = true;
+
+    const qColor = { working: "--good", followed: "--good", inert: "--baseline", ignored: "--serious", interfering: "--critical", untested: "--axis" };
+    const short = (t, n = 46) => (t.length > n ? t.slice(0, n - 1) + "…" : t);
+    const lanes = graphModel(s);
+    const LANE_W = 250, ROW_H = 74, HEAD_Y = 0, TOP = 70, COND_Y = -90;
+    const nodes = [], edges = [];
+    lanes.forEach((lane, i) => {
+      nodes.push({ data: { id: `lane:${lane.key}`, label: lane.title, kind: "lane" }, position: { x: i * LANE_W, y: HEAD_Y }, selectable: false, grabbable: false });
+      lane.claims.forEach((c, j) => nodes.push({
+        data: { id: c.id, label: `${c.id} · ${pct(c.skill_rate)}\n${short(c.text)}`, kind: c.kind, color: token(qColor[c.quadrant]) },
+        position: { x: i * LANE_W, y: TOP + j * ROW_H },
+      }));
+    });
+    const hasConds = s.conditions.some((k) => lanes.some((l) => l.cond === k.id));
+    for (const k of s.conditions) {
+      const idx = lanes.map((l, i) => (l.cond === k.id ? i : -1)).filter((i) => i >= 0);
+      if (!idx.length) continue;
+      const x = (idx.reduce((a, b) => a + b, 0) / idx.length) * LANE_W;
+      nodes.push({ data: { id: k.id, label: `${k.id}\n${short(k.text, 36)}`, kind: "condition", color: token("--accent") }, position: { x, y: COND_Y } });
+      for (const i of idx) edges.push({ data: { id: `${k.id}=>${lanes[i].key}`, source: k.id, target: `lane:${lanes[i].key}`, kind: "branch", label: lanes[i].val ? "yes" : "no" } });
+    }
+    const at = {};
+    lanes.forEach((lane, i) => lane.claims.forEach((c, j) => (at[c.id] = { lane: i, row: j })));
+    for (const c of s.claims) for (const a of c.after) {
+      const p = at[a], q = at[c.id];
+      // An edge that would pass straight through other nodes bends around them.
+      let bow = null;
+      if (p && q && p.lane === q.lane && Math.abs(p.row - q.row) > 1) {
+        // bulge toward the side with fewer nodes in the rows it spans (outside the drawing at the edges)
+        const lo = Math.min(p.row, q.row), hi = Math.max(p.row, q.row);
+        const busy = (li) => li < 0 || li >= lanes.length ? -1 : lanes[li].claims.filter((_, r) => r > lo && r < hi).length;
+        const left = busy(p.lane - 1) <= busy(p.lane + 1);
+        bow = (left ? 1 : -1) * (q.row > p.row ? 1 : -1) * 250;
+      }
+      else if (p && q && Math.abs(p.lane - q.lane) > 1) bow = p.row === q.row ? -ROW_H / 2 : 40;
+      edges.push({ data: { id: `${a}->${c.id}`, source: a, target: c.id, kind: "precedes", ...(bow == null ? {} : { bow }) } });
+    }
+
+    // Size the box to the drawing so labels stay legible; wide drawings scroll inside the panel.
+    const longest = Math.max(...lanes.map((l) => l.claims.length));
+    const drawW = lanes.length * LANE_W + 40;
+    const drawH = TOP + longest * ROW_H + (hasConds ? -COND_Y + 40 : 40);
+    const zoom = Math.max(0.75, Math.min(1, box.clientWidth / drawW));
+    box.style.height = `${Math.round(Math.min(1100, Math.max(260, drawH * zoom + 24)))}px`;
+
+    if (cy) cy.destroy();
+    cy = cytoscape({
+      container: box,
+      elements: { nodes, edges },
+      layout: { name: "preset", fit: true, padding: 16 },
+      minZoom: 0.3, maxZoom: 2, wheelSensitivity: 0.25, autoungrabify: true,
+      style: [
+        { selector: "node", style: {
+          shape: (n) => n.data("kind") === "condition" ? "diamond" : KIND_SHAPE[n.data("kind")] || "round-rectangle",
+          "background-color": "data(color)", "background-opacity": 0.14, "border-width": 2, "border-color": "data(color)",
+          label: "data(label)", "text-wrap": "wrap", "text-max-width": 196, "font-size": 11, "font-family": token("--font-ui"),
+          color: token("--ink"), "text-valign": "center", "text-halign": "center",
+          width: (n) => n.data("kind") === "condition" ? 168 : 212, height: (n) => n.data("kind") === "condition" ? 74 : 50 } },
+        { selector: 'node[kind = "lane"]', style: {
+          shape: "round-rectangle", "background-color": token("--surface"), "background-opacity": 1, "border-width": 1, "border-color": token("--line"),
+          color: token("--ink-2"), "font-size": 12, "font-weight": 600, width: 212, height: 28, events: "no" } },
+        { selector: "node.sel", style: { "border-width": 3, "border-color": token("--accent"), "background-opacity": 0.3 } },
+        { selector: "edge", style: { width: 1.5, "line-color": token("--muted"), "target-arrow-color": token("--muted"), "target-arrow-shape": "triangle", "curve-style": "bezier", "arrow-scale": 0.9 } },
+        { selector: "edge[bow]", style: { "curve-style": "unbundled-bezier", "control-point-distances": "data(bow)", "control-point-weights": 0.5 } },
+        { selector: 'edge[kind = "branch"]', style: { "line-color": token("--accent"), "target-arrow-color": token("--accent"), label: "data(label)", "font-size": 11, color: token("--ink-2"), "text-background-color": token("--surface"), "text-background-opacity": 1, "text-background-padding": 2 } },
+      ],
+    });
+    cy.on("tap", "node", (e) => { if (e.target.data("kind") !== "lane") select(e.target.id()); });
+    cy.on("mouseover", "node", (e) => { if (e.target.data("kind") !== "lane") box.style.cursor = "pointer"; });
+    cy.on("mouseout", "node", () => { box.style.cursor = ""; });
+    if (state.selected) cy.$id(state.selected).addClass("sel");
+  }
+
+  // ---------- claims table with dumbbell
+  function dumbbell(c) {
+    const W = 150, H = 18, x0 = 6, x1 = W - 6, sx = (v) => x0 + v * (x1 - x0);
+    const svg = svgEl("svg", { width: W, height: H, viewBox: `0 0 ${W} ${H}`, class: "dumb", role: "img",
+      "aria-label": `with skill ${pct(c.skill_rate)}, without ${pct(c.baseline_rate)}` });
+    svg.append(svgEl("line", { x1: x0, x2: x1, y1: 9, y2: 9, stroke: "var(--line)", "stroke-width": 1 }));
+    for (const t of [0, 0.5, 1]) svg.append(svgEl("line", { x1: sx(t), x2: sx(t), y1: 5, y2: 13, stroke: "var(--line)", "stroke-width": 1 }));
+    if (c.skill_rate != null && c.baseline_rate != null)
+      svg.append(svgEl("line", { x1: sx(c.baseline_rate), x2: sx(c.skill_rate), y1: 9, y2: 9, stroke: "var(--axis)", "stroke-width": 2, "stroke-linecap": "round" }));
+    if (c.baseline_rate != null)
+      svg.append(svgEl("circle", { cx: sx(c.baseline_rate), cy: 9, r: 4, fill: "var(--surface)", stroke: "var(--baseline)", "stroke-width": 1.75 }));
+    if (c.skill_rate != null)
+      svg.append(svgEl("circle", { cx: sx(c.skill_rate), cy: 9, r: 4.5, fill: "var(--accent)", stroke: "var(--surface)", "stroke-width": 2 }));
+    return svg;
+  }
+
+  function renderClaimsTable() {
+    const s = skill();
+    const head = el("thead", {}, el("tr", {}, el("th", {}, "Claim"), el("th", {}, "Instruction"), el("th", {}, "Kind"), el("th", {}, "Check"),
+      el("th", {}, "0% → 100%"), el("th", { class: "num" }, "With"), el("th", { class: "num" }, "Without"),
+      el("th", { class: "num" }, "Runs"), el("th", {}, "Verdict")));
+    const rows = s.claims.map((c) => {
+      const tr = el("tr", { class: `clickable${state.selected === c.id ? " sel" : ""}`, tabindex: "0",
+        onclick: () => select(c.id), onkeydown: (e) => { if (e.key === "Enter") select(c.id); } },
+        el("td", { class: "mono" }, c.id), el("td", { class: "claimtext" }, c.text), el("td", { class: "kind" }, c.kind.replace("_", " ")),
+        el("td", { class: "kind" }, c.check.type), el("td", {}, dumbbell(c)),
+        el("td", { class: "num" }, pct(c.skill_rate)), el("td", { class: "num" }, pct(c.baseline_rate)),
+        el("td", { class: "num" }, `${c.rates.skill ? c.rates.skill.n : 0} / ${c.rates.baseline ? c.rates.baseline.n : 0}`),
+        el("td", {}, chip(c.quadrant, c.weak), c.failure_mode && c.skill_rate != null && c.skill_rate < 1
+          ? el("div", { class: "kind", style: "margin-top:2px" }, `mostly ${FAIL[c.failure_mode]}`) : null));
+      bindTip(tr.children[4], [`${c.id}`, `With skill ${pct(c.skill_rate)} (${c.rates.skill ? c.rates.skill.n : 0} runs)`,
+        `Without skill ${pct(c.baseline_rate)} (${c.rates.baseline ? c.rates.baseline.n : 0} runs)`]);
+      return tr;
+    });
+    document.getElementById("claims").replaceChildren(head, el("tbody", {}, rows));
+  }
+
+  // ---------- ablations
+  function renderAblations() {
+    const s = skill();
+    const box = document.getElementById("ablations");
+    if (!s.ablations.length) {
+      box.replaceChildren(el("div", { class: "panel empty" }, "No ablation runs for this skill yet. Run ",
+        el("code", {}, "skillgraph ablate <runs-dir>"), " to remove spans and measure what changes."));
+      return;
+    }
+    const vLabel = { "load-bearing": "Load-bearing", "no-effect": "No effect", "removal-helped": "Removal helped" };
+    box.replaceChildren(...s.ablations.map((a) => {
+      const span = a.remove[0];
+      const effects = a.effects.length ? el("div", { class: "effect" }, a.effects.map((e) => [
+        el("button", { class: "linkish", type: "button", onclick: () => select(e.id) }, e.id),
+        el("span", {}, `${pct(e.from)} → ${pct(e.to)}${e.affected ? "" : "  (side effect)"}`),
+      ])) : el("p", { style: "color:var(--muted);font-size:12.5px" }, "No claim anchored here had data to compare.");
+      return el("article", { class: "panel abl" },
+        el("div", { style: "display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center" },
+          el("h3", { class: "mono" }, span[1] !== span[0] ? `Lines ${span[0]}–${span[1]} removed` : `Line ${span[0]} removed`),
+          el("span", { class: `chip v-${a.verdict}` }, vLabel[a.verdict] || a.verdict)),
+        el("pre", {}, a.text),
+        el("p", { style: "font-size:12.5px;color:var(--ink-2)" }, a.note),
+        effects,
+        el("p", { style: "font-size:12.5px;color:var(--ink-2)" },
+          `Task success: ${pct(a.success_skill)} with these lines, ${pct(a.success_ablated)} without (${a.runs} runs).`));
+    }));
+  }
+
+  // ---------- run matrix
+  function renderMatrix() {
+    const s = skill();
+    const ids = s.claims.map((c) => c.id);
+    const head = el("thead", {}, el("tr", {}, el("th", {}, "Run"), el("th", {}, "Passed"), el("th", { class: "num" }, "Tools"),
+      el("th", { class: "num" }, "Turns"), el("th", { class: "num" }, "Cost"),
+      ids.map((id) => { const th = el("th", { class: "cidh", onclick: () => select(id), title: id }, id); return th; })));
+    const rows = s.runs.map((r) => {
+      const label = `${r.task} · ${variantLabel(r.variant)} · r${r.rep}`;
+      const passed = r.error ? el("span", { class: "okmark no" }, "error")
+        : r.all_success == null ? "–" : el("span", { class: `okmark ${r.all_success ? "yes" : "no"}` }, r.all_success ? "✓" : "✗");
+      const tr = el("tr", {}, el("td", { class: "runlabel" }, label), el("td", {}, passed),
+        el("td", { class: "num" }, r.tool_calls), el("td", { class: "num" }, r.turns ?? "–"),
+        el("td", { class: "num" }, r.cost_usd != null ? `$${r.cost_usd.toFixed(2)}` : "–"),
+        ids.map((id) => {
+          const st = r.statuses[id] || "unclear";
+          const cell = el("div", { class: `cell s-${st}`, tabindex: "0", role: "img", "aria-label": `${id}: ${S[st].label}` }, S[st].g);
+          bindTip(cell, [S[st].label, `${id} in ${label}`]);
+          return el("td", {}, cell);
+        }));
+      const checks = Object.entries(r.success).map(([k, v]) => `${v ? "✓" : "✗"} ${k}`);
+      if (checks.length || r.error) bindTip(tr.children[1], ["Success checks", ...checks, ...(r.error ? [r.error] : [])]);
+      return tr;
+    });
+    document.getElementById("matrix").replaceChildren(head, el("tbody", {}, rows));
+    renderLegend("slegend", Object.entries(S).map(([k, v]) =>
+      el("span", { class: "item" }, el("span", { class: `cell s-${k}`, style: "width:20px;height:18px;margin:0" }, v.g), v.label)));
+  }
+
+  // ---------- lint
+  function renderLint() {
+    const s = skill();
+    const list = document.getElementById("lint");
+    if (!s.lint.length) { list.replaceChildren(el("li", {}, el("span", {}), el("span", {}), el("span", { class: "msg" }, "No findings."))); return; }
+    list.replaceChildren(...s.lint.map((f) => el("li", {},
+      el("span", { class: `sev sev-${f.severity}` }, f.severity),
+      el("span", { class: "rule" }, f.rule),
+      el("span", { class: "msg" }, f.message, " ",
+        f.span ? el("button", { class: "linkish", type: "button", onclick: () => {
+          const n = document.getElementById(`L${f.span[0]}`); if (n) n.scrollIntoView({ block: "center", behavior: "smooth" });
+          if (f.ids && f.ids.length) select(f.ids[0]);
+        } }, `L${f.span[0]}`) : null))));
+  }
+
+  // ---------- reference process (coverage + correctness)
+  const D = {
+    gap: { g: "✕", label: "Gap" }, conflict: { g: "≠", label: "Conflict" }, ignored: { g: "!", label: "Ignored" },
+    partial: { g: "◐", label: "Partial" }, ok: { g: "✓", label: "OK" }, implicit: { g: "≈", label: "Implicit" },
+    untested: { g: "–", label: "Untested" }, unreached: { g: "○", label: "Unreached" },
+  };
+  const D_ORDER = ["gap", "conflict", "ignored", "partial", "unreached", "untested", "implicit", "ok"];
+  const D_COLOR = { gap: "--critical", conflict: "--critical", ignored: "--serious", partial: "--warning",
+                    ok: "--good", implicit: "--baseline", untested: "--axis", unreached: "--warning" };
+  let rcy = null;
+  const dchip = (d) => el("span", { class: `chip d-${d}` }, el("span", { class: "g", "aria-hidden": "true" }, D[d].g), D[d].label);
+
+  function highlightStep(id) {
+    document.querySelectorAll("#reftable tr.hl").forEach((r) => r.classList.remove("hl"));
+    const row = document.getElementById(`ref-${id}`);
+    if (row) { row.classList.add("hl"); row.scrollIntoView({ block: "nearest", behavior: "smooth" }); }
+  }
+
+  function renderReference() {
+    const s = skill(), R = s.reference;
+    const panel = document.getElementById("refpanel");
+    panel.hidden = !R;
+    if (!R) { if (rcy) { rcy.destroy(); rcy = null; } return; }
+    document.getElementById("ref-title").textContent = `Reference process: ${R.name}`;
+    const notes = [R.source ? `From ${R.source}.` : "", "Coverage compares the reference with the skill; correctness compares it with what agents did."];
+    if (!R.has_coverage) notes.push("Run `skillgraph coverage` to compare it with the skill.");
+    else if (R.coverage_stale) notes.push("The skill or the reference changed since coverage ran; re-run `skillgraph coverage`.");
+    if (!R.graded) notes.push("Re-run `skillgraph check` to grade runs against it.");
+    document.getElementById("ref-hint").textContent = notes.filter(Boolean).join(" ");
+
+    const sc = R.score, tested = R.paths.filter((p) => p.tested).length;
+    document.getElementById("ref-tiles").replaceChildren(
+      el("div", { class: "tile" }, el("span", { class: "label" }, "Covered by the skill"),
+        el("span", { class: "value" }, sc && sc.coverage != null ? pct(sc.coverage) : "–"),
+        el("span", { class: "sub" }, sc ? `${sc.covers} covered, ${sc.partial} partial, ${sc.missing} missing, ${sc.conflicts} conflicting of ${sc.total}` : "not compared yet")),
+      el("div", { class: "tile" }, el("span", { class: "label" }, "Steps done with the skill"),
+        el("span", { class: "value" }, pct(R.correctness.skill)), el("span", { class: "sub" }, "mean follow rate over reference steps")),
+      el("div", { class: "tile" }, el("span", { class: "label" }, "Steps done without it"),
+        el("span", { class: "value" }, pct(R.correctness.baseline)), el("span", { class: "sub" }, "same steps, baseline runs")),
+      el("div", { class: "tile" }, el("span", { class: "label" }, "Paths tested"),
+        el("span", { class: "value" }, `${tested} / ${R.paths.length}`),
+        el("span", { class: "sub" }, tested < R.paths.length ? "`skillgraph tasks --untested-in` drafts the rest" : "every path has a run")),
+    );
+    renderLegend("rlegend", D_ORDER.filter((d) => R.nodes.some((n) => n.diagnosis === d)).map((d) => {
+      const c = dchip(d); c.tabIndex = 0; bindTip(c, [D[d].label, R.diagnoses[d]]); return c;
+    }));
+
+    document.getElementById("refpaths").replaceChildren(el("span", { class: "rel" }, "Paths:"), ...R.paths.map((p) => {
+      const c = el("span", { class: `chip ${p.tested ? "d-ok" : "d-untested"}`, tabindex: "0" },
+        el("span", { class: "g", "aria-hidden": "true" }, p.tested ? "✓" : "–"), p.id.replace(/^path-/, ""));
+      bindTip(c, [p.tested ? "Tested" : "No run took this path", p.steps.map((st) => st.label ? `${st.node} → ${st.label}` : st.node).join("  ·  ")]);
+      return c;
+    }));
+
+    const relText = { covers: "covers", partial: "partial", conflicts: "conflicts", missing: "not in the skill", unknown: "not compared" };
+    const rateCell = (n, key) => n.kind === "decision" ? "" : pct(n[key]);
+    const head = el("thead", {}, el("tr", {}, el("th", {}, "Reference step"), el("th", {}, "In the skill"),
+      el("th", { class: "num" }, "With"), el("th", { class: "num" }, "Without"), el("th", {}, "Diagnosis")));
+    const rows = R.nodes.map((n) => {
+      const held = n.kind === "decision" ? Object.entries(n.held || {}).map(([k, v]) => `${k}: ${v}`).join(" · ") : "";
+      const tr = el("tr", { id: `ref-${n.id}` },
+        el("td", { class: "claimtext" }, el("div", { class: "stepid" }, `${n.id} · ${n.kind}`), n.text,
+          held ? el("div", { class: "rel" }, `runs with the skill: ${held}`) : null),
+        el("td", {}, el("div", { class: "rel" }, relText[n.relation] || n.relation),
+          n.claims.length ? el("div", { class: "cidlist" }, n.claims.map((cid) =>
+            el("button", { class: "cid", type: "button", onclick: () => { select(cid); document.getElementById("source").scrollIntoView({ block: "start", behavior: "smooth" }); } }, cid))) : null,
+          n.note ? el("div", { class: "rel" }, n.note) : null),
+        el("td", { class: "num" }, rateCell(n, "rate_with")), el("td", { class: "num" }, rateCell(n, "rate_without")),
+        el("td", {}, dchip(n.diagnosis)));
+      bindTip(tr.lastChild, [D[n.diagnosis].label, R.diagnoses[n.diagnosis]]);
+      return tr;
+    });
+    document.getElementById("reftable").replaceChildren(head, el("tbody", {}, rows));
+
+    const findings = [...R.findings];
+    document.getElementById("reffindings").replaceChildren(...(findings.length ? findings.map((f) => el("li", {},
+      el("span", { class: `sev sev-${f.severity}` }, f.severity), el("span", { class: "rule" }, f.rule),
+      el("span", { class: "msg" }, f.message, " ", ...(f.claims || []).map((cid) => el("button", { class: "linkish", type: "button", onclick: () => select(cid) }, cid)),
+        f.ref ? el("button", { class: "linkish", type: "button", onclick: () => highlightStep(f.ref) }, ` ${f.ref}`) : null))) :
+      [el("li", {}, el("span", {}), el("span", {}), el("span", { class: "msg" }, "No coverage findings."))]));
+    renderRefGraph();
+  }
+
+  function renderRefGraph() {
+    const R = skill().reference;
+    const box = document.getElementById("refgraph");
+    if (!R || typeof cytoscape === "undefined") return;
+    const byId = Object.fromEntries(R.nodes.map((n) => [n.id, n]));
+    const short = (t, n = 44) => (t.length > n ? t.slice(0, n - 1) + "…" : t);
+    const treeNodes = R.nodes.filter((n) => n.kind !== "rule");
+    const edges = R.edges.filter((e) => byId[e.source] && byId[e.target]);
+    // Layered layout: a node sits one row below its deepest parent (longest path from the root),
+    // siblings side by side in first-seen order. Fixed spacing keeps labels at full size.
+    const depth = { [R.root]: 0 };
+    for (let pass = 0; pass < treeNodes.length; pass++) {
+      let changed = false;
+      for (const e of edges) {
+        if (e.source in depth && (depth[e.target] ?? -1) < depth[e.source] + 1 && depth[e.source] + 1 < treeNodes.length) {
+          depth[e.target] = depth[e.source] + 1; changed = true;
+        }
+      }
+      if (!changed) break;
+    }
+    const order = []; const seen = new Set(); const queue = [R.root];
+    while (queue.length) {
+      const id = queue.shift();
+      if (seen.has(id) || !byId[id]) continue;
+      seen.add(id); order.push(id);
+      edges.filter((e) => e.source === id).forEach((e) => queue.push(e.target));
+    }
+    const rows = {};
+    order.forEach((id) => { const d = depth[id] ?? 0; (rows[d] = rows[d] || []).push(id); });
+    const COL = 236, ROW = 92, pos = {};
+    Object.entries(rows).forEach(([d, ids]) => ids.forEach((id, i) => { pos[id] = { x: (i - (ids.length - 1) / 2) * COL, y: Number(d) * ROW }; }));
+    const levels = Object.keys(rows).length;
+    const widest = Math.max(1, ...Object.values(rows).map((r) => r.length));
+    const zoom = Math.max(0.6, Math.min(1, box.clientWidth / (widest * COL + 40)));
+    box.style.height = `${Math.round(Math.min(1400, Math.max(300, (levels * ROW + 40) * zoom + 24)))}px`;
+    if (rcy) rcy.destroy();
+    rcy = cytoscape({
+      container: box,
+      elements: {
+        nodes: treeNodes.filter((n) => pos[n.id]).map((n) => ({ position: pos[n.id], data: { id: n.id, kind: n.kind, color: token(D_COLOR[n.diagnosis] || "--axis"),
+          label: `${n.id}${n.kind === "decision" ? "" : " · " + pct(n.rate_with)}\n${short(n.text)}` } })),
+        edges: edges.filter((e) => pos[e.source] && pos[e.target]).map((e, i) => ({ data: { id: `re${i}`, source: e.source, target: e.target, label: e.label } })),
+      },
+      layout: { name: "preset", fit: true, padding: 16 },
+      minZoom: 0.3, maxZoom: 2, wheelSensitivity: 0.25, autoungrabify: true,
+      style: [
+        { selector: "node", style: { shape: (n) => n.data("kind") === "decision" ? "diamond" : n.data("kind") === "end" ? "round-tag" : "round-rectangle",
+          "background-color": "data(color)", "background-opacity": 0.14, "border-width": 2, "border-color": "data(color)",
+          label: "data(label)", "text-wrap": "wrap", "text-max-width": 180, "font-size": 11, "font-family": token("--font-ui"),
+          color: token("--ink"), "text-valign": "center", "text-halign": "center",
+          width: (n) => n.data("kind") === "decision" ? 176 : 204, height: (n) => n.data("kind") === "decision" ? 72 : 50 } },
+        { selector: "edge", style: { width: 1.5, "line-color": token("--muted"), "target-arrow-color": token("--muted"),
+          "target-arrow-shape": "triangle", "curve-style": "bezier", label: "data(label)", "font-size": 11,
+          color: token("--ink-2"), "text-background-color": token("--surface"), "text-background-opacity": 1, "text-background-padding": 2 } },
+      ],
+    });
+    rcy.on("tap", "node", (e) => highlightStep(e.target.id()));
+  }
+
+  function renderGraphs() { renderGraph(); renderRefGraph(); }
+
+  // ---------- selection
+  function select(id) {
+    state.selected = state.selected === id ? null : id;
+    renderSource(); renderInspector(); renderClaimsTable();
+    if (cy) { cy.nodes().removeClass("sel"); if (state.selected) cy.$id(state.selected).addClass("sel"); }
+  }
+
+  function renderSkill() {
+    renderSkillHead(); renderTiles(); renderSource(); renderInspector(); renderGraph(); renderReference();
+    renderClaimsTable(); renderAblations(); renderMatrix(); renderLint();
+  }
+
+  if (!DATA || !DATA.skills || !DATA.skills.length) {
+    document.getElementById("app").replaceChildren(el("p", { class: "empty" }, "No checked runs in this run set yet."));
+    return;
+  }
+  const fromHash = () => DATA.skills.findIndex((s) => s.skill === location.hash.slice(1));
+  if (fromHash() >= 0) state.skill = fromHash();
+  window.addEventListener("hashchange", () => {
+    const i = fromHash();
+    if (i >= 0 && i !== state.skill) { state.skill = i; state.selected = null; renderHead(); renderSkill(); }
+  });
+  renderHead();
+  renderSkill();
+  const mq = window.matchMedia("(prefers-color-scheme: dark)");
+  if (mq.addEventListener) mq.addEventListener("change", renderGraphs);
+  new MutationObserver(renderGraphs).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+})();
+</script>

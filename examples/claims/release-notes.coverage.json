@@ -1,0 +1,411 @@
+{
+  "skill": "release-notes",
+  "reference": "release-sop",
+  "reference_sha": "80a708b9d11847de",
+  "claims_sha": "95bfaa38893be9a9",
+  "model": "claude:claude-opus-5-5",
+  "cost_usd": 0.0448,
+  "alignment": {
+    "nodes": [
+      {
+        "ref": "tag",
+        "claims": [
+          "c1"
+        ],
+        "relation": "covers",
+        "note": "c1 finds the latest release tag with git describe."
+      },
+      {
+        "ref": "commits",
+        "claims": [
+          "c2"
+        ],
+        "relation": "covers",
+        "note": "c2 lists the commits since the tag with git log."
+      },
+      {
+        "ref": "any",
+        "claims": [],
+        "relation": "missing",
+        "note": "The skill never checks whether there are any commits since the tag."
+      },
+      {
+        "ref": "nothing",
+        "claims": [],
+        "relation": "missing",
+        "note": "There is no end state for reporting that there is nothing to release."
+      },
+      {
+        "ref": "breaking",
+        "claims": [
+          "k2",
+          "c9"
+        ],
+        "relation": "covers",
+        "note": "k2 and c9 handle the BREAKING CHANGE fork and make major take priority."
+      },
+      {
+        "ref": "major",
+        "claims": [
+          "c9"
+        ],
+        "relation": "covers",
+        "note": "c9 bumps the major version on a breaking change."
+      },
+      {
+        "ref": "feat",
+        "claims": [
+          "k1",
+          "c7",
+          "c8"
+        ],
+        "relation": "covers",
+        "note": "k1 with c7 and c8 handles the feat: fork with both branches."
+      },
+      {
+        "ref": "minor",
+        "claims": [
+          "c7"
+        ],
+        "relation": "covers",
+        "note": "c7 bumps the minor version when there is a feat: commit."
+      },
+      {
+        "ref": "patch",
+        "claims": [
+          "c8"
+        ],
+        "relation": "covers",
+        "note": "c8 bumps the patch version otherwise."
+      },
+      {
+        "ref": "migration",
+        "claims": [
+          "c10"
+        ],
+        "relation": "partial",
+        "note": "c10 puts the Breaking changes section first but asks for no migration notes for users."
+      },
+      {
+        "ref": "group",
+        "claims": [
+          "c3",
+          "c4",
+          "c5",
+          "c6"
+        ],
+        "relation": "covers",
+        "note": "c3 to c5 group commits into Features, Bug fixes and Other, and c6 leaves out chore: commits."
+      },
+      {
+        "ref": "credit",
+        "claims": [],
+        "relation": "missing",
+        "note": "The skill never credits commit authors, and its git log format leaves out the author."
+      },
+      {
+        "ref": "write",
+        "claims": [
+          "c11"
+        ],
+        "relation": "covers",
+        "note": "c11 writes RELEASE_NOTES.md headed with ## v<version>."
+      },
+      {
+        "ref": "done",
+        "claims": [],
+        "relation": "missing",
+        "note": "The skill does not say the notes are ready for review or hand them off."
+      },
+      {
+        "ref": "rule-never-create-git-tags",
+        "claims": [
+          "c12",
+          "c13"
+        ],
+        "relation": "covers",
+        "note": "c12 and c13 forbid creating tags and pushing."
+      },
+      {
+        "ref": "rule-link-every-entry-to",
+        "claims": [],
+        "relation": "missing",
+        "note": "c2 prints short hashes, but nothing tells the agent to link each entry to its commit."
+      }
+    ],
+    "extra_claims": []
+  },
+  "nodes": {
+    "tag": {
+      "relation": "covers",
+      "claims": [
+        "c1"
+      ],
+      "note": "c1 finds the latest release tag with git describe.",
+      "kind": "action",
+      "text": "Find the latest release tag"
+    },
+    "commits": {
+      "relation": "covers",
+      "claims": [
+        "c2"
+      ],
+      "note": "c2 lists the commits since the tag with git log.",
+      "kind": "action",
+      "text": "List the commits since that tag"
+    },
+    "any": {
+      "relation": "missing",
+      "claims": [],
+      "note": "The skill never checks whether there are any commits since the tag.",
+      "kind": "decision",
+      "text": "Are there any commits since the tag?"
+    },
+    "nothing": {
+      "relation": "missing",
+      "claims": [],
+      "note": "There is no end state for reporting that there is nothing to release.",
+      "kind": "end",
+      "text": "Report that there is nothing to release"
+    },
+    "breaking": {
+      "relation": "covers",
+      "claims": [
+        "k2",
+        "c9"
+      ],
+      "note": "k2 and c9 handle the BREAKING CHANGE fork and make major take priority.",
+      "kind": "decision",
+      "text": "Does any commit contain BREAKING CHANGE?"
+    },
+    "major": {
+      "relation": "covers",
+      "claims": [
+        "c9"
+      ],
+      "note": "c9 bumps the major version on a breaking change.",
+      "kind": "action",
+      "text": "Bump the major version"
+    },
+    "feat": {
+      "relation": "covers",
+      "claims": [
+        "k1",
+        "c7",
+        "c8"
+      ],
+      "note": "k1 with c7 and c8 handles the feat: fork with both branches.",
+      "kind": "decision",
+      "text": "Is there at least one feat: commit?"
+    },
+    "minor": {
+      "relation": "covers",
+      "claims": [
+        "c7"
+      ],
+      "note": "c7 bumps the minor version when there is a feat: commit.",
+      "kind": "action",
+      "text": "Bump the minor version"
+    },
+    "patch": {
+      "relation": "covers",
+      "claims": [
+        "c8"
+      ],
+      "note": "c8 bumps the patch version otherwise.",
+      "kind": "action",
+      "text": "Bump the patch version"
+    },
+    "migration": {
+      "relation": "partial",
+      "claims": [
+        "c10"
+      ],
+      "note": "c10 puts the Breaking changes section first but asks for no migration notes for users.",
+      "kind": "action",
+      "text": "Put a Breaking changes section first, with migration notes for users"
+    },
+    "group": {
+      "relation": "covers",
+      "claims": [
+        "c3",
+        "c4",
+        "c5",
+        "c6"
+      ],
+      "note": "c3 to c5 group commits into Features, Bug fixes and Other, and c6 leaves out chore: commits.",
+      "kind": "action",
+      "text": "Group commits into Features, Bug fixes, and Other, leaving out chore: commits"
+    },
+    "credit": {
+      "relation": "missing",
+      "claims": [],
+      "note": "The skill never credits commit authors, and its git log format leaves out the author.",
+      "kind": "action",
+      "text": "Credit each commit's author"
+    },
+    "write": {
+      "relation": "covers",
+      "claims": [
+        "c11"
+      ],
+      "note": "c11 writes RELEASE_NOTES.md headed with ## v<version>.",
+      "kind": "action",
+      "text": "Write RELEASE_NOTES.md headed with the new version"
+    },
+    "done": {
+      "relation": "missing",
+      "claims": [],
+      "note": "The skill does not say the notes are ready for review or hand them off.",
+      "kind": "end",
+      "text": "Release notes are ready for review"
+    },
+    "rule-never-create-git-tags": {
+      "relation": "covers",
+      "claims": [
+        "c12",
+        "c13"
+      ],
+      "note": "c12 and c13 forbid creating tags and pushing.",
+      "kind": "rule",
+      "text": "Never create git tags or push; release managers publish the release."
+    },
+    "rule-link-every-entry-to": {
+      "relation": "missing",
+      "claims": [],
+      "note": "c2 prints short hashes, but nothing tells the agent to link each entry to its commit.",
+      "kind": "rule",
+      "text": "Link every entry to its commit hash."
+    }
+  },
+  "extra": [],
+  "branches": [
+    {
+      "decision": "any",
+      "label": "no",
+      "covered": false,
+      "nodes": [
+        "nothing"
+      ],
+      "covered_by": []
+    },
+    {
+      "decision": "any",
+      "label": "yes",
+      "covered": true,
+      "nodes": [
+        "breaking",
+        "group",
+        "credit",
+        "write",
+        "done"
+      ],
+      "covered_by": [
+        "c11",
+        "c3",
+        "c4",
+        "c5",
+        "c6",
+        "c9",
+        "k2"
+      ]
+    },
+    {
+      "decision": "breaking",
+      "label": "yes",
+      "covered": true,
+      "nodes": [
+        "major",
+        "migration"
+      ],
+      "covered_by": [
+        "c10",
+        "c9"
+      ]
+    },
+    {
+      "decision": "breaking",
+      "label": "no",
+      "covered": true,
+      "nodes": [
+        "feat"
+      ],
+      "covered_by": [
+        "c7",
+        "c8",
+        "k1"
+      ]
+    },
+    {
+      "decision": "feat",
+      "label": "yes",
+      "covered": true,
+      "nodes": [
+        "minor"
+      ],
+      "covered_by": [
+        "c7"
+      ]
+    },
+    {
+      "decision": "feat",
+      "label": "no",
+      "covered": true,
+      "nodes": [
+        "patch"
+      ],
+      "covered_by": [
+        "c8"
+      ]
+    }
+  ],
+  "order_conflicts": [],
+  "score": {
+    "covers": 10,
+    "partial": 1,
+    "conflicts": 0,
+    "missing": 3,
+    "total": 14,
+    "coverage": 0.75
+  },
+  "findings": [
+    {
+      "severity": "warn",
+      "rule": "missing-step",
+      "ref": "any",
+      "claims": [],
+      "message": "The skill never asks for any: 'Are there any commits since the tag?'."
+    },
+    {
+      "severity": "warn",
+      "rule": "missing-step",
+      "ref": "credit",
+      "claims": [],
+      "message": "The skill never asks for credit: \"Credit each commit's author\"."
+    },
+    {
+      "severity": "warn",
+      "rule": "missing-step",
+      "ref": "rule-link-every-entry-to",
+      "claims": [],
+      "message": "The skill never asks for rule-link-every-entry-to: 'Link every entry to its commit hash.'."
+    },
+    {
+      "severity": "warn",
+      "rule": "unhandled-branch",
+      "ref": "any",
+      "claims": [],
+      "message": "The skill never says what to do when any is 'no'."
+    },
+    {
+      "severity": "info",
+      "rule": "partial",
+      "ref": "migration",
+      "claims": [
+        "c10"
+      ],
+      "message": "migration is only partly covered by c10. c10 puts the Breaking changes section first but asks for no migration notes for users."
+    }
+  ],
+  "paths": 4
+}

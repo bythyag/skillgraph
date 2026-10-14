@@ -1,0 +1,421 @@
+{
+  "claims_sha": "af3952004c07b76a",
+  "skill_loaded": true,
+  "conditions": {
+    "k2": {
+      "value": true,
+      "method": "tool",
+      "evidence": 0
+    },
+    "k1": {
+      "value": false,
+      "method": "judge",
+      "evidence": 0,
+      "reason": "The commits since v1.4.2 are fix, chore, docs and fix, with no feat: commit."
+    }
+  },
+  "claims": {
+    "c1": {
+      "status": "satisfied",
+      "method": "tool",
+      "evidence": 0,
+      "reason": ""
+    },
+    "c2": {
+      "status": "satisfied",
+      "method": "tool",
+      "evidence": 0,
+      "reason": ""
+    },
+    "c10": {
+      "status": "missed",
+      "method": "file",
+      "evidence": null,
+      "reason": ""
+    },
+    "c11": {
+      "status": "satisfied",
+      "method": "file",
+      "evidence": 1,
+      "reason": ""
+    },
+    "c12": {
+      "status": "satisfied",
+      "method": "tool",
+      "evidence": null,
+      "reason": ""
+    },
+    "c13": {
+      "status": "satisfied",
+      "method": "tool",
+      "evidence": null,
+      "reason": ""
+    },
+    "c3": {
+      "status": "satisfied",
+      "method": "judge",
+      "evidence": 1,
+      "reason": "There are no feat: commits, so the rule holds trivially."
+    },
+    "c4": {
+      "status": "satisfied",
+      "method": "judge",
+      "evidence": 1,
+      "reason": "Both fix: commits are listed under Bug fixes."
+    },
+    "c5": {
+      "status": "satisfied",
+      "method": "judge",
+      "evidence": 1,
+      "reason": "The docs commit is listed under Other."
+    },
+    "c6": {
+      "status": "satisfied",
+      "method": "judge",
+      "evidence": 1,
+      "reason": "The chore commit was left out of the release notes."
+    },
+    "c7": {
+      "status": "n/a",
+      "method": "branch",
+      "evidence": null,
+      "reason": "k1 was False"
+    },
+    "c8": {
+      "status": "satisfied",
+      "method": "judge",
+      "evidence": 1,
+      "reason": "With no feat: commits, the version went from 1.4.2 to 1.4.3."
+    },
+    "c9": {
+      "status": "missed",
+      "method": "judge",
+      "evidence": 1,
+      "reason": "No commit has BREAKING CHANGE and there was no major bump."
+    }
+  },
+  "judge_items": 22,
+  "judge_cost_usd": 0.102,
+  "judge_cache": {
+    "items": {
+      "abde316c2a45ec28": {
+        "verdict": {
+          "id": "k1",
+          "answer": "no",
+          "evidence_event": 0,
+          "reason": "The commits since v1.4.2 are fix, chore, docs and fix, with no feat: commit."
+        },
+        "cost_usd": 0.00464
+      },
+      "6b1acb5c5c201f70": {
+        "verdict": {
+          "id": "ref:any=no",
+          "answer": "no",
+          "evidence_event": 0,
+          "reason": "There are four commits after v1.4.2."
+        },
+        "cost_usd": 0.00464
+      },
+      "8d1862080f6a0fe6": {
+        "verdict": {
+          "id": "ref:any=yes",
+          "answer": "yes",
+          "evidence_event": 0,
+          "reason": "The git log lists four commits since v1.4.2."
+        },
+        "cost_usd": 0.00464
+      },
+      "3a70818d849ca2bf": {
+        "verdict": {
+          "id": "ref:breaking=yes",
+          "answer": "no",
+          "evidence_event": 0,
+          "reason": "No commit message contains 'BREAKING CHANGE'; one says only 'No breaking changes'."
+        },
+        "cost_usd": 0.00464
+      },
+      "ccb6bb0fc2b8da75": {
+        "verdict": {
+          "id": "ref:breaking=no",
+          "answer": "yes",
+          "evidence_event": 0,
+          "reason": "None of the four commit messages contains the 'BREAKING CHANGE' marker."
+        },
+        "cost_usd": 0.00464
+      },
+      "cc48c6eca36cf8bf": {
+        "verdict": {
+          "id": "ref:feat=yes",
+          "answer": "no",
+          "evidence_event": 0,
+          "reason": "None of the commit subjects starts with feat:."
+        },
+        "cost_usd": 0.00464
+      },
+      "71461f9da333aecd": {
+        "verdict": {
+          "id": "ref:feat=no",
+          "answer": "yes",
+          "evidence_event": 0,
+          "reason": "None of the four commits is a feat: commit."
+        },
+        "cost_usd": 0.00464
+      },
+      "c53cc8af7c42fc3c": {
+        "verdict": {
+          "id": "c3",
+          "answer": "yes",
+          "evidence_event": 1,
+          "reason": "There are no feat: commits, so the rule holds trivially."
+        },
+        "cost_usd": 0.00464
+      },
+      "35265e8af577cf66": {
+        "verdict": {
+          "id": "c4",
+          "answer": "yes",
+          "evidence_event": 1,
+          "reason": "Both fix: commits are listed under Bug fixes."
+        },
+        "cost_usd": 0.00464
+      },
+      "7f36036aa1c40e7f": {
+        "verdict": {
+          "id": "c5",
+          "answer": "yes",
+          "evidence_event": 1,
+          "reason": "The docs commit is listed under Other."
+        },
+        "cost_usd": 0.00464
+      },
+      "34d17427db7dd842": {
+        "verdict": {
+          "id": "c6",
+          "answer": "no",
+          "evidence_event": 1,
+          "reason": "The chore commit was left out of the release notes."
+        },
+        "cost_usd": 0.00464
+      },
+      "41045db729d16452": {
+        "verdict": {
+          "id": "c7",
+          "answer": "no",
+          "evidence_event": 1,
+          "reason": "There was no feat: commit and the version got a patch bump, not a minor bump."
+        },
+        "cost_usd": 0.00464
+      },
+      "b3c755e839a3820c": {
+        "verdict": {
+          "id": "c8",
+          "answer": "yes",
+          "evidence_event": 1,
+          "reason": "With no feat: commits, the version went from 1.4.2 to 1.4.3."
+        },
+        "cost_usd": 0.00464
+      },
+      "6a16f91904e2f8a6": {
+        "verdict": {
+          "id": "c9",
+          "answer": "no",
+          "evidence_event": 1,
+          "reason": "No commit has BREAKING CHANGE and there was no major bump."
+        },
+        "cost_usd": 0.00464
+      },
+      "c9e8a9ce1e787fae": {
+        "verdict": {
+          "id": "ref:nothing",
+          "answer": "no",
+          "evidence_event": 2,
+          "reason": "The agent drafted release notes instead of saying there was nothing to release."
+        },
+        "cost_usd": 0.00464
+      },
+      "fbd2b7f4e81c8360": {
+        "verdict": {
+          "id": "ref:major",
+          "answer": "no",
+          "evidence_event": 1,
+          "reason": "The version is v1.4.3, not 2.0.0."
+        },
+        "cost_usd": 0.00464
+      },
+      "17ed3434df3d6352": {
+        "verdict": {
+          "id": "ref:minor",
+          "answer": "no",
+          "evidence_event": 1,
+          "reason": "The version is v1.4.3, not 1.5.0."
+        },
+        "cost_usd": 0.00464
+      },
+      "5e1a8cb6f68f0414": {
+        "verdict": {
+          "id": "ref:patch",
+          "answer": "yes",
+          "evidence_event": 1,
+          "reason": "The version went from 1.4.2 to 1.4.3."
+        },
+        "cost_usd": 0.00464
+      },
+      "814c0ca123ad43c7": {
+        "verdict": {
+          "id": "ref:migration",
+          "answer": "no",
+          "evidence_event": 1,
+          "reason": "The notes have no Breaking changes section."
+        },
+        "cost_usd": 0.00464
+      },
+      "4c892fa15c646169": {
+        "verdict": {
+          "id": "ref:group",
+          "answer": "yes",
+          "evidence_event": 1,
+          "reason": "Commits are grouped under Bug fixes and Other, and the chore commit is left out."
+        },
+        "cost_usd": 0.00464
+      },
+      "dcecd3d9290d88c0": {
+        "verdict": {
+          "id": "ref:credit",
+          "answer": "no",
+          "evidence_event": 1,
+          "reason": "No entry names the commit's author."
+        },
+        "cost_usd": 0.00464
+      },
+      "e5a7453431822aa2": {
+        "verdict": {
+          "id": "ref:rule-link-every-entry-to",
+          "answer": "yes",
+          "evidence_event": 1,
+          "reason": "Every entry includes its short commit hash."
+        },
+        "cost_usd": 0.00464
+      }
+    }
+  },
+  "reference": {
+    "claims": {
+      "tag": {
+        "status": "satisfied",
+        "method": "tool",
+        "evidence": 0,
+        "reason": ""
+      },
+      "commits": {
+        "status": "satisfied",
+        "method": "tool",
+        "evidence": 0,
+        "reason": ""
+      },
+      "write": {
+        "status": "satisfied",
+        "method": "file",
+        "evidence": 1,
+        "reason": ""
+      },
+      "done": {
+        "status": "satisfied",
+        "method": "file",
+        "evidence": 1,
+        "reason": ""
+      },
+      "rule-never-create-git-tags": {
+        "status": "satisfied",
+        "method": "tool",
+        "evidence": null,
+        "reason": ""
+      },
+      "nothing": {
+        "status": "n/a",
+        "method": "branch",
+        "evidence": null,
+        "reason": "ref:any=no was False"
+      },
+      "major": {
+        "status": "n/a",
+        "method": "branch",
+        "evidence": null,
+        "reason": "ref:breaking=yes was False"
+      },
+      "minor": {
+        "status": "n/a",
+        "method": "branch",
+        "evidence": null,
+        "reason": "ref:feat=yes was False"
+      },
+      "patch": {
+        "status": "satisfied",
+        "method": "judge",
+        "evidence": 1,
+        "reason": "The version went from 1.4.2 to 1.4.3."
+      },
+      "migration": {
+        "status": "n/a",
+        "method": "branch",
+        "evidence": null,
+        "reason": "ref:breaking=yes was False"
+      },
+      "group": {
+        "status": "satisfied",
+        "method": "judge",
+        "evidence": 1,
+        "reason": "Commits are grouped under Bug fixes and Other, and the chore commit is left out."
+      },
+      "credit": {
+        "status": "missed",
+        "method": "judge",
+        "evidence": 1,
+        "reason": "No entry names the commit's author."
+      },
+      "rule-link-every-entry-to": {
+        "status": "satisfied",
+        "method": "judge",
+        "evidence": 1,
+        "reason": "Every entry includes its short commit hash."
+      }
+    },
+    "conditions": {
+      "any=no": {
+        "value": false,
+        "method": "judge",
+        "evidence": 0,
+        "reason": "There are four commits after v1.4.2."
+      },
+      "any=yes": {
+        "value": true,
+        "method": "judge",
+        "evidence": 0,
+        "reason": "The git log lists four commits since v1.4.2."
+      },
+      "breaking=yes": {
+        "value": false,
+        "method": "judge",
+        "evidence": 0,
+        "reason": "No commit message contains 'BREAKING CHANGE'; one says only 'No breaking changes'."
+      },
+      "breaking=no": {
+        "value": true,
+        "method": "judge",
+        "evidence": 0,
+        "reason": "None of the four commit messages contains the 'BREAKING CHANGE' marker."
+      },
+      "feat=yes": {
+        "value": false,
+        "method": "judge",
+        "evidence": 0,
+        "reason": "None of the commit subjects starts with feat:."
+      },
+      "feat=no": {
+        "value": true,
+        "method": "judge",
+        "evidence": 0,
+        "reason": "None of the four commits is a feat: commit."
+      }
+    }
+  }
+}

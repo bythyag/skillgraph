@@ -1,0 +1,32 @@
+name: Bug report
+description: Something in skillgraph doesn't work as documented
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: The command you ran, what you expected, and what you got (paste the full error).
+    validations:
+      required: true
+  - type: textarea
+    id: doctor
+    attributes:
+      label: skillgraph doctor
+      description: Output of `skillgraph doctor` (it prints provider status and resolved models; no secrets).
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: models
+    attributes:
+      label: Models and provider
+      description: The agent, extractor and judge model specs you used, e.g. `claude:claude-opus-5-5` or `openrouter:...`.
+  - type: textarea
+    id: artifacts
+    attributes:
+      label: Relevant trace.json / check.json excerpt
+      description: >
+        Optional. Remove anything private first: traces contain your prompts, tool calls,
+        file contents, and absolute paths.
+      render: json

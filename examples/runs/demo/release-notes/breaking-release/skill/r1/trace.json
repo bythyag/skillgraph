@@ -1,0 +1,109 @@
+{
+  "skill": "release-notes",
+  "task": "breaking-release",
+  "task_prompt": "Prepare the release notes for the next release.",
+  "variant": {
+    "name": "skill",
+    "kind": "skill",
+    "remove": []
+  },
+  "rep": 1,
+  "model": "claude-opus-5-5",
+  "trigger": "invoke",
+  "enforce": false,
+  "init": {
+    "model": "claude-opus-5-5",
+    "skills": [
+      "release-notes"
+    ],
+    "tools": [
+      "Bash",
+      "Edit",
+      "Glob",
+      "Grep",
+      "Read",
+      "Skill",
+      "Write"
+    ],
+    "claude_code_version": "2.1.294",
+    "mcp_tools_visible": 122
+  },
+  "events": [
+    {
+      "i": 0,
+      "kind": "tool",
+      "id": "toolu_01FrT2rE6xNcKVmt6Tab8K1C",
+      "tool": "Bash",
+      "input": {
+        "command": "git describe --tags --abbrev=0 && git log $(git describe --tags --abbrev=0)..HEAD --format='%h %s%n%b'",
+        "description": "Find latest tag and list commits since"
+      },
+      "output": "v2.3.1\n554c5fd perf: cache parsed templates\n\n574179c chore: format with ruff\n\n1a93463 feat: load settings from config.yml\nBREAKING CHANGE: settings.ini is no longer read; move your settings to config.yml.\n\n39c8984 fix: retry failed uploads",
+      "is_error": false
+    },
+    {
+      "i": 1,
+      "kind": "tool",
+      "id": "toolu_019HrpvrKU8k218btbcWZrfM",
+      "tool": "Bash",
+      "input": {
+        "command": "ls RELEASE_NOTES.md 2>&1; cat RELEASE_NOTES.md 2>/dev/null",
+        "description": "Check for existing release notes file"
+      },
+      "output": "Exit code 1\nls: RELEASE_NOTES.md: No such file or directory",
+      "is_error": true
+    },
+    {
+      "i": 2,
+      "kind": "tool",
+      "id": "toolu_01TBhM2Yjn84dfEVvcSMk7LP",
+      "tool": "Write",
+      "input": {
+        "file_path": "/workspace/RELEASE_NOTES.md",
+        "content": "## v3.0.0\n\n### Breaking changes\n\n- `settings.ini` is no longer read; move your settings to `config.yml`. (1a93463)\n\n### Features\n\n- Load settings from `config.yml` (1a93463)\n\n### Bug fixes\n\n- Retry failed uploads (39c8984)\n\n### Other\n\n- perf: cache parsed templates (554c5fd)\n"
+      },
+      "output": "File created successfully at: /workspace/RELEASE_NOTES.md (file state is current in your context — no need to Read it back)",
+      "is_error": false
+    },
+    {
+      "i": 3,
+      "kind": "text",
+      "text": "I wrote `RELEASE_NOTES.md` for **v3.0.0**, the next release after `v2.3.1`. It's a major version bump because commit `1a93463` contains a breaking change: `settings.ini` is no longer read, so users have to move their settings to `config.yml`.\n\nSections:\n- **Breaking changes:** the move from `settings.ini` to `config.yml`\n- **Features:** settings now load from `config.yml` (the same commit)\n- **Bug fixes:** failed uploads are retried\n- **Other:** parsed templates are cached (`perf:`)\n\nI left out the `chore: format with ruff` commit. I haven't created a tag or pushed anything, so publishing is up to you."
+    }
+  ],
+  "blocked": [],
+  "result": {
+    "subtype": "success",
+    "is_error": false,
+    "num_turns": 4,
+    "duration_ms": 10712,
+    "cost_usd": 0.18121520000000002,
+    "text": "I wrote `RELEASE_NOTES.md` for **v3.0.0**, the next release after `v2.3.1`. It's a major version bump because commit `1a93463` contains a breaking change: `settings.ini` is no longer read, so users have to move their settings to `config.yml`.\n\nSections:\n- **Breaking changes:** the move from `settings.ini` to `config.yml`\n- **Features:** settings now load from `config.yml` (the same commit)\n- **Bug fixes:** failed uploads are retried\n- **Other:** parsed templates are cached (`perf:`)\n\nI left out the `chore: format with ruff` commit. I haven't created a tag or pushed anything, so publishing is up to you."
+  },
+  "error": null,
+  "wall_s": 14.2,
+  "skill_loaded": true,
+  "files": {
+    "RELEASE_NOTES.md": "## v3.0.0\n\n### Breaking changes\n\n- `settings.ini` is no longer read; move your settings to `config.yml`. (1a93463)\n\n### Features\n\n- Load settings from `config.yml` (1a93463)\n\n### Bug fixes\n\n- Retry failed uploads (39c8984)\n\n### Other\n\n- perf: cache parsed templates (554c5fd)\n",
+    "history.txt": "chore: initial commit\nfix: retry failed uploads\nfeat: load settings from config.yml\nchore: format with ruff\nperf: cache parsed templates\n"
+  },
+  "git": {
+    "tags": [
+      "v2.3.1"
+    ],
+    "log": [
+      "554c5fd perf: cache parsed templates",
+      "574179c chore: format with ruff",
+      "1a93463 feat: load settings from config.yml",
+      "39c8984 fix: retry failed uploads",
+      "562789e chore: initial commit"
+    ],
+    "status": [
+      "?? RELEASE_NOTES.md"
+    ]
+  },
+  "success": {
+    "file RELEASE_NOTES.md ~ /v3\\.0\\.0/": true,
+    "cmd test \"$(git tag -l | wc -l | tr -d ' ')\" = \"1\"": true
+  }
+}

@@ -1,0 +1,411 @@
+{
+  "claims_sha": "af3952004c07b76a",
+  "skill_loaded": false,
+  "conditions": {
+    "k1": {
+      "value": true,
+      "method": "tool",
+      "evidence": 1
+    },
+    "k2": {
+      "value": true,
+      "method": "tool",
+      "evidence": 0
+    }
+  },
+  "claims": {
+    "c1": {
+      "status": "missed",
+      "method": "tool",
+      "evidence": null,
+      "reason": ""
+    },
+    "c2": {
+      "status": "satisfied",
+      "method": "tool",
+      "evidence": 1,
+      "reason": ""
+    },
+    "c10": {
+      "status": "missed",
+      "method": "file",
+      "evidence": null,
+      "reason": ""
+    },
+    "c11": {
+      "status": "missed",
+      "method": "file",
+      "evidence": null,
+      "reason": ""
+    },
+    "c12": {
+      "status": "satisfied",
+      "method": "tool",
+      "evidence": null,
+      "reason": ""
+    },
+    "c13": {
+      "status": "satisfied",
+      "method": "tool",
+      "evidence": null,
+      "reason": ""
+    },
+    "c3": {
+      "status": "satisfied",
+      "method": "judge",
+      "evidence": 2,
+      "reason": "The config.yml feat commit is listed under a Features section."
+    },
+    "c4": {
+      "status": "satisfied",
+      "method": "judge",
+      "evidence": 2,
+      "reason": "The retry-uploads fix is listed under a Bug fixes section."
+    },
+    "c5": {
+      "status": "missed",
+      "method": "judge",
+      "evidence": 2,
+      "reason": "The perf commit went under a 'Performance' section, and there is no 'Other' section."
+    },
+    "c6": {
+      "status": "violated",
+      "method": "judge",
+      "evidence": 2,
+      "reason": "The chore commit 'format with ruff' (65a2c0b) is included under Internal."
+    },
+    "c7": {
+      "status": "satisfied",
+      "method": "judge",
+      "evidence": 2,
+      "reason": "A BREAKING CHANGE correctly forced a major bump from v2.3.1 to v3.0.0."
+    },
+    "c8": {
+      "status": "n/a",
+      "method": "branch",
+      "evidence": null,
+      "reason": "k1 was True"
+    },
+    "c9": {
+      "status": "satisfied",
+      "method": "judge",
+      "evidence": 2,
+      "reason": "The version went from v2.3.1 to v3.0.0 because of the breaking change."
+    }
+  },
+  "judge_items": 21,
+  "judge_cost_usd": 0.4769,
+  "judge_cache": {
+    "items": {
+      "c53cc8af7c42fc3c": {
+        "verdict": {
+          "id": "c3",
+          "answer": "yes",
+          "evidence_event": 2,
+          "reason": "The config.yml feat commit is listed under a Features section."
+        },
+        "cost_usd": 0.05429
+      },
+      "35265e8af577cf66": {
+        "verdict": {
+          "id": "c4",
+          "answer": "yes",
+          "evidence_event": 2,
+          "reason": "The retry-uploads fix is listed under a Bug fixes section."
+        },
+        "cost_usd": 0.05429
+      },
+      "7f36036aa1c40e7f": {
+        "verdict": {
+          "id": "c5",
+          "answer": "no",
+          "evidence_event": 2,
+          "reason": "The perf commit went under a 'Performance' section, and there is no 'Other' section."
+        },
+        "cost_usd": 0.05429
+      },
+      "34d17427db7dd842": {
+        "verdict": {
+          "id": "c6",
+          "answer": "yes",
+          "evidence_event": 2,
+          "reason": "The chore commit 'format with ruff' (65a2c0b) is included under Internal."
+        },
+        "cost_usd": 0.05429
+      },
+      "41045db729d16452": {
+        "verdict": {
+          "id": "c7",
+          "answer": "yes",
+          "evidence_event": 2,
+          "reason": "A BREAKING CHANGE correctly forced a major bump from v2.3.1 to v3.0.0."
+        },
+        "cost_usd": 0.05429
+      },
+      "b3c755e839a3820c": {
+        "verdict": {
+          "id": "c8",
+          "answer": "yes",
+          "evidence_event": 2,
+          "reason": "A feat commit exists, so this rule doesn't apply, and the breaking change correctly forced a major bump."
+        },
+        "cost_usd": 0.05429
+      },
+      "6a16f91904e2f8a6": {
+        "verdict": {
+          "id": "c9",
+          "answer": "yes",
+          "evidence_event": 2,
+          "reason": "The version went from v2.3.1 to v3.0.0 because of the breaking change."
+        },
+        "cost_usd": 0.05429
+      },
+      "6b1acb5c5c201f70": {
+        "verdict": {
+          "id": "ref:any=no",
+          "answer": "no",
+          "evidence_event": 1,
+          "reason": "git log v2.3.1..HEAD lists four commits."
+        },
+        "cost_usd": 0.00692
+      },
+      "8d1862080f6a0fe6": {
+        "verdict": {
+          "id": "ref:any=yes",
+          "answer": "yes",
+          "evidence_event": 1,
+          "reason": "Four commits exist between v2.3.1 and HEAD."
+        },
+        "cost_usd": 0.00692
+      },
+      "3a70818d849ca2bf": {
+        "verdict": {
+          "id": "ref:breaking=yes",
+          "answer": "yes",
+          "evidence_event": 0,
+          "reason": "Commit de29b3d's body contains 'BREAKING CHANGE: settings.ini is no longer read'."
+        },
+        "cost_usd": 0.00692
+      },
+      "ccb6bb0fc2b8da75": {
+        "verdict": {
+          "id": "ref:breaking=no",
+          "answer": "no",
+          "evidence_event": 0,
+          "reason": "Commit de29b3d contains BREAKING CHANGE."
+        },
+        "cost_usd": 0.00692
+      },
+      "cc48c6eca36cf8bf": {
+        "verdict": {
+          "id": "ref:feat=yes",
+          "answer": "yes",
+          "evidence_event": 1,
+          "reason": "de29b3d 'feat: load settings from config.yml' is after the tag."
+        },
+        "cost_usd": 0.00692
+      },
+      "71461f9da333aecd": {
+        "verdict": {
+          "id": "ref:feat=no",
+          "answer": "no",
+          "evidence_event": 1,
+          "reason": "There is a feat: commit since the tag."
+        },
+        "cost_usd": 0.00692
+      },
+      "c9e8a9ce1e787fae": {
+        "verdict": {
+          "id": "ref:nothing",
+          "answer": "no",
+          "evidence_event": 4,
+          "reason": "The agent wrote release notes for v3.0.0 and did not say there was nothing to release."
+        },
+        "cost_usd": 0.00692
+      },
+      "fbd2b7f4e81c8360": {
+        "verdict": {
+          "id": "ref:major",
+          "answer": "yes",
+          "evidence_event": 2,
+          "reason": "The release was labeled v3.0.0, up from v2.3.1."
+        },
+        "cost_usd": 0.00692
+      },
+      "17ed3434df3d6352": {
+        "verdict": {
+          "id": "ref:minor",
+          "answer": "no",
+          "evidence_event": 2,
+          "reason": "The agent bumped the major version, not the minor."
+        },
+        "cost_usd": 0.00692
+      },
+      "5e1a8cb6f68f0414": {
+        "verdict": {
+          "id": "ref:patch",
+          "answer": "no",
+          "evidence_event": 2,
+          "reason": "The agent bumped the major version, not the patch."
+        },
+        "cost_usd": 0.00692
+      },
+      "814c0ca123ad43c7": {
+        "verdict": {
+          "id": "ref:migration",
+          "answer": "yes",
+          "evidence_event": 3,
+          "reason": "The Breaking changes section comes first and tells users to move their settings from settings.ini into config.yml."
+        },
+        "cost_usd": 0.00692
+      },
+      "4c892fa15c646169": {
+        "verdict": {
+          "id": "ref:group",
+          "answer": "no",
+          "evidence_event": -1,
+          "reason": "The notes use Performance and Internal sections instead of Other, and they include the chore ruff commit."
+        },
+        "cost_usd": 0.00692
+      },
+      "dcecd3d9290d88c0": {
+        "verdict": {
+          "id": "ref:credit",
+          "answer": "no",
+          "evidence_event": -1,
+          "reason": "No commit authors are named in RELEASE_NOTES.md."
+        },
+        "cost_usd": 0.00692
+      },
+      "e5a7453431822aa2": {
+        "verdict": {
+          "id": "ref:rule-link-every-entry-to",
+          "answer": "yes",
+          "evidence_event": -1,
+          "reason": "Every entry in the final RELEASE_NOTES.md includes its short commit hash."
+        },
+        "cost_usd": 0.00692
+      }
+    }
+  },
+  "reference": {
+    "claims": {
+      "tag": {
+        "status": "satisfied",
+        "method": "tool",
+        "evidence": 0,
+        "reason": ""
+      },
+      "commits": {
+        "status": "satisfied",
+        "method": "tool",
+        "evidence": 1,
+        "reason": ""
+      },
+      "write": {
+        "status": "satisfied",
+        "method": "file",
+        "evidence": 3,
+        "reason": ""
+      },
+      "done": {
+        "status": "satisfied",
+        "method": "file",
+        "evidence": 3,
+        "reason": ""
+      },
+      "rule-never-create-git-tags": {
+        "status": "satisfied",
+        "method": "tool",
+        "evidence": null,
+        "reason": ""
+      },
+      "nothing": {
+        "status": "n/a",
+        "method": "branch",
+        "evidence": null,
+        "reason": "ref:any=no was False"
+      },
+      "major": {
+        "status": "satisfied",
+        "method": "judge",
+        "evidence": 2,
+        "reason": "The release was labeled v3.0.0, up from v2.3.1."
+      },
+      "minor": {
+        "status": "n/a",
+        "method": "branch",
+        "evidence": null,
+        "reason": "ref:breaking=no was False"
+      },
+      "patch": {
+        "status": "n/a",
+        "method": "branch",
+        "evidence": null,
+        "reason": "ref:breaking=no was False"
+      },
+      "migration": {
+        "status": "satisfied",
+        "method": "judge",
+        "evidence": 3,
+        "reason": "The Breaking changes section comes first and tells users to move their settings from settings.ini into config.yml."
+      },
+      "group": {
+        "status": "missed",
+        "method": "judge",
+        "evidence": null,
+        "reason": "The notes use Performance and Internal sections instead of Other, and they include the chore ruff commit."
+      },
+      "credit": {
+        "status": "missed",
+        "method": "judge",
+        "evidence": null,
+        "reason": "No commit authors are named in RELEASE_NOTES.md."
+      },
+      "rule-link-every-entry-to": {
+        "status": "satisfied",
+        "method": "judge",
+        "evidence": null,
+        "reason": "Every entry in the final RELEASE_NOTES.md includes its short commit hash."
+      }
+    },
+    "conditions": {
+      "any=no": {
+        "value": false,
+        "method": "judge",
+        "evidence": 1,
+        "reason": "git log v2.3.1..HEAD lists four commits."
+      },
+      "any=yes": {
+        "value": true,
+        "method": "judge",
+        "evidence": 1,
+        "reason": "Four commits exist between v2.3.1 and HEAD."
+      },
+      "breaking=yes": {
+        "value": true,
+        "method": "judge",
+        "evidence": 0,
+        "reason": "Commit de29b3d's body contains 'BREAKING CHANGE: settings.ini is no longer read'."
+      },
+      "breaking=no": {
+        "value": false,
+        "method": "judge",
+        "evidence": 0,
+        "reason": "Commit de29b3d contains BREAKING CHANGE."
+      },
+      "feat=yes": {
+        "value": true,
+        "method": "judge",
+        "evidence": 1,
+        "reason": "de29b3d 'feat: load settings from config.yml' is after the tag."
+      },
+      "feat=no": {
+        "value": false,
+        "method": "judge",
+        "evidence": 1,
+        "reason": "There is a feat: commit since the tag."
+      }
+    }
+  }
+}

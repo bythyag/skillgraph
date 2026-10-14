@@ -1,0 +1,435 @@
+{
+  "skill": "release-notes",
+  "reference": "release-sop",
+  "reference_sha": "80a708b9d11847de",
+  "source_sha256": "62fa5e4469125165d931839a1822a6dbec1761146275db1b765cc1302f12eb60",
+  "classification": "procedural",
+  "summary": "Release notes process",
+  "conditions": [
+    {
+      "id": "any=no",
+      "text": "There are no commits since the latest release tag.",
+      "span": [
+        4,
+        4
+      ],
+      "check": {
+        "type": "judge",
+        "question": "Based on the repository state shown in the trace, are there zero commits between the latest release tag and HEAD?"
+      },
+      "node": "any",
+      "label": "no"
+    },
+    {
+      "id": "any=yes",
+      "text": "There is at least one commit since the latest release tag.",
+      "span": [
+        5,
+        5
+      ],
+      "check": {
+        "type": "judge",
+        "question": "Based on the repository state shown in the trace, is there at least one commit between the latest release tag and HEAD?"
+      },
+      "node": "any",
+      "label": "yes"
+    },
+    {
+      "id": "breaking=yes",
+      "text": "A commit since the latest tag contains BREAKING CHANGE.",
+      "span": [
+        8,
+        8
+      ],
+      "check": {
+        "type": "judge",
+        "question": "Does any commit since the latest release tag contain 'BREAKING CHANGE' in its message?"
+      },
+      "node": "breaking",
+      "label": "yes"
+    },
+    {
+      "id": "breaking=no",
+      "text": "No commit since the latest tag contains BREAKING CHANGE.",
+      "span": [
+        9,
+        9
+      ],
+      "check": {
+        "type": "judge",
+        "question": "Is it the case that no commit since the latest release tag contains 'BREAKING CHANGE' in its message?"
+      },
+      "node": "breaking",
+      "label": "no"
+    },
+    {
+      "id": "feat=yes",
+      "text": "At least one commit since the latest tag is a feat: commit.",
+      "span": [
+        17,
+        17
+      ],
+      "check": {
+        "type": "judge",
+        "question": "Is at least one commit since the latest release tag a feat: commit (message starting with 'feat:' or 'feat(scope):')?"
+      },
+      "node": "feat",
+      "label": "yes"
+    },
+    {
+      "id": "feat=no",
+      "text": "No commit since the latest tag is a feat: commit.",
+      "span": [
+        18,
+        18
+      ],
+      "check": {
+        "type": "judge",
+        "question": "Is it the case that none of the commits since the latest release tag is a feat: commit?"
+      },
+      "node": "feat",
+      "label": "no"
+    }
+  ],
+  "claims": [
+    {
+      "id": "tag",
+      "kind": "step",
+      "text": "Find the latest release tag",
+      "span": [
+        1,
+        1
+      ],
+      "after": [],
+      "when": null,
+      "check": {
+        "type": "tool",
+        "tools": [
+          "Bash"
+        ],
+        "input_any": [
+          "git\\s+describe\\b[^\\\"]*--tags",
+          "git\\s+tag\\b(?!\\s+(-a|-s|-f|-m|-d|v?\\d))",
+          "git\\s+for-each-ref\\b[^\\\"]*refs/tags",
+          "git\\s+log\\b[^\\\"]*--decorate"
+        ],
+        "output_any": []
+      },
+      "node": "tag"
+    },
+    {
+      "id": "commits",
+      "kind": "step",
+      "text": "List the commits since that tag",
+      "span": [
+        2,
+        2
+      ],
+      "after": [
+        "tag"
+      ],
+      "when": null,
+      "check": {
+        "type": "tool",
+        "tools": [
+          "Bash"
+        ],
+        "input_any": [
+          "git\\s+(log|rev-list|shortlog)\\b[^\"]*\\S+\\.\\.(HEAD|\\s|\")",
+          "git\\s+(log|rev-list|shortlog)\\b[^\"]*\\$\\(git\\s+describe"
+        ],
+        "output_any": []
+      },
+      "node": "commits"
+    },
+    {
+      "id": "nothing",
+      "kind": "artifact",
+      "text": "Report that there is nothing to release",
+      "span": [
+        6,
+        6
+      ],
+      "after": [
+        "commits"
+      ],
+      "when": {
+        "cond": "any=no",
+        "value": true
+      },
+      "check": {
+        "type": "judge",
+        "question": "Does the agent's final answer tell the user that there are no commits since the latest tag and therefore nothing to release?"
+      },
+      "node": "nothing"
+    },
+    {
+      "id": "major",
+      "kind": "step",
+      "text": "Bump the major version",
+      "span": [
+        10,
+        10
+      ],
+      "after": [
+        "commits"
+      ],
+      "when": {
+        "cond": "breaking=yes",
+        "value": true
+      },
+      "check": {
+        "type": "judge",
+        "question": "Did the agent bump the major version relative to the latest release tag (e.g. 1.4.2 -> 2.0.0), resetting minor and patch to zero?"
+      },
+      "node": "major",
+      "when_all": [
+        {
+          "cond": "any=yes",
+          "value": true
+        },
+        {
+          "cond": "breaking=yes",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "minor",
+      "kind": "step",
+      "text": "Bump the minor version",
+      "span": [
+        19,
+        19
+      ],
+      "after": [
+        "commits"
+      ],
+      "when": {
+        "cond": "feat=yes",
+        "value": true
+      },
+      "check": {
+        "type": "judge",
+        "question": "Did the agent bump the minor version relative to the latest release tag (e.g. 1.4.2 -> 1.5.0), keeping the major version and resetting patch to zero?"
+      },
+      "node": "minor",
+      "when_all": [
+        {
+          "cond": "any=yes",
+          "value": true
+        },
+        {
+          "cond": "breaking=no",
+          "value": true
+        },
+        {
+          "cond": "feat=yes",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "patch",
+      "kind": "step",
+      "text": "Bump the patch version",
+      "span": [
+        20,
+        20
+      ],
+      "after": [
+        "commits"
+      ],
+      "when": {
+        "cond": "feat=no",
+        "value": true
+      },
+      "check": {
+        "type": "judge",
+        "question": "Did the agent bump only the patch version relative to the latest release tag (e.g. 1.4.2 -> 1.4.3)?"
+      },
+      "node": "patch",
+      "when_all": [
+        {
+          "cond": "any=yes",
+          "value": true
+        },
+        {
+          "cond": "breaking=no",
+          "value": true
+        },
+        {
+          "cond": "feat=no",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "migration",
+      "kind": "step",
+      "text": "Put a Breaking changes section first, with migration notes for users",
+      "span": [
+        11,
+        11
+      ],
+      "after": [
+        "major"
+      ],
+      "when": {
+        "cond": "breaking=yes",
+        "value": true
+      },
+      "check": {
+        "type": "judge",
+        "question": "Does RELEASE_NOTES.md have a Breaking changes section placed before all other change sections, containing migration notes that tell users what they need to change?"
+      },
+      "node": "migration",
+      "when_all": [
+        {
+          "cond": "any=yes",
+          "value": true
+        },
+        {
+          "cond": "breaking=yes",
+          "value": true
+        }
+      ]
+    },
+    {
+      "id": "group",
+      "kind": "step",
+      "text": "Group commits into Features, Bug fixes, and Other, leaving out chore: commits",
+      "span": [
+        12,
+        12
+      ],
+      "after": [
+        "migration",
+        "minor",
+        "patch"
+      ],
+      "when": {
+        "cond": "any=yes",
+        "value": true
+      },
+      "check": {
+        "type": "judge",
+        "question": "Are the commits in RELEASE_NOTES.md grouped under Features, Bug fixes, and Other sections (sections may be omitted if empty), with all chore: commits left out?"
+      },
+      "node": "group"
+    },
+    {
+      "id": "credit",
+      "kind": "step",
+      "text": "Credit each commit's author",
+      "span": [
+        13,
+        13
+      ],
+      "after": [
+        "group"
+      ],
+      "when": {
+        "cond": "any=yes",
+        "value": true
+      },
+      "check": {
+        "type": "judge",
+        "question": "Does each commit entry in RELEASE_NOTES.md credit that commit's author?"
+      },
+      "node": "credit"
+    },
+    {
+      "id": "write",
+      "kind": "step",
+      "text": "Write RELEASE_NOTES.md headed with the new version",
+      "span": [
+        14,
+        14
+      ],
+      "after": [
+        "credit"
+      ],
+      "when": {
+        "cond": "any=yes",
+        "value": true
+      },
+      "check": {
+        "type": "file",
+        "path_glob": "RELEASE_NOTES.md",
+        "content_any": [
+          "(?m)^#+\\s*.*v?\\d+\\.\\d+\\.\\d+"
+        ]
+      },
+      "node": "write"
+    },
+    {
+      "id": "done",
+      "kind": "artifact",
+      "text": "Release notes are ready for review",
+      "span": [
+        15,
+        15
+      ],
+      "after": [
+        "write"
+      ],
+      "when": {
+        "cond": "any=yes",
+        "value": true
+      },
+      "check": {
+        "type": "file",
+        "path_glob": "RELEASE_NOTES.md",
+        "content_any": []
+      },
+      "node": "done"
+    },
+    {
+      "id": "rule-never-create-git-tags",
+      "kind": "must_not",
+      "text": "Never create git tags or push; release managers publish the release.",
+      "span": [
+        21,
+        21
+      ],
+      "after": [],
+      "when": null,
+      "check": {
+        "type": "tool",
+        "tools": [
+          "Bash"
+        ],
+        "input_any": [
+          "git\\s+(-C\\s+\\S+\\s+)?push\\b",
+          "git\\s+(-C\\s+\\S+\\s+)?tag\\s+(-[asfmu]\\b|--annotate|--sign|--force|[^-\\s|;&>\"])"
+        ],
+        "output_any": []
+      },
+      "node": "rule-never-create-git-tags"
+    },
+    {
+      "id": "rule-link-every-entry-to",
+      "kind": "artifact",
+      "text": "Link every entry to its commit hash.",
+      "span": [
+        22,
+        22
+      ],
+      "after": [],
+      "when": null,
+      "check": {
+        "type": "judge",
+        "question": "Does every commit entry in RELEASE_NOTES.md include or link to that commit's hash?"
+      },
+      "node": "rule-link-every-entry-to"
+    }
+  ],
+  "extracted": {
+    "model": "claude:claude-opus-5-5",
+    "cost_usd": 1.1985
+  },
+  "review_notes": [
+    "tag: widened the listing regex; `git tag; git log ...` was a false miss because the old pattern required `git tag` to end the command"
+  ]
+}

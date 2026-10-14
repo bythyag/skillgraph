@@ -1,0 +1,431 @@
+{
+  "claims_sha": "af3952004c07b76a",
+  "skill_loaded": false,
+  "conditions": {
+    "k1": {
+      "value": false,
+      "method": "judge",
+      "evidence": 1,
+      "reason": "git log v1.1.0..HEAD returned no commits, so there are no feat: commits since the latest tag."
+    },
+    "k2": {
+      "value": false,
+      "method": "judge",
+      "evidence": 1,
+      "reason": "There are no commits since v1.1.0, so none can contain BREAKING CHANGE."
+    }
+  },
+  "claims": {
+    "c1": {
+      "status": "satisfied",
+      "method": "tool",
+      "evidence": 1,
+      "reason": ""
+    },
+    "c2": {
+      "status": "satisfied",
+      "method": "tool",
+      "evidence": 1,
+      "reason": ""
+    },
+    "c10": {
+      "status": "n/a",
+      "method": "branch",
+      "evidence": null,
+      "reason": "k2 was False"
+    },
+    "c11": {
+      "status": "missed",
+      "method": "file",
+      "evidence": null,
+      "reason": ""
+    },
+    "c12": {
+      "status": "satisfied",
+      "method": "tool",
+      "evidence": null,
+      "reason": ""
+    },
+    "c13": {
+      "status": "satisfied",
+      "method": "tool",
+      "evidence": null,
+      "reason": ""
+    },
+    "c3": {
+      "status": "missed",
+      "method": "judge",
+      "evidence": null,
+      "reason": "No release notes file was written, so no Features section exists."
+    },
+    "c4": {
+      "status": "missed",
+      "method": "judge",
+      "evidence": null,
+      "reason": "No release notes file was written."
+    },
+    "c5": {
+      "status": "missed",
+      "method": "judge",
+      "evidence": null,
+      "reason": "No release notes file was written."
+    },
+    "c6": {
+      "status": "satisfied",
+      "method": "judge",
+      "evidence": null,
+      "reason": "RELEASE_NOTES.md does not exist, so it contains no chore: commits."
+    },
+    "c7": {
+      "status": "n/a",
+      "method": "branch",
+      "evidence": null,
+      "reason": "k1 was False"
+    },
+    "c8": {
+      "status": "missed",
+      "method": "judge",
+      "evidence": null,
+      "reason": "No version bump was made at all."
+    },
+    "c9": {
+      "status": "n/a",
+      "method": "branch",
+      "evidence": null,
+      "reason": "k2 was False"
+    }
+  },
+  "judge_items": 23,
+  "judge_cost_usd": 0.1051,
+  "judge_cache": {
+    "items": {
+      "abde316c2a45ec28": {
+        "verdict": {
+          "id": "k1",
+          "answer": "no",
+          "evidence_event": 1,
+          "reason": "git log v1.1.0..HEAD returned no commits, so there are no feat: commits since the latest tag."
+        },
+        "cost_usd": 0.00457
+      },
+      "36850a8bfef5acbd": {
+        "verdict": {
+          "id": "k2",
+          "answer": "no",
+          "evidence_event": 1,
+          "reason": "There are no commits since v1.1.0, so none can contain BREAKING CHANGE."
+        },
+        "cost_usd": 0.00457
+      },
+      "6b1acb5c5c201f70": {
+        "verdict": {
+          "id": "ref:any=no",
+          "answer": "yes",
+          "evidence_event": 1,
+          "reason": "HEAD 7f290aa is itself tagged v1.1.0, and the range log is empty."
+        },
+        "cost_usd": 0.00457
+      },
+      "8d1862080f6a0fe6": {
+        "verdict": {
+          "id": "ref:any=yes",
+          "answer": "no",
+          "evidence_event": 1,
+          "reason": "There are zero commits between v1.1.0 and HEAD."
+        },
+        "cost_usd": 0.00457
+      },
+      "3a70818d849ca2bf": {
+        "verdict": {
+          "id": "ref:breaking=yes",
+          "answer": "no",
+          "evidence_event": 1,
+          "reason": "There are no commits since the latest tag."
+        },
+        "cost_usd": 0.00457
+      },
+      "ccb6bb0fc2b8da75": {
+        "verdict": {
+          "id": "ref:breaking=no",
+          "answer": "yes",
+          "evidence_event": 1,
+          "reason": "There are no commits since the tag, so none contains BREAKING CHANGE."
+        },
+        "cost_usd": 0.00457
+      },
+      "cc48c6eca36cf8bf": {
+        "verdict": {
+          "id": "ref:feat=yes",
+          "answer": "no",
+          "evidence_event": 1,
+          "reason": "There are no commits since the latest tag."
+        },
+        "cost_usd": 0.00457
+      },
+      "71461f9da333aecd": {
+        "verdict": {
+          "id": "ref:feat=no",
+          "answer": "yes",
+          "evidence_event": 1,
+          "reason": "There are no commits since the tag, so none is a feat: commit."
+        },
+        "cost_usd": 0.00457
+      },
+      "c53cc8af7c42fc3c": {
+        "verdict": {
+          "id": "c3",
+          "answer": "no",
+          "evidence_event": -1,
+          "reason": "No release notes file was written, so no Features section exists."
+        },
+        "cost_usd": 0.00457
+      },
+      "35265e8af577cf66": {
+        "verdict": {
+          "id": "c4",
+          "answer": "no",
+          "evidence_event": -1,
+          "reason": "No release notes file was written."
+        },
+        "cost_usd": 0.00457
+      },
+      "7f36036aa1c40e7f": {
+        "verdict": {
+          "id": "c5",
+          "answer": "no",
+          "evidence_event": -1,
+          "reason": "No release notes file was written."
+        },
+        "cost_usd": 0.00457
+      },
+      "34d17427db7dd842": {
+        "verdict": {
+          "id": "c6",
+          "answer": "no",
+          "evidence_event": -1,
+          "reason": "RELEASE_NOTES.md does not exist, so it contains no chore: commits."
+        },
+        "cost_usd": 0.00457
+      },
+      "41045db729d16452": {
+        "verdict": {
+          "id": "c7",
+          "answer": "no",
+          "evidence_event": -1,
+          "reason": "No feat: commit exists since the tag, and no version bump was made."
+        },
+        "cost_usd": 0.00457
+      },
+      "b3c755e839a3820c": {
+        "verdict": {
+          "id": "c8",
+          "answer": "no",
+          "evidence_event": -1,
+          "reason": "No version bump was made at all."
+        },
+        "cost_usd": 0.00457
+      },
+      "6a16f91904e2f8a6": {
+        "verdict": {
+          "id": "c9",
+          "answer": "no",
+          "evidence_event": -1,
+          "reason": "No major bump was made, and there was no BREAKING CHANGE commit."
+        },
+        "cost_usd": 0.00457
+      },
+      "c9e8a9ce1e787fae": {
+        "verdict": {
+          "id": "ref:nothing",
+          "answer": "yes",
+          "evidence_event": 2,
+          "reason": "The agent told the user nothing has been added since v1.1.0 and that it did not create the notes."
+        },
+        "cost_usd": 0.00457
+      },
+      "fbd2b7f4e81c8360": {
+        "verdict": {
+          "id": "ref:major",
+          "answer": "no",
+          "evidence_event": -1,
+          "reason": "No version bump was made."
+        },
+        "cost_usd": 0.00457
+      },
+      "17ed3434df3d6352": {
+        "verdict": {
+          "id": "ref:minor",
+          "answer": "no",
+          "evidence_event": -1,
+          "reason": "No version bump was made."
+        },
+        "cost_usd": 0.00457
+      },
+      "5e1a8cb6f68f0414": {
+        "verdict": {
+          "id": "ref:patch",
+          "answer": "no",
+          "evidence_event": -1,
+          "reason": "No version bump was made."
+        },
+        "cost_usd": 0.00457
+      },
+      "814c0ca123ad43c7": {
+        "verdict": {
+          "id": "ref:migration",
+          "answer": "no",
+          "evidence_event": -1,
+          "reason": "RELEASE_NOTES.md was not created."
+        },
+        "cost_usd": 0.00457
+      },
+      "4c892fa15c646169": {
+        "verdict": {
+          "id": "ref:group",
+          "answer": "no",
+          "evidence_event": -1,
+          "reason": "RELEASE_NOTES.md was not created."
+        },
+        "cost_usd": 0.00457
+      },
+      "dcecd3d9290d88c0": {
+        "verdict": {
+          "id": "ref:credit",
+          "answer": "no",
+          "evidence_event": -1,
+          "reason": "RELEASE_NOTES.md was not created."
+        },
+        "cost_usd": 0.00457
+      },
+      "e5a7453431822aa2": {
+        "verdict": {
+          "id": "ref:rule-link-every-entry-to",
+          "answer": "no",
+          "evidence_event": -1,
+          "reason": "RELEASE_NOTES.md was not created."
+        },
+        "cost_usd": 0.00457
+      }
+    }
+  },
+  "reference": {
+    "claims": {
+      "tag": {
+        "status": "satisfied",
+        "method": "tool",
+        "evidence": 0,
+        "reason": ""
+      },
+      "commits": {
+        "status": "satisfied",
+        "method": "tool",
+        "evidence": 1,
+        "reason": ""
+      },
+      "write": {
+        "status": "n/a",
+        "method": "branch",
+        "evidence": null,
+        "reason": "ref:any=yes was False"
+      },
+      "done": {
+        "status": "n/a",
+        "method": "branch",
+        "evidence": null,
+        "reason": "ref:any=yes was False"
+      },
+      "rule-never-create-git-tags": {
+        "status": "satisfied",
+        "method": "tool",
+        "evidence": null,
+        "reason": ""
+      },
+      "nothing": {
+        "status": "satisfied",
+        "method": "judge",
+        "evidence": 2,
+        "reason": "The agent told the user nothing has been added since v1.1.0 and that it did not create the notes."
+      },
+      "major": {
+        "status": "n/a",
+        "method": "branch",
+        "evidence": null,
+        "reason": "ref:any=yes was False"
+      },
+      "minor": {
+        "status": "n/a",
+        "method": "branch",
+        "evidence": null,
+        "reason": "ref:any=yes was False"
+      },
+      "patch": {
+        "status": "n/a",
+        "method": "branch",
+        "evidence": null,
+        "reason": "ref:any=yes was False"
+      },
+      "migration": {
+        "status": "n/a",
+        "method": "branch",
+        "evidence": null,
+        "reason": "ref:any=yes was False"
+      },
+      "group": {
+        "status": "n/a",
+        "method": "branch",
+        "evidence": null,
+        "reason": "ref:any=yes was False"
+      },
+      "credit": {
+        "status": "n/a",
+        "method": "branch",
+        "evidence": null,
+        "reason": "ref:any=yes was False"
+      },
+      "rule-link-every-entry-to": {
+        "status": "missed",
+        "method": "judge",
+        "evidence": null,
+        "reason": "RELEASE_NOTES.md was not created."
+      }
+    },
+    "conditions": {
+      "any=no": {
+        "value": true,
+        "method": "judge",
+        "evidence": 1,
+        "reason": "HEAD 7f290aa is itself tagged v1.1.0, and the range log is empty."
+      },
+      "any=yes": {
+        "value": false,
+        "method": "judge",
+        "evidence": 1,
+        "reason": "There are zero commits between v1.1.0 and HEAD."
+      },
+      "breaking=yes": {
+        "value": false,
+        "method": "judge",
+        "evidence": 1,
+        "reason": "There are no commits since the latest tag."
+      },
+      "breaking=no": {
+        "value": true,
+        "method": "judge",
+        "evidence": 1,
+        "reason": "There are no commits since the tag, so none contains BREAKING CHANGE."
+      },
+      "feat=yes": {
+        "value": false,
+        "method": "judge",
+        "evidence": 1,
+        "reason": "There are no commits since the latest tag."
+      },
+      "feat=no": {
+        "value": true,
+        "method": "judge",
+        "evidence": 1,
+        "reason": "There are no commits since the tag, so none is a feat: commit."
+      }
+    }
+  }
+}

@@ -1,0 +1,185 @@
+{
+  "claims_sha": "e51ebdf5c8a91b38",
+  "skill_loaded": false,
+  "conditions": {
+    "k1": {
+      "value": false,
+      "method": "judge",
+      "evidence": 0,
+      "reason": "Every row in data/sales.csv has well-formed date, region, product, units and unit_price values, and the script and awk both parsed them without errors."
+    }
+  },
+  "claims": {
+    "c1": {
+      "status": "missed",
+      "method": "tool",
+      "evidence": null,
+      "reason": ""
+    },
+    "c3": {
+      "status": "n/a",
+      "method": "branch",
+      "evidence": null,
+      "reason": "k1 was False"
+    },
+    "c6": {
+      "status": "missed",
+      "method": "tool",
+      "evidence": null,
+      "reason": ""
+    },
+    "c7": {
+      "status": "missed",
+      "method": "tool",
+      "evidence": null,
+      "reason": ""
+    },
+    "c8": {
+      "status": "missed",
+      "method": "file",
+      "evidence": null,
+      "reason": ""
+    },
+    "c13": {
+      "status": "missed",
+      "method": "file",
+      "evidence": null,
+      "reason": ""
+    },
+    "c2": {
+      "status": "violated",
+      "method": "judge",
+      "evidence": 2,
+      "reason": "The agent computed revenue statistics with sales_report.py and never ran any validate.py step."
+    },
+    "c4": {
+      "status": "n/a",
+      "method": "branch",
+      "evidence": null,
+      "reason": "k1 was False"
+    },
+    "c5": {
+      "status": "n/a",
+      "method": "branch",
+      "evidence": null,
+      "reason": "k1 was False"
+    },
+    "c9": {
+      "status": "missed",
+      "method": "judge",
+      "evidence": null,
+      "reason": "The report opens with the generic title '# Sales Report' and a source line, not a one-line headline summarizing the sales."
+    },
+    "c10": {
+      "status": "satisfied",
+      "method": "judge",
+      "evidence": 2,
+      "reason": "The 'Revenue by Region' table is sorted from highest to lowest revenue: North $1,718.27, East $1,579.78, West $1,480.35, South $1,173.25."
+    },
+    "c11": {
+      "status": "missed",
+      "method": "judge",
+      "evidence": null,
+      "reason": "The report lists Gizmo first in a sorted product table but never states the top product by revenue; only the agent's chat reply says it."
+    },
+    "c12": {
+      "status": "satisfied",
+      "method": "judge",
+      "evidence": null,
+      "reason": "The final report.md is cleanly structured, with consistent markdown tables and formatting."
+    },
+    "c14": {
+      "status": "satisfied",
+      "method": "judge",
+      "evidence": null,
+      "reason": "The agent only read the CSV, and git status shows no changes to data/."
+    },
+    "c15": {
+      "status": "satisfied",
+      "method": "judge",
+      "evidence": null,
+      "reason": "Every currency value in report.md, including $129.00 and $645.00, is shown with exactly 2 decimals."
+    },
+    "c16": {
+      "status": "unclear",
+      "method": "judge",
+      "evidence": 0,
+      "reason": "references/regions.md does not exist in the repo, so the region names cannot be checked against it."
+    }
+  },
+  "judge_items": 11,
+  "judge_cost_usd": 0.0,
+  "judge_cache": {
+    "40a6ca88a2d511aa": {
+      "verdicts": {
+        "k1": {
+          "id": "k1",
+          "answer": "no",
+          "evidence_event": 0,
+          "reason": "Every row in data/sales.csv has well-formed date, region, product, units and unit_price values, and the script and awk both parsed them without errors."
+        },
+        "c2": {
+          "id": "c2",
+          "answer": "yes",
+          "evidence_event": 2,
+          "reason": "The agent computed revenue statistics with sales_report.py and never ran any validate.py step."
+        },
+        "c4": {
+          "id": "c4",
+          "answer": "no",
+          "evidence_event": -1,
+          "reason": "Validation never ran, so it never failed, and there was no failure to continue past."
+        },
+        "c5": {
+          "id": "c5",
+          "answer": "no",
+          "evidence_event": -1,
+          "reason": "The agent never tried to repair or clean the CSV data."
+        },
+        "c9": {
+          "id": "c9",
+          "answer": "no",
+          "evidence_event": -1,
+          "reason": "The report opens with the generic title '# Sales Report' and a source line, not a one-line headline summarizing the sales."
+        },
+        "c10": {
+          "id": "c10",
+          "answer": "yes",
+          "evidence_event": 2,
+          "reason": "The 'Revenue by Region' table is sorted from highest to lowest revenue: North $1,718.27, East $1,579.78, West $1,480.35, South $1,173.25."
+        },
+        "c11": {
+          "id": "c11",
+          "answer": "no",
+          "evidence_event": -1,
+          "reason": "The report lists Gizmo first in a sorted product table but never states the top product by revenue; only the agent's chat reply says it."
+        },
+        "c12": {
+          "id": "c12",
+          "answer": "yes",
+          "evidence_event": -1,
+          "reason": "The final report.md is cleanly structured, with consistent markdown tables and formatting."
+        },
+        "c14": {
+          "id": "c14",
+          "answer": "no",
+          "evidence_event": -1,
+          "reason": "The agent only read the CSV, and git status shows no changes to data/."
+        },
+        "c15": {
+          "id": "c15",
+          "answer": "yes",
+          "evidence_event": -1,
+          "reason": "Every currency value in report.md, including $129.00 and $645.00, is shown with exactly 2 decimals."
+        },
+        "c16": {
+          "id": "c16",
+          "answer": "unclear",
+          "evidence_event": 0,
+          "reason": "references/regions.md does not exist in the repo, so the region names cannot be checked against it."
+        }
+      },
+      "cost_usd": 0.0
+    }
+  }
+}

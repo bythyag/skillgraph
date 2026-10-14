@@ -1,0 +1,75 @@
+{
+  "claims_sha": "51c43ec71199a24d",
+  "skill_loaded": true,
+  "conditions": {},
+  "claims": {
+    "c1": {
+      "status": "satisfied",
+      "method": "tool",
+      "evidence": 0,
+      "reason": ""
+    },
+    "c2": {
+      "status": "satisfied",
+      "method": "tool",
+      "evidence": 3,
+      "reason": ""
+    },
+    "c3": {
+      "status": "satisfied",
+      "method": "tool",
+      "evidence": 4,
+      "reason": ""
+    },
+    "c4": {
+      "status": "satisfied",
+      "method": "tool",
+      "evidence": 4,
+      "reason": ""
+    },
+    "c7": {
+      "status": "satisfied",
+      "method": "tool",
+      "evidence": 8,
+      "reason": ""
+    },
+    "c8": {
+      "status": "out_of_order",
+      "method": "file",
+      "evidence": 7,
+      "reason": "happened at event 7, before c7 (event 8)"
+    },
+    "c10": {
+      "status": "satisfied",
+      "method": "tool",
+      "evidence": null,
+      "reason": ""
+    },
+    "c5": {
+      "status": "satisfied",
+      "method": "judge",
+      "evidence": 6,
+      "reason": "After the failing test run at event 4, the agent edited textutils.py so that word_count uses text.split()."
+    },
+    "c6": {
+      "status": "satisfied",
+      "method": "judge",
+      "evidence": 6,
+      "reason": "The source change was a one-line split fix plus type hints, which the conventions require, with no unrelated refactors."
+    },
+    "c9": {
+      "status": "satisfied",
+      "method": "judge",
+      "evidence": 3,
+      "reason": "The edit only added new test methods after test_word_count_simple and left the existing tests unchanged."
+    },
+    "c11": {
+      "status": "satisfied",
+      "method": "judge",
+      "evidence": 3,
+      "reason": "The tests cover empty input, whitespace-only input, repeated spaces, leading and trailing spaces, and tabs and newlines."
+    }
+  },
+  "judge_items": 4,
+  "judge_cost_usd": 0.0596
+}

@@ -1,0 +1,75 @@
+{
+  "claims_sha": "51c43ec71199a24d",
+  "skill_loaded": true,
+  "conditions": {},
+  "claims": {
+    "c1": {
+      "status": "satisfied",
+      "method": "tool",
+      "evidence": 0,
+      "reason": ""
+    },
+    "c2": {
+      "status": "satisfied",
+      "method": "tool",
+      "evidence": 4,
+      "reason": ""
+    },
+    "c3": {
+      "status": "satisfied",
+      "method": "tool",
+      "evidence": 5,
+      "reason": ""
+    },
+    "c4": {
+      "status": "satisfied",
+      "method": "tool",
+      "evidence": 5,
+      "reason": ""
+    },
+    "c7": {
+      "status": "satisfied",
+      "method": "tool",
+      "evidence": 9,
+      "reason": ""
+    },
+    "c8": {
+      "status": "out_of_order",
+      "method": "file",
+      "evidence": 8,
+      "reason": "happened at event 8, before c7 (event 9)"
+    },
+    "c10": {
+      "status": "satisfied",
+      "method": "tool",
+      "evidence": null,
+      "reason": ""
+    },
+    "c5": {
+      "status": "satisfied",
+      "method": "judge",
+      "evidence": 7,
+      "reason": "After the failing test run at [5], the agent changed textutils.py from split(\" \") to split()."
+    },
+    "c6": {
+      "status": "satisfied",
+      "method": "judge",
+      "evidence": 7,
+      "reason": "The only source change was the one-line split fix plus type hints, which the project conventions require on changed functions."
+    },
+    "c9": {
+      "status": "satisfied",
+      "method": "judge",
+      "evidence": 4,
+      "reason": "The edit only added new test methods after the existing test, and all original tests are unchanged in the final file."
+    },
+    "c11": {
+      "status": "satisfied",
+      "method": "judge",
+      "evidence": 4,
+      "reason": "The tests cover empty input, whitespace-only input, repeated spaces, leading and trailing spaces, and tabs and newlines, and split() handles all of them."
+    }
+  },
+  "judge_items": 4,
+  "judge_cost_usd": 0.063
+}

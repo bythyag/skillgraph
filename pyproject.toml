@@ -1,0 +1,70 @@
+[project]
+name = "skillgraph"
+dynamic = ["version"]
+description = "Find which lines of an agent skill (SKILL.md) the agent follows, ignores, or doesn't need."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "bythyag" }]
+requires-python = ">=3.10"
+keywords = ["agent skills", "evals", "claude", "openrouter", "llm", "skill.md", "sop", "tracing"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Operating System :: MacOS",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Software Development :: Testing",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+dependencies = [
+    "httpx>=0.27",
+    "networkx>=3.3",
+    "pyyaml>=6.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/bythyag/skillgraph"
+Repository = "https://github.com/bythyag/skillgraph"
+Issues = "https://github.com/bythyag/skillgraph/issues"
+Changelog = "https://github.com/bythyag/skillgraph/blob/main/CHANGELOG.md"
+
+[project.optional-dependencies]
+# The Claude provider runs agents through the Claude Agent SDK (bundles Claude Code).
+claude = ["claude-agent-sdk>=0.2.165"]
+
+[project.scripts]
+skillgraph = "skillgraph.cli:main"
+
+[dependency-groups]
+dev = ["pytest>=8", "ruff>=0.6"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+path = "src/skillgraph/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/skillgraph"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"skills/skillgraph" = "skillgraph/_skill"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 130
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+ignore = ["E501", "B008"]

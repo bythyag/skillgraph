@@ -1,0 +1,240 @@
+{
+  "skill": "bugfix-tdd",
+  "source_sha256": "bd31f55bd6e5f6a74459b857323bdc84a416c7023a714d463baa19ad319b8eb8",
+  "classification": "procedural",
+  "summary": "Fixes a reported Python bug test-first: read the conventions, write a failing test, make a minimal fix, confirm the whole suite passes, and write FIX_NOTES.md, without editing existing tests or committing.",
+  "conditions": [],
+  "claims": [
+    {
+      "id": "c1",
+      "kind": "must_read",
+      "text": "Read references/conventions.md before touching any code.",
+      "span": [
+        8,
+        8
+      ],
+      "after": [],
+      "when": null,
+      "check": {
+        "type": "tool",
+        "tools": [
+          "Read",
+          "Bash"
+        ],
+        "input_any": [
+          "conventions\\.md"
+        ],
+        "output_any": []
+      }
+    },
+    {
+      "id": "c2",
+      "kind": "step",
+      "text": "Reproduce the bug by adding a test to the tests/ directory that captures the reported behavior.",
+      "span": [
+        10,
+        10
+      ],
+      "after": [
+        "c1"
+      ],
+      "when": null,
+      "check": {
+        "type": "tool",
+        "tools": [
+          "Write",
+          "Edit",
+          "MultiEdit",
+          "Bash"
+        ],
+        "input_any": [
+          "tests/[^\"]*\\.py"
+        ],
+        "output_any": []
+      }
+    },
+    {
+      "id": "c3",
+      "kind": "step",
+      "text": "Run the test suite with `python3 -m unittest discover -s tests -t .`.",
+      "span": [
+        11,
+        11
+      ],
+      "after": [
+        "c2"
+      ],
+      "when": null,
+      "check": {
+        "type": "tool",
+        "tools": [
+          "Bash"
+        ],
+        "input_any": [
+          "python3?\\s+-m\\s+unittest\\s+discover"
+        ],
+        "output_any": []
+      }
+    },
+    {
+      "id": "c4",
+      "kind": "step",
+      "text": "Confirm the newly added test fails before fixing the bug.",
+      "span": [
+        11,
+        11
+      ],
+      "after": [
+        "c2"
+      ],
+      "when": null,
+      "check": {
+        "type": "tool",
+        "tools": [
+          "Bash"
+        ],
+        "input_any": [
+          "unittest"
+        ],
+        "output_any": [
+          "FAILED \\(",
+          "(failures|errors)=\\d+"
+        ]
+      }
+    },
+    {
+      "id": "c5",
+      "kind": "step",
+      "text": "Fix the bug in the source code (not the tests).",
+      "span": [
+        12,
+        12
+      ],
+      "after": [
+        "c4"
+      ],
+      "when": null,
+      "check": {
+        "type": "judge",
+        "question": "After seeing the new test fail, did the agent fix the bug by changing non-test source code?"
+      }
+    },
+    {
+      "id": "c6",
+      "kind": "step",
+      "text": "Keep the source change minimal.",
+      "span": [
+        12,
+        12
+      ],
+      "after": [],
+      "when": null,
+      "check": {
+        "type": "judge",
+        "question": "Was the source-code fix minimal, limited to what the bug needed, with no unrelated refactors or changes?"
+      }
+    },
+    {
+      "id": "c7",
+      "kind": "step",
+      "text": "Re-run the full suite after the fix and confirm every test passes.",
+      "span": [
+        13,
+        13
+      ],
+      "after": [
+        "c5"
+      ],
+      "when": null,
+      "check": {
+        "type": "tool",
+        "tools": [
+          "Bash"
+        ],
+        "input_any": [
+          "unittest"
+        ],
+        "output_any": [
+          "\\nOK\\b",
+          "^OK\\b"
+        ]
+      }
+    },
+    {
+      "id": "c8",
+      "kind": "artifact",
+      "text": "Write FIX_NOTES.md with three headings: Root cause, Fix, Test.",
+      "span": [
+        14,
+        14
+      ],
+      "after": [
+        "c7"
+      ],
+      "when": null,
+      "check": {
+        "type": "file",
+        "path_glob": "FIX_NOTES.md",
+        "content_any": [
+          "(?ims)(?=.*^#+\\s*root cause)(?=.*^#+\\s*fix\\b)(?=.*^#+\\s*test)"
+        ]
+      }
+    },
+    {
+      "id": "c9",
+      "kind": "must_not",
+      "text": "Never edit or delete existing tests to make the suite pass.",
+      "span": [
+        17,
+        17
+      ],
+      "after": [],
+      "when": null,
+      "check": {
+        "type": "judge",
+        "question": "Did the agent modify or delete any test that existed before the run (other than the test it added itself)?"
+      }
+    },
+    {
+      "id": "c10",
+      "kind": "must_not",
+      "text": "Do not commit with git; leave committing to the user.",
+      "span": [
+        18,
+        18
+      ],
+      "after": [],
+      "when": null,
+      "check": {
+        "type": "tool",
+        "tools": [
+          "Bash"
+        ],
+        "input_any": [
+          "git\\s+(-\\S+\\s+\\S+\\s+)*commit"
+        ],
+        "output_any": []
+      }
+    },
+    {
+      "id": "c11",
+      "kind": "step",
+      "text": "Handle edge cases appropriately.",
+      "span": [
+        19,
+        19
+      ],
+      "after": [],
+      "when": null,
+      "check": {
+        "type": "judge",
+        "question": "Did the fix (and its tests) reasonably account for relevant edge cases related to the bug?"
+      }
+    }
+  ],
+  "extracted": {
+    "model": "claude-opus-5-5",
+    "at": "2026-10-13T19:53:43+00:00",
+    "cost_usd": 1.1905
+  }
+}

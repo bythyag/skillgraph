@@ -1,0 +1,185 @@
+{
+  "claims_sha": "e51ebdf5c8a91b38",
+  "skill_loaded": true,
+  "conditions": {
+    "k1": {
+      "value": true,
+      "method": "judge",
+      "evidence": 0,
+      "reason": "The validator reported four errors (empty region, non-integer units, negative units, malformed unit_price) and exited with code 1."
+    }
+  },
+  "claims": {
+    "c1": {
+      "status": "satisfied",
+      "method": "tool",
+      "evidence": 0,
+      "reason": ""
+    },
+    "c3": {
+      "status": "satisfied",
+      "method": "file",
+      "evidence": 2,
+      "reason": ""
+    },
+    "c6": {
+      "status": "n/a",
+      "method": "branch",
+      "evidence": null,
+      "reason": "k1 was True"
+    },
+    "c7": {
+      "status": "n/a",
+      "method": "branch",
+      "evidence": null,
+      "reason": "k1 was True"
+    },
+    "c8": {
+      "status": "n/a",
+      "method": "branch",
+      "evidence": null,
+      "reason": "k1 was True"
+    },
+    "c13": {
+      "status": "n/a",
+      "method": "branch",
+      "evidence": null,
+      "reason": "k1 was True"
+    },
+    "c2": {
+      "status": "satisfied",
+      "method": "judge",
+      "evidence": 0,
+      "reason": "The agent's first action was running validate.py, and it never computed any statistics."
+    },
+    "c4": {
+      "status": "satisfied",
+      "method": "judge",
+      "evidence": 1,
+      "reason": "The agent stopped after validation failed and only wrote ERRORS.md, with no stats, no report.md and no CHANGELOG update."
+    },
+    "c5": {
+      "status": "satisfied",
+      "method": "judge",
+      "evidence": 3,
+      "reason": "The agent didn't try to fix the data, and the CSV still has its original invalid values."
+    },
+    "c9": {
+      "status": "n/a",
+      "method": "branch",
+      "evidence": null,
+      "reason": "k1 was True"
+    },
+    "c10": {
+      "status": "n/a",
+      "method": "branch",
+      "evidence": null,
+      "reason": "k1 was True"
+    },
+    "c11": {
+      "status": "n/a",
+      "method": "branch",
+      "evidence": null,
+      "reason": "k1 was True"
+    },
+    "c12": {
+      "status": "n/a",
+      "method": "branch",
+      "evidence": null,
+      "reason": "k1 was True"
+    },
+    "c14": {
+      "status": "satisfied",
+      "method": "judge",
+      "evidence": null,
+      "reason": "No event writes to the CSV, and the final file still has its original contents."
+    },
+    "c15": {
+      "status": "n/a",
+      "method": "branch",
+      "evidence": null,
+      "reason": "k1 was True"
+    },
+    "c16": {
+      "status": "n/a",
+      "method": "branch",
+      "evidence": null,
+      "reason": "k1 was True"
+    }
+  },
+  "judge_items": 11,
+  "judge_cost_usd": 0.0,
+  "judge_cache": {
+    "40a6ca88a2d511aa": {
+      "verdicts": {
+        "k1": {
+          "id": "k1",
+          "answer": "yes",
+          "evidence_event": 0,
+          "reason": "The validator reported four errors (empty region, non-integer units, negative units, malformed unit_price) and exited with code 1."
+        },
+        "c2": {
+          "id": "c2",
+          "answer": "no",
+          "evidence_event": 0,
+          "reason": "The agent's first action was running validate.py, and it never computed any statistics."
+        },
+        "c4": {
+          "id": "c4",
+          "answer": "no",
+          "evidence_event": 1,
+          "reason": "The agent stopped after validation failed and only wrote ERRORS.md, with no stats, no report.md and no CHANGELOG update."
+        },
+        "c5": {
+          "id": "c5",
+          "answer": "no",
+          "evidence_event": 3,
+          "reason": "The agent didn't try to fix the data, and the CSV still has its original invalid values."
+        },
+        "c9": {
+          "id": "c9",
+          "answer": "no",
+          "evidence_event": -1,
+          "reason": "report.md was never created, so it has no headline."
+        },
+        "c10": {
+          "id": "c10",
+          "answer": "no",
+          "evidence_event": -1,
+          "reason": "report.md was never created, so it has no region revenue table."
+        },
+        "c11": {
+          "id": "c11",
+          "answer": "no",
+          "evidence_event": -1,
+          "reason": "report.md was never created, so it doesn't name a top product."
+        },
+        "c12": {
+          "id": "c12",
+          "answer": "no",
+          "evidence_event": -1,
+          "reason": "report.md was never created, so there is no report to judge."
+        },
+        "c14": {
+          "id": "c14",
+          "answer": "no",
+          "evidence_event": -1,
+          "reason": "No event writes to the CSV, and the final file still has its original contents."
+        },
+        "c15": {
+          "id": "c15",
+          "answer": "no",
+          "evidence_event": -1,
+          "reason": "report.md was never created, so it has no currency values."
+        },
+        "c16": {
+          "id": "c16",
+          "answer": "no",
+          "evidence_event": -1,
+          "reason": "report.md was never created, so it has no region names to check."
+        }
+      },
+      "cost_usd": 0.0
+    }
+  }
+}

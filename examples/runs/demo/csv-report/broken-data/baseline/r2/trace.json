@@ -1,0 +1,101 @@
+{
+  "skill": "csv-report",
+  "task": "broken-data",
+  "task_prompt": "Create the sales report for data/sales.csv.",
+  "variant": {
+    "name": "baseline",
+    "kind": "baseline",
+    "remove": []
+  },
+  "rep": 2,
+  "model": "claude-opus-5-5",
+  "trigger": null,
+  "enforce": false,
+  "init": {
+    "model": "claude-opus-5-5",
+    "skills": [],
+    "tools": [
+      "Bash",
+      "Edit",
+      "Glob",
+      "Grep",
+      "Read",
+      "Write"
+    ],
+    "claude_code_version": "2.1.294"
+  },
+  "events": [
+    {
+      "i": 0,
+      "kind": "tool",
+      "id": "toolu_012QTdtR9ULTzz57tAYPwPRk",
+      "tool": "Bash",
+      "input": {
+        "command": "cd \"$PWD\"; git ls-files; echo ---; cat README* 2>/dev/null; echo ---; wc -l data/sales.csv; head -20 data/sales.csv",
+        "description": "List repo files and preview the data"
+      },
+      "output": "data/sales.csv\n---\n(eval):1: no matches found: README*\n---\n      11 data/sales.csv\ndate,region,product,units,unit_price\n2026-09-01,North,Widget,12,19.99\n2026-09-01,South,Gadget,5,49.50\n2026-09-02,,Widget,8,19.99\n2026-09-02,West,Gizmo,three,129.00\n2026-09-03,North,Gadget,7,49.50\n2026-09-04,South,Widget,-15,19.99\n2026-09-05,East,Gizmo,2,12O.00\n2026-09-06,West,Widget,9,19.99\n2026-09-08,North,Gizmo,4,129.00\n2026-09-09,South,Gadget,6,49.50",
+      "is_error": false
+    },
+    {
+      "i": 1,
+      "kind": "tool",
+      "id": "toolu_01CUUKBRq2uNrbCGUci6kMd3",
+      "tool": "Write",
+      "input": {
+        "file_path": "/workspace/scripts/sales_report.py",
+        "content": "\"\"\"Build a Markdown sales report from a sales CSV, flagging rows that fail validation.\"\"\"\n\nimport csv\nimport sys\nfrom collections import defaultdict\nfrom decimal import Decimal, InvalidOperation\n\nREQUIRED = [\"date\", \"region\", \"product\", \"units\", \"unit_price\"]\n\n\ndef validate(row):\n    \"\"\"Return (parsed_row, problems). Rows with problems are excluded from totals.\"\"\"\n    problems = []\n    for field in REQUIRED:\n        if not (row.get(field) or \"\").strip():\n            problems.append(f\"missing {field}\")\n\n    units = price = None\n    try:\n        units = int(row[\"units\"])\n        if units <= 0:\n            problems.append(f\"non-positive units ({units})\")\n    except (ValueError, TypeError):\n        problems.append(f\"units not an integer ({row['units']!r})\")\n    try:\n        price = Decimal(row[\"unit_price\"])\n        if price <= 0:\n            problems.append(f\"non-positive unit_price ({price})\")\n    except (InvalidOperation, TypeError):\n        problems.append(f\"unit_price not a number ({row['unit_price']!r})\")\n\n    return {**row, \"units\": units, \"unit_price\": price}, problems\n\n\ndef money(d):\n    return f\"${d:,.2f}\"\n\n\ndef table(headers, rows):\n    out = [\"| \" + \" | \".join(headers) + \" |\", \"|\" + \"|\".join(\"---\" for _ in headers) + \"|\"]\n    out += [\"| \" + \" | \".join(str(c) for c in r) + \" |\" for r in rows]\n    return \"\\n\".join(out)\n\n\ndef breakdown(rows, key):\n    units, revenue = defaultdict(int), defaultdict(Decimal)\n    for r in rows:\n        units[r[key]] += r[\"units\"]\n        revenue[r[key]] += r[\"units\"] * r[\"unit_price\"]\n    total = sum(revenue.values())\n    return [\n        (k, units[k], money(revenue[k]), f\"{revenue[k] / total:.1%}\")\n        for k in sorted(revenue, key=revenue.get, reverse=True)\n    ]\n\n\ndef main(path):\n    with open(path, newline=\"\") as f:\n        raw = list(csv.DictReader(f))\n\n    good, bad = [], []\n    for line_no, row in enumerate(raw, start=2):  # line 1 is the header\n        parsed, problems = validate(row)\n        (bad if problems else good).append((line_no, row, parsed, problems))\n\n    valid = [p for _, _, p, _ in good]\n    revenue = sum(r[\"units\"] * r[\"unit_price\"] for r in valid)\n    units = sum(r[\"units\"] for r in valid)\n    dates = sorted(r[\"date\"] for r in raw if r[\"date\"])\n\n    lines = [\n        \"# Sales Report\",\n        \"\",\n        f\"Source: `{path}` · Period: {dates[0]} to {dates[-1]}\",\n        \"\",\n        f\"> **Data quality warning:** {len(bad)} of {len(raw)} rows failed validation and are \"\n        \"**excluded** from every figure below. See [Excluded rows](#excluded-rows).\",\n        \"\",\n        \"## Summary (valid rows only)\",\n        \"\",\n        table(\n            [\"Metric\", \"Value\"],\n            [\n                (\"Valid transactions\", f\"{len(valid)} of {len(raw)}\"),\n                (\"Units sold\", units),\n                (\"Revenue\", money(revenue)),\n                (\"Average order value\", money(revenue / len(valid)) if valid else \"n/a\"),\n            ],\n        ),\n        \"\",\n        \"## Revenue by region\",\n        \"\",\n        table([\"Region\", \"Units\", \"Revenue\", \"Share\"], breakdown(valid, \"region\")),\n        \"\",\n        \"## Revenue by product\",\n        \"\",\n        table([\"Product\", \"Units\", \"Revenue\", \"Share\"], breakdown(valid, \"product\")),\n        \"\",\n        \"## Excluded rows\",\n        \"\",\n        \"These rows were left out of the totals rather than guessed at. Correct them in the \"\n        \"source data and re-run `python3 scripts/sales_report.py data/sales.csv`.\",\n        \"\",\n        table(\n            [\"CSV line\", \"Date\", \"Region\", \"Product\", \"Units\", \"Unit price\", \"Problem\"],\n            [\n                (n, r[\"date\"], r[\"region\"] or \"_(blank)_\", r[\"product\"],\n                 f\"`{r['units']}`\", f\"`{r['unit_price']}`\", \"; \".join(p))\n                for n, r, _, p in bad\n            ],\n        ),\n        \"\",\n    ]\n    return \"\\n\".join(lines)\n\n\nif __name__ == \"__main__\":\n    print(main(sys.argv[1] if len(sys.argv) > 1 else \"data/sales.csv\"))\n"
+      },
+      "output": "File created successfully at: /workspace/scripts/sales_report.py (file state is current in your context — no need to Read it back)",
+      "is_error": false
+    },
+    {
+      "i": 2,
+      "kind": "tool",
+      "id": "toolu_01WeyWWsf5bd1YA2x4idttns",
+      "tool": "Bash",
+      "input": {
+        "command": "mkdir -p reports && python3 -I scripts/sales_report.py data/sales.csv > reports/sales_report.md && cat reports/sales_report.md",
+        "description": "Generate the sales report and display it"
+      },
+      "output": "# Sales Report\n\nSource: `data/sales.csv` · Period: 2026-09-01 to 2026-09-09\n\n> **Data quality warning:** 4 of 10 rows failed validation and are **excluded** from every figure below. See [Excluded rows](#excluded-rows).\n\n## Summary (valid rows only)\n\n| Metric | Value |\n|---|---|\n| Valid transactions | 6 of 10 |\n| Units sold | 43 |\n| Revenue | $1,826.79 |\n| Average order value | $304.46 |\n\n## Revenue by region\n\n| Region | Units | Revenue | Share |\n|---|---|---|---|\n| North | 23 | $1,102.38 | 60.3% |\n| South | 11 | $544.50 | 29.8% |\n| West | 9 | $179.91 | 9.8% |\n\n## Revenue by product\n\n| Product | Units | Revenue | Share |\n|---|---|---|---|\n| Gadget | 18 | $891.00 | 48.8% |\n| Gizmo | 4 | $516.00 | 28.2% |\n| Widget | 21 | $419.79 | 23.0% |\n\n## Excluded rows\n\nThese rows were left out of the totals rather than guessed at. Correct them in the source data and re-run `python3 scripts/sales_report.py data/sales.csv`.\n\n| CSV line | Date | Region | Product | Units | Unit price | Problem |\n|---|---|---|---|---|---|---|\n| 4 | 2026-09-02 | _(blank)_ | Widget | `8` | `19.99` | missing region |\n| 5 | 2026-09-02 | West | Gizmo | `three` | `129.00` | units not an integer ('three') |\n| 7 | 2026-09-04 | South | Widget | `-15` | `19.99` | non-positive units (-15) |\n| 8 | 2026-09-05 | East | Gizmo | `2` | `12O.00` | unit_price not a number ('12O.00') |",
+      "is_error": false
+    },
+    {
+      "i": 3,
+      "kind": "text",
+      "text": "The report is in `reports/sales_report.md`, generated by `scripts/sales_report.py`. I checked the totals by hand against the CSV and they match.\n\n**Results for the 6 rows that passed validation (2026-09-01 to 09-09):**\n- **Revenue:** $1,826.79 from 43 units.\n- **By region:** North brought in $1,102.38 (60%), South $544.50 (30%) and West $179.91 (10%).\n- **By product:** Gadget brought in $891.00, Gizmo $516.00 and Widget $419.79.\n\n**4 of the 10 rows are broken, so I left them out of the totals rather than guess:**\n\n| Line | Problem | Likely meaning |\n|---|---|---|\n| 4 | Region is blank (8 Widgets, $159.92) | Unknown region |\n| 5 | Units is `three` | Probably 3, which would add $387.00 to West |\n| 7 | Units is `-15` | Could be a return or a sign error. These need different handling. |\n| 8 | Price is `12O.00`, with a letter O | Could be $120.00, but other Gizmo rows are priced at $129.00, so I can't tell which |\n\nBecause of the excluded rows:\n- **East is missing:** its only sale (line 8) was excluded, so it doesn't appear in the report at all.\n- **The totals are low:** fixing these rows could add roughly $780–$800 in sales, or take money off if line 7 is a return.\n\nOnce the source data is fixed, re-run `python3 scripts/sales_report.py data/sales.csv > reports/sales_report.md` to regenerate the report. Or tell me how to read each row (for example, \"three = 3, −15 is a return, 12O = 129\") and I'll build those rules into the script.\n\nI haven't committed anything."
+    }
+  ],
+  "blocked": [],
+  "result": {
+    "subtype": "success",
+    "is_error": false,
+    "num_turns": 4,
+    "duration_ms": 35263,
+    "cost_usd": 1.3214374,
+    "text": "The report is in `reports/sales_report.md`, generated by `scripts/sales_report.py`. I checked the totals by hand against the CSV and they match.\n\n**Results for the 6 rows that passed validation (2026-09-01 to 09-09):**\n- **Revenue:** $1,826.79 from 43 units.\n- **By region:** North brought in $1,102.38 (60%), South $544.50 (30%) and West $179.91 (10%).\n- **By product:** Gadget brought in $891.00, Gizmo $516.00 and Widget $419.79.\n\n**4 of the 10 rows are broken, so I left them out of the totals rather than guess:**\n\n| Line | Problem | Likely meaning |\n|---|---|---|\n| 4 | Region is blank (8 Widgets, $159.92) | Unknown region |\n| 5 | Units is `three` | Probably 3, which would add $387.00 to West |\n| 7 | Units is `-15` | Could be a return or a sign error. These need different handling. |\n| 8 | Price is `12O.00`, with a letter O | Could be $120.00, but other Gizmo rows are priced at $129.00, so I can't tell which |\n\nBecause of the excluded rows:\n- **East is missing:** its only sale (line 8) was excluded, so it doesn't appear in the report at all.\n- **The totals are low:** fixing these rows could add roughly $780–$800 in sales, or take money off if line 7 is a return.\n\nOnce the source data is fixed, re-run `python3 scripts/sales_report.py data/sales.csv > reports/sales_report.md` to regenerate the report. Or tell me how to read each row (for example, \"three = 3, −15 is a return, 12O = 129\") and I'll build those rules into the script.\n\nI haven't committed anything."
+  },
+  "error": null,
+  "wall_s": 36.6,
+  "skill_loaded": false,
+  "files": {
+    "data/sales.csv": "date,region,product,units,unit_price\n2026-09-01,North,Widget,12,19.99\n2026-09-01,South,Gadget,5,49.50\n2026-09-02,,Widget,8,19.99\n2026-09-02,West,Gizmo,three,129.00\n2026-09-03,North,Gadget,7,49.50\n2026-09-04,South,Widget,-15,19.99\n2026-09-05,East,Gizmo,2,12O.00\n2026-09-06,West,Widget,9,19.99\n2026-09-08,North,Gizmo,4,129.00\n2026-09-09,South,Gadget,6,49.50\n",
+    "reports/sales_report.md": "# Sales Report\n\nSource: `data/sales.csv` · Period: 2026-09-01 to 2026-09-09\n\n> **Data quality warning:** 4 of 10 rows failed validation and are **excluded** from every figure below. See [Excluded rows](#excluded-rows).\n\n## Summary (valid rows only)\n\n| Metric | Value |\n|---|---|\n| Valid transactions | 6 of 10 |\n| Units sold | 43 |\n| Revenue | $1,826.79 |\n| Average order value | $304.46 |\n\n## Revenue by region\n\n| Region | Units | Revenue | Share |\n|---|---|---|---|\n| North | 23 | $1,102.38 | 60.3% |\n| South | 11 | $544.50 | 29.8% |\n| West | 9 | $179.91 | 9.8% |\n\n## Revenue by product\n\n| Product | Units | Revenue | Share |\n|---|---|---|---|\n| Gadget | 18 | $891.00 | 48.8% |\n| Gizmo | 4 | $516.00 | 28.2% |\n| Widget | 21 | $419.79 | 23.0% |\n\n## Excluded rows\n\nThese rows were left out of the totals rather than guessed at. Correct them in the source data and re-run `python3 scripts/sales_report.py data/sales.csv`.\n\n| CSV line | Date | Region | Product | Units | Unit price | Problem |\n|---|---|---|---|---|---|---|\n| 4 | 2026-09-02 | _(blank)_ | Widget | `8` | `19.99` | missing region |\n| 5 | 2026-09-02 | West | Gizmo | `three` | `129.00` | units not an integer ('three') |\n| 7 | 2026-09-04 | South | Widget | `-15` | `19.99` | non-positive units (-15) |\n| 8 | 2026-09-05 | East | Gizmo | `2` | `12O.00` | unit_price not a number ('12O.00') |\n\n",
+    "scripts/sales_report.py": "\"\"\"Build a Markdown sales report from a sales CSV, flagging rows that fail validation.\"\"\"\n\nimport csv\nimport sys\nfrom collections import defaultdict\nfrom decimal import Decimal, InvalidOperation\n\nREQUIRED = [\"date\", \"region\", \"product\", \"units\", \"unit_price\"]\n\n\ndef validate(row):\n    \"\"\"Return (parsed_row, problems). Rows with problems are excluded from totals.\"\"\"\n    problems = []\n    for field in REQUIRED:\n        if not (row.get(field) or \"\").strip():\n            problems.append(f\"missing {field}\")\n\n    units = price = None\n    try:\n        units = int(row[\"units\"])\n        if units <= 0:\n            problems.append(f\"non-positive units ({units})\")\n    except (ValueError, TypeError):\n        problems.append(f\"units not an integer ({row['units']!r})\")\n    try:\n        price = Decimal(row[\"unit_price\"])\n        if price <= 0:\n            problems.append(f\"non-positive unit_price ({price})\")\n    except (InvalidOperation, TypeError):\n        problems.append(f\"unit_price not a number ({row['unit_price']!r})\")\n\n    return {**row, \"units\": units, \"unit_price\": price}, problems\n\n\ndef money(d):\n    return f\"${d:,.2f}\"\n\n\ndef table(headers, rows):\n    out = [\"| \" + \" | \".join(headers) + \" |\", \"|\" + \"|\".join(\"---\" for _ in headers) + \"|\"]\n    out += [\"| \" + \" | \".join(str(c) for c in r) + \" |\" for r in rows]\n    return \"\\n\".join(out)\n\n\ndef breakdown(rows, key):\n    units, revenue = defaultdict(int), defaultdict(Decimal)\n    for r in rows:\n        units[r[key]] += r[\"units\"]\n        revenue[r[key]] += r[\"units\"] * r[\"unit_price\"]\n    total = sum(revenue.values())\n    return [\n        (k, units[k], money(revenue[k]), f\"{revenue[k] / total:.1%}\")\n        for k in sorted(revenue, key=revenue.get, reverse=True)\n    ]\n\n\ndef main(path):\n    with open(path, newline=\"\") as f:\n        raw = list(csv.DictReader(f))\n\n    good, bad = [], []\n    for line_no, row in enumerate(raw, start=2):  # line 1 is the header\n        parsed, problems = validate(row)\n        (bad if problems else good).append((line_no, row, parsed, problems))\n\n    valid = [p for _, _, p, _ in good]\n    revenue = sum(r[\"units\"] * r[\"unit_price\"] for r in valid)\n    units = sum(r[\"units\"] for r in valid)\n    dates = sorted(r[\"date\"] for r in raw if r[\"date\"])\n\n    lines = [\n        \"# Sales Report\",\n        \"\",\n        f\"Source: `{path}` · Period: {dates[0]} to {dates[-1]}\",\n        \"\",\n        f\"> **Data quality warning:** {len(bad)} of {len(raw)} rows failed validation and are \"\n        \"**excluded** from every figure below. See [Excluded rows](#excluded-rows).\",\n        \"\",\n        \"## Summary (valid rows only)\",\n        \"\",\n        table(\n            [\"Metric\", \"Value\"],\n            [\n                (\"Valid transactions\", f\"{len(valid)} of {len(raw)}\"),\n                (\"Units sold\", units),\n                (\"Revenue\", money(revenue)),\n                (\"Average order value\", money(revenue / len(valid)) if valid else \"n/a\"),\n            ],\n        ),\n        \"\",\n        \"## Revenue by region\",\n        \"\",\n        table([\"Region\", \"Units\", \"Revenue\", \"Share\"], breakdown(valid, \"region\")),\n        \"\",\n        \"## Revenue by product\",\n        \"\",\n        table([\"Product\", \"Units\", \"Revenue\", \"Share\"], breakdown(valid, \"product\")),\n        \"\",\n        \"## Excluded rows\",\n        \"\",\n        \"These rows were left out of the totals rather than guessed at. Correct them in the \"\n        \"source data and re-run `python3 scripts/sales_report.py data/sales.csv`.\",\n        \"\",\n        table(\n            [\"CSV line\", \"Date\", \"Region\", \"Product\", \"Units\", \"Unit price\", \"Problem\"],\n            [\n                (n, r[\"date\"], r[\"region\"] or \"_(blank)_\", r[\"product\"],\n                 f\"`{r['units']}`\", f\"`{r['unit_price']}`\", \"; \".join(p))\n                for n, r, _, p in bad\n            ],\n        ),\n        \"\",\n    ]\n    return \"\\n\".join(lines)\n\n\nif __name__ == \"__main__\":\n    print(main(sys.argv[1] if len(sys.argv) > 1 else \"data/sales.csv\"))\n"
+  },
+  "git": {
+    "tags": [],
+    "log": [
+      "ac5433a initial import"
+    ],
+    "status": [
+      "?? reports/",
+      "?? scripts/"
+    ]
+  },
+  "success": {
+    "file ERRORS.md": false,
+    "unchanged data/sales.csv": true
+  }
+}

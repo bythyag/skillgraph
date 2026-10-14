@@ -1,0 +1,8 @@
+cff-version: 1.2.0
+message: If you use skillgraph in your work, please cite it.
+title: "skillgraph: per-line attribution for agent skill files"
+authors:
+  - alias: bythyag
+license: MIT
+repository-code: https://github.com/bythyag/skillgraph
+keywords: [agent skills, evaluation, LLM agents, SOP compliance]

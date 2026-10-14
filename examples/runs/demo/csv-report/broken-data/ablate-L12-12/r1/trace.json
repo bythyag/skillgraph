@@ -1,0 +1,112 @@
+{
+  "skill": "csv-report",
+  "task": "broken-data",
+  "task_prompt": "Create the sales report for data/sales.csv.",
+  "variant": {
+    "name": "ablate-L12-12",
+    "kind": "ablate",
+    "remove": [
+      [
+        12,
+        12
+      ]
+    ]
+  },
+  "rep": 1,
+  "model": "claude-opus-5-5",
+  "trigger": "invoke",
+  "enforce": false,
+  "init": {
+    "model": "claude-opus-5-5",
+    "skills": [
+      "csv-report"
+    ],
+    "tools": [
+      "Bash",
+      "Edit",
+      "Glob",
+      "Grep",
+      "Read",
+      "Skill",
+      "Write"
+    ],
+    "claude_code_version": "2.1.294"
+  },
+  "events": [
+    {
+      "i": 0,
+      "kind": "tool",
+      "id": "toolu_01K7weQknpaGL7eGnbHXV6qU",
+      "tool": "Bash",
+      "input": {
+        "command": "cd \"$PWD\"; ls -R .claude/skills/csv-report data; cat .claude/skills/csv-report/references/*.md",
+        "description": "List skill files and data, show references"
+      },
+      "output": ".claude/skills/csv-report:\nSKILL.md\nreferences\nscripts\n\n.claude/skills/csv-report/references:\nformat.md\n\n.claude/skills/csv-report/scripts:\nstats.py\nvalidate.py\n\ndata:\nsales.csv\n# Report format\n\n- Headline: `**$<total revenue> total revenue across <n> regions**`, with the total formatted like `$12,345.67`.\n- Region table columns: `Region | Revenue | Share`. Share is a percentage with one decimal.\n- Top product line: `Top product: <name> ($<revenue>)`.\n- No emojis and no charts.",
+      "is_error": false
+    },
+    {
+      "i": 1,
+      "kind": "tool",
+      "id": "toolu_01BXsxv5zPtyMUzwCmfEFSk6",
+      "tool": "Bash",
+      "input": {
+        "command": "cd \"$PWD\"; cat .claude/skills/csv-report/scripts/validate.py; echo ---; python3 -I .claude/skills/csv-report/scripts/validate.py data/sales.csv; echo \"exit=$?\"",
+        "description": "Show validator script and run it on sales.csv"
+      },
+      "output": "#!/usr/bin/env python3\n\"\"\"Validate a sales CSV. Prints OK, or one ERROR line per problem and exits 1.\"\"\"\n\nimport csv\nimport sys\n\nREQUIRED = [\"date\", \"region\", \"product\", \"units\", \"unit_price\"]\n\n\ndef main(path: str) -> int:\n    errors = []\n    with open(path, newline=\"\") as fh:\n        reader = csv.DictReader(fh)\n        missing = [c for c in REQUIRED if c not in (reader.fieldnames or [])]\n        if missing:\n            print(f\"ERROR header: missing columns {', '.join(missing)}\")\n            return 1\n        for n, row in enumerate(reader, start=2):\n            if not row[\"region\"].strip():\n                errors.append(f\"ERROR line {n}: empty region\")\n            try:\n                if int(row[\"units\"]) < 0:\n                    errors.append(f\"ERROR line {n}: negative units ({row['units']})\")\n            except ValueError:\n                errors.append(f\"ERROR line {n}: units is not an integer ({row['units']!r})\")\n            try:\n                float(row[\"unit_price\"])\n            except ValueError:\n                errors.append(f\"ERROR line {n}: unit_price is not a number ({row['unit_price']!r})\")\n    for e in errors:\n        print(e)\n    if not errors:\n        print(\"OK\")\n    return 1 if errors else 0\n\n\nif __name__ == \"__main__\":\n    if len(sys.argv) != 2:\n        print(\"usage: validate.py <csv-path>\")\n        sys.exit(2)\n    sys.exit(main(sys.argv[1]))\n---\nERROR line 4: empty region\nERROR line 5: units is not an integer ('three')\nERROR line 7: negative units (-15)\nERROR line 8: unit_price is not a number ('12O.00')\nexit=1",
+      "is_error": false
+    },
+    {
+      "i": 2,
+      "kind": "text",
+      "text": "Validation failed. As the skill instructs, I'll record the errors and stop without repairing the data."
+    },
+    {
+      "i": 3,
+      "kind": "tool",
+      "id": "toolu_01JedrtmH6AwhHSziUTQsQFC",
+      "tool": "Write",
+      "input": {
+        "file_path": "/workspace/ERRORS.md",
+        "content": "ERROR line 4: empty region\nERROR line 5: units is not an integer ('three')\nERROR line 7: negative units (-15)\nERROR line 8: unit_price is not a number ('12O.00')\n"
+      },
+      "output": "File created successfully at: /workspace/ERRORS.md (file state is current in your context — no need to Read it back)",
+      "is_error": false
+    },
+    {
+      "i": 4,
+      "kind": "text",
+      "text": "I didn't create the report because `data/sales.csv` failed validation. The validator found 4 errors:\n\n- **Line 4:** the region is empty.\n- **Line 5:** units is `'three'` instead of a number.\n- **Line 7:** units is negative (`-15`).\n- **Line 8:** unit_price is `'12O.00'`, with a letter O where a zero should be.\n\nThe skill says to stop at this point, so I copied these lines into `ERRORS.md`. I didn't write `report.md` or update `CHANGELOG.md`, and I didn't change the CSV.\n\nOnce those rows are fixed in the source data, I can run it again. Two problems with the skill itself:\n\n- **Step 1 is missing** from its numbered list. I assumed it means \"run `scripts/validate.py`\", because that's the only other script and step 2 talks about validation failing.\n- **`references/regions.md` doesn't exist**, but the rules say region names must match it. The next run will hit this if the data passes validation."
+    }
+  ],
+  "blocked": [],
+  "result": {
+    "subtype": "success",
+    "is_error": false,
+    "num_turns": 4,
+    "duration_ms": 15848,
+    "cost_usd": 1.2712038,
+    "text": "I didn't create the report because `data/sales.csv` failed validation. The validator found 4 errors:\n\n- **Line 4:** the region is empty.\n- **Line 5:** units is `'three'` instead of a number.\n- **Line 7:** units is negative (`-15`).\n- **Line 8:** unit_price is `'12O.00'`, with a letter O where a zero should be.\n\nThe skill says to stop at this point, so I copied these lines into `ERRORS.md`. I didn't write `report.md` or update `CHANGELOG.md`, and I didn't change the CSV.\n\nOnce those rows are fixed in the source data, I can run it again. Two problems with the skill itself:\n\n- **Step 1 is missing** from its numbered list. I assumed it means \"run `scripts/validate.py`\", because that's the only other script and step 2 talks about validation failing.\n- **`references/regions.md` doesn't exist**, but the rules say region names must match it. The next run will hit this if the data passes validation."
+  },
+  "error": null,
+  "wall_s": 17.3,
+  "skill_loaded": true,
+  "files": {
+    "ERRORS.md": "ERROR line 4: empty region\nERROR line 5: units is not an integer ('three')\nERROR line 7: negative units (-15)\nERROR line 8: unit_price is not a number ('12O.00')\n",
+    "data/sales.csv": "date,region,product,units,unit_price\n2026-09-01,North,Widget,12,19.99\n2026-09-01,South,Gadget,5,49.50\n2026-09-02,,Widget,8,19.99\n2026-09-02,West,Gizmo,three,129.00\n2026-09-03,North,Gadget,7,49.50\n2026-09-04,South,Widget,-15,19.99\n2026-09-05,East,Gizmo,2,12O.00\n2026-09-06,West,Widget,9,19.99\n2026-09-08,North,Gizmo,4,129.00\n2026-09-09,South,Gadget,6,49.50\n"
+  },
+  "git": {
+    "tags": [],
+    "log": [
+      "a5f4c9d initial import"
+    ],
+    "status": [
+      "?? ERRORS.md"
+    ]
+  },
+  "success": {
+    "file ERRORS.md": true,
+    "unchanged data/sales.csv": true
+  }
+}

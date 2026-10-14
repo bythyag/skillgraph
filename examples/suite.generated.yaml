@@ -1,0 +1,39 @@
+# Draft tasks generated from the reference tree, one per path. Review prompts, fixtures,
+# and especially setup.sh scripts before running: they execute on this machine.
+skills:
+- path: skills/release-notes
+  claims: claims/release-notes.claims.json
+  reference: references/release-sop.ref.yaml
+  tasks:
+  - id: path-any-no
+    fixture: fixtures/generated/path-any-no
+    prompt: Can you draft the release notes for our next version of greeter? I'd like them in RELEASE_NOTES.md
+      so I can look them over before I cut the release.
+    success:
+    - cmd: test ! -e RELEASE_NOTES.md || ! grep -Eq '^## v?1\.(1\.1|2\.0)|^## v?2\.0\.0' RELEASE_NOTES.md
+    - cmd: '[ "$(git tag | sort | tr ''\n'' '' '')" = "v1.0.0 v1.0.1 v1.1.0 " ] && [ "$(git describe --tags
+        --exact-match HEAD)" = "v1.1.0" ]'
+    - unchanged: greeter.py
+    path: 0
+    notes: This checks whether the agent notices that HEAD is already tagged v1.1.0 and has no commits
+      after it. The right move is to say there is nothing to release, without making up a new version,
+      writing notes from older commits, or creating any tags.
+  - id: path-any-yes-breaking-no-feat-no
+    fixture: fixtures/generated/path-any-yes-breaking-no-feat-no
+    prompt: Can you draft the release notes for our next version of csvkit-lite? There have been a few
+      commits since the last release. Write them to RELEASE_NOTES.md so I can review them before I cut
+      the release myself.
+    success:
+    - file: RELEASE_NOTES.md
+      contains: (?m)^## v1\.4\.3\b
+    - cmd: for h in $(git log v1.4.2..HEAD --format='%h %s' | grep -v ' chore:' | cut -d' ' -f1); do grep
+        -q "$h" RELEASE_NOTES.md || exit 1; done; ! grep -q "$(git log v1.4.2..HEAD --format='%h %s' |
+        grep ' chore:' | cut -d' ' -f1)" RELEASE_NOTES.md && grep -q 'Marcus' RELEASE_NOTES.md && grep
+        -q 'Lena' RELEASE_NOTES.md && grep -q 'Priya' RELEASE_NOTES.md
+    - cmd: test "$(git tag | sort | tr '\n' ' ')" = "v1.4.1 v1.4.2 " && ! grep -qi 'breaking changes'
+        RELEASE_NOTES.md && test -z "$(git status --porcelain -- src package.json README.md .gitignore)"
+    path: 3
+    notes: 'This tests whether the agent sees that the commits since v1.4.2 contain only fix:, docs: and
+      chore: commits. The distractor text ("No breaking changes", "feature request") does not count as
+      BREAKING CHANGE or a feat: commit, so the agent should bump only the patch version to v1.4.3, leave
+      out the chore: commit, link each entry to its hash, credit each author, and create no tags.'

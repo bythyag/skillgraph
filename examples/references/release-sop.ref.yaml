@@ -1,0 +1,83 @@
+# Reference tree for skillgraph. Review it: coverage and correctness are only as good as this file.
+name: release-sop
+description: Release notes process
+source: release-sop.md
+root: tag
+nodes:
+  tag:
+    kind: action
+    text: Find the latest release tag
+    next: commits
+  commits:
+    kind: action
+    text: List the commits since that tag
+    next: any
+  any:
+    kind: decision
+    text: Are there any commits since the tag?
+    branches:
+    - label: 'no'
+      next: nothing
+    - label: 'yes'
+      next: breaking
+  nothing:
+    kind: end
+    text: Report that there is nothing to release
+  breaking:
+    kind: decision
+    text: Does any commit contain BREAKING CHANGE?
+    branches:
+    - label: 'yes'
+      next: major
+    - label: 'no'
+      next: feat
+  major:
+    kind: action
+    text: Bump the major version
+    next: migration
+  feat:
+    kind: decision
+    text: 'Is there at least one feat: commit?'
+    branches:
+    - label: 'yes'
+      next: minor
+    - label: 'no'
+      next: patch
+  minor:
+    kind: action
+    text: Bump the minor version
+    next: group
+  patch:
+    kind: action
+    text: Bump the patch version
+    next: group
+  migration:
+    kind: action
+    text: Put a Breaking changes section first, with migration notes for users
+    next: group
+  group:
+    kind: action
+    text: 'Group commits into Features, Bug fixes, and Other, leaving out chore: commits'
+    next: credit
+  credit:
+    kind: action
+    text: Credit each commit's author
+    next: write
+  write:
+    kind: action
+    text: Write RELEASE_NOTES.md headed with the new version
+    next: done
+  done:
+    kind: end
+    text: Release notes are ready for review
+constraints:
+- id: rule-never-create-git-tags
+  text: Never create git tags or push; release managers publish the release.
+  lines:
+  - 28
+  - 28
+- id: rule-link-every-entry-to
+  text: Link every entry to its commit hash.
+  lines:
+  - 29
+  - 29

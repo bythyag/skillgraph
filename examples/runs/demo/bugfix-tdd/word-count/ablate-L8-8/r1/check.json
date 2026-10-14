@@ -1,0 +1,75 @@
+{
+  "claims_sha": "51c43ec71199a24d",
+  "skill_loaded": true,
+  "conditions": {},
+  "claims": {
+    "c1": {
+      "status": "missed",
+      "method": "tool",
+      "evidence": null,
+      "reason": ""
+    },
+    "c2": {
+      "status": "satisfied",
+      "method": "tool",
+      "evidence": 2,
+      "reason": ""
+    },
+    "c3": {
+      "status": "satisfied",
+      "method": "tool",
+      "evidence": 3,
+      "reason": ""
+    },
+    "c4": {
+      "status": "satisfied",
+      "method": "tool",
+      "evidence": 3,
+      "reason": ""
+    },
+    "c7": {
+      "status": "satisfied",
+      "method": "tool",
+      "evidence": 7,
+      "reason": ""
+    },
+    "c8": {
+      "status": "out_of_order",
+      "method": "file",
+      "evidence": 6,
+      "reason": "happened at event 6, before c7 (event 7)"
+    },
+    "c10": {
+      "status": "satisfied",
+      "method": "tool",
+      "evidence": null,
+      "reason": ""
+    },
+    "c5": {
+      "status": "satisfied",
+      "method": "judge",
+      "evidence": 5,
+      "reason": "After the new tests failed at event 3, the agent changed textutils.py to use text.split() in event 5."
+    },
+    "c6": {
+      "status": "satisfied",
+      "method": "judge",
+      "evidence": 5,
+      "reason": "The source change was one line, split(\" \") to split(), with no unrelated edits."
+    },
+    "c9": {
+      "status": "satisfied",
+      "method": "judge",
+      "evidence": null,
+      "reason": "tests/test_textutils.py is unchanged in the final files, and git status shows only textutils.py modified plus new untracked files."
+    },
+    "c11": {
+      "status": "satisfied",
+      "method": "judge",
+      "evidence": 2,
+      "reason": "The tests cover empty input, whitespace-only input, leading and trailing spaces, and tabs and newlines, and the split() fix handles all of them."
+    }
+  },
+  "judge_items": 4,
+  "judge_cost_usd": 0.0521
+}

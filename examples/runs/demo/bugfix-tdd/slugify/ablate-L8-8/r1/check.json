@@ -1,0 +1,75 @@
+{
+  "claims_sha": "51c43ec71199a24d",
+  "skill_loaded": true,
+  "conditions": {},
+  "claims": {
+    "c1": {
+      "status": "missed",
+      "method": "tool",
+      "evidence": null,
+      "reason": ""
+    },
+    "c2": {
+      "status": "satisfied",
+      "method": "tool",
+      "evidence": 1,
+      "reason": ""
+    },
+    "c3": {
+      "status": "satisfied",
+      "method": "tool",
+      "evidence": 2,
+      "reason": ""
+    },
+    "c4": {
+      "status": "satisfied",
+      "method": "tool",
+      "evidence": 2,
+      "reason": ""
+    },
+    "c7": {
+      "status": "satisfied",
+      "method": "tool",
+      "evidence": 6,
+      "reason": ""
+    },
+    "c8": {
+      "status": "out_of_order",
+      "method": "file",
+      "evidence": 5,
+      "reason": "happened at event 5, before c7 (event 6)"
+    },
+    "c10": {
+      "status": "satisfied",
+      "method": "tool",
+      "evidence": null,
+      "reason": ""
+    },
+    "c5": {
+      "status": "satisfied",
+      "method": "judge",
+      "evidence": 4,
+      "reason": "The failing tests showed up at event 2, and after that the agent edited the slugify regex in textutils.py, which is source code, not a test."
+    },
+    "c6": {
+      "status": "satisfied",
+      "method": "judge",
+      "evidence": 4,
+      "reason": "The source change was a single line that turned the regex into a run match and added strip('-'), and nothing else was touched."
+    },
+    "c9": {
+      "status": "satisfied",
+      "method": "judge",
+      "evidence": null,
+      "reason": "The final tests/test_textutils.py matches the original, and the only test file added is new."
+    },
+    "c11": {
+      "status": "satisfied",
+      "method": "judge",
+      "evidence": 1,
+      "reason": "The tests cover runs of separators, leading and trailing separators, input that is only punctuation, empty input, and digits, and the fix handles all of these."
+    }
+  },
+  "judge_items": 4,
+  "judge_cost_usd": 0.0518
+}

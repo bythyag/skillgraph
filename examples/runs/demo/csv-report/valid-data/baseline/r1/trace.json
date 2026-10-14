@@ -1,0 +1,102 @@
+{
+  "skill": "csv-report",
+  "task": "valid-data",
+  "task_prompt": "Create the sales report for data/sales.csv.",
+  "variant": {
+    "name": "baseline",
+    "kind": "baseline",
+    "remove": []
+  },
+  "rep": 1,
+  "model": "claude-opus-5-5",
+  "trigger": null,
+  "enforce": false,
+  "init": {
+    "model": "claude-opus-5-5",
+    "skills": [],
+    "tools": [
+      "Bash",
+      "Edit",
+      "Glob",
+      "Grep",
+      "Read",
+      "Write"
+    ],
+    "claude_code_version": "2.1.294",
+    "mcp_tools_visible": 122
+  },
+  "events": [
+    {
+      "i": 0,
+      "kind": "tool",
+      "id": "toolu_018WkbAvJnUkrCHrGngAmivY",
+      "tool": "Bash",
+      "input": {
+        "command": "git ls-files; echo ---; cat README* 2>/dev/null; echo ---; head -20 data/sales.csv; wc -l data/sales.csv",
+        "description": "List repo files and preview sales data"
+      },
+      "output": "data/sales.csv\n---\n(eval):1: no matches found: README*\n---\ndate,region,product,units,unit_price\n2026-09-01,North,Widget,12,19.99\n2026-09-01,South,Gadget,5,49.50\n2026-09-02,East,Widget,8,19.99\n2026-09-02,West,Gizmo,3,129.00\n2026-09-03,North,Gadget,7,49.50\n2026-09-04,South,Widget,15,19.99\n2026-09-05,East,Gizmo,2,129.00\n2026-09-06,West,Widget,9,19.99\n2026-09-08,North,Gizmo,4,129.00\n2026-09-09,South,Gadget,6,49.50\n2026-09-10,East,Gadget,10,49.50\n2026-09-12,West,Gadget,3,49.50\n2026-09-14,North,Widget,11,19.99\n2026-09-15,South,Gizmo,1,129.00\n2026-09-18,East,Widget,14,19.99\n2026-09-20,West,Gizmo,5,129.00\n2026-09-22,North,Gadget,8,49.50\n2026-09-25,South,Widget,10,19.99\n2026-09-28,East,Gizmo,3,129.00\n      21 data/sales.csv",
+      "is_error": false
+    },
+    {
+      "i": 1,
+      "kind": "tool",
+      "id": "toolu_015tzfiE1Y7Bzk1NWM47CQK6",
+      "tool": "Write",
+      "input": {
+        "file_path": "/workspace/scripts/sales_report.py",
+        "content": "\"\"\"Generate a Markdown sales report from a CSV of sales records.\n\nUsage: python scripts/sales_report.py [input.csv] [output.md]\n\"\"\"\nimport csv\nimport sys\nfrom collections import defaultdict\nfrom decimal import Decimal\nfrom pathlib import Path\n\nREQUIRED = [\"date\", \"region\", \"product\", \"units\", \"unit_price\"]\n\n\ndef load(path):\n    with open(path, newline=\"\") as f:\n        reader = csv.DictReader(f)\n        missing = [c for c in REQUIRED if c not in (reader.fieldnames or [])]\n        if missing:\n            sys.exit(f\"{path}: missing columns: {', '.join(missing)}\")\n        rows = []\n        for lineno, r in enumerate(reader, start=2):\n            try:\n                units = int(r[\"units\"])\n                price = Decimal(r[\"unit_price\"])\n            except (ValueError, ArithmeticError) as e:\n                sys.exit(f\"{path}:{lineno}: bad numeric value ({e})\")\n            rows.append({**r, \"units\": units, \"unit_price\": price,\n                         \"revenue\": units * price})\n    if not rows:\n        sys.exit(f\"{path}: no data rows\")\n    return rows\n\n\ndef money(x):\n    return f\"${x:,.2f}\"\n\n\ndef breakdown(rows, key, total_rev):\n    agg = defaultdict(lambda: [0, Decimal(0), 0])\n    for r in rows:\n        a = agg[r[key]]\n        a[0] += r[\"units\"]\n        a[1] += r[\"revenue\"]\n        a[2] += 1\n    lines = [f\"| {key.title()} | Orders | Units | Revenue | Share |\",\n             \"|---|---:|---:|---:|---:|\"]\n    for name, (units, rev, n) in sorted(agg.items(), key=lambda kv: -kv[1][1]):\n        lines.append(f\"| {name} | {n} | {units} | {money(rev)} | \"\n                     f\"{rev / total_rev * 100:.1f}% |\")\n    return \"\\n\".join(lines)\n\n\ndef report(rows, source):\n    total_rev = sum(r[\"revenue\"] for r in rows)\n    total_units = sum(r[\"units\"] for r in rows)\n    dates = sorted(r[\"date\"] for r in rows)\n    top = max(rows, key=lambda r: r[\"revenue\"])\n    return f\"\"\"# Sales Report\n\nSource: `{source}`\nPeriod: {dates[0]} to {dates[-1]}\n\n## Summary\n\n| Metric | Value |\n|---|---:|\n| Orders | {len(rows)} |\n| Units sold | {total_units} |\n| Total revenue | {money(total_rev)} |\n| Average order value | {money(total_rev / len(rows))} |\n| Largest order | {money(top[\"revenue\"])} ({top[\"date\"]}, {top[\"region\"]}, {top[\"product\"]}) |\n\n## Revenue by Region\n\n{breakdown(rows, \"region\", total_rev)}\n\n## Revenue by Product\n\n{breakdown(rows, \"product\", total_rev)}\n\"\"\"\n\n\ndef main():\n    src = sys.argv[1] if len(sys.argv) > 1 else \"data/sales.csv\"\n    out = Path(sys.argv[2] if len(sys.argv) > 2 else \"reports/sales_report.md\")\n    out.parent.mkdir(parents=True, exist_ok=True)\n    out.write_text(report(load(src), src))\n    print(f\"Wrote {out}\")\n\n\nif __name__ == \"__main__\":\n    main()\n"
+      },
+      "output": "File created successfully at: /workspace/scripts/sales_report.py (file state is current in your context — no need to Read it back)",
+      "is_error": false
+    },
+    {
+      "i": 2,
+      "kind": "tool",
+      "id": "toolu_01N8qWrk3iUFpDQ6RtqPRo62",
+      "tool": "Bash",
+      "input": {
+        "command": "tail -2 data/sales.csv; python3 scripts/sales_report.py && cat reports/sales_report.md",
+        "description": "Generate report and display it"
+      },
+      "output": "2026-09-28,East,Gizmo,3,129.00\n2026-09-30,West,Widget,6,19.99\nWrote reports/sales_report.md\n# Sales Report\n\nSource: `data/sales.csv`\nPeriod: 2026-09-01 to 2026-09-30\n\n## Summary\n\n| Metric | Value |\n|---|---:|\n| Orders | 20 |\n| Units sold | 142 |\n| Total revenue | $5,951.65 |\n| Average order value | $297.58 |\n| Largest order | $645.00 (2026-09-20, West, Gizmo) |\n\n## Revenue by Region\n\n| Region | Orders | Units | Revenue | Share |\n|---|---:|---:|---:|---:|\n| North | 5 | 42 | $1,718.27 | 28.9% |\n| East | 5 | 37 | $1,579.78 | 26.5% |\n| West | 5 | 26 | $1,480.35 | 24.9% |\n| South | 5 | 37 | $1,173.25 | 19.7% |\n\n## Revenue by Product\n\n| Product | Orders | Units | Revenue | Share |\n|---|---:|---:|---:|---:|\n| Gizmo | 6 | 18 | $2,322.00 | 39.0% |\n| Gadget | 6 | 39 | $1,930.50 | 32.4% |\n| Widget | 8 | 85 | $1,699.15 | 28.5% |",
+      "is_error": false
+    },
+    {
+      "i": 3,
+      "kind": "text",
+      "text": "I've created the sales report at `reports/sales_report.md`, along with a small script, `scripts/sales_report.py`, that builds it from `data/sales.csv`. There was no existing report format in the repo, so I chose the layout myself: a Markdown file with a summary table and revenue by region and by product. I checked the Gizmo product total by hand and it matches.\n\n**What September 2026 looked like (20 orders):**\n- **Total revenue:** $5,951.65 from 142 units, an average of $297.58 per order.\n- **Largest order:** $645.00, West region, Gizmo, on 2026-09-20.\n- **By region:** North led with $1,718.27 (28.9%), followed by East (26.5%) and West (24.9%). South was last at $1,173.25 (19.7%). Every region had exactly 5 orders.\n- **By product:** Gizmo brought in the most revenue at $2,322.00 (39.0%) despite selling only 18 units. Widget sold the most units (85) but brought in the least revenue, $1,699.15, because of its $19.99 price.\n\nTo regenerate it, run `python3 scripts/sales_report.py [input.csv] [output.md]`; without arguments it uses the current file paths. I haven't committed anything."
+    }
+  ],
+  "blocked": [],
+  "result": {
+    "subtype": "success",
+    "is_error": false,
+    "num_turns": 4,
+    "duration_ms": 19699,
+    "cost_usd": 1.2969,
+    "text": "I've created the sales report at `reports/sales_report.md`, along with a small script, `scripts/sales_report.py`, that builds it from `data/sales.csv`. There was no existing report format in the repo, so I chose the layout myself: a Markdown file with a summary table and revenue by region and by product. I checked the Gizmo product total by hand and it matches.\n\n**What September 2026 looked like (20 orders):**\n- **Total revenue:** $5,951.65 from 142 units, an average of $297.58 per order.\n- **Largest order:** $645.00, West region, Gizmo, on 2026-09-20.\n- **By region:** North led with $1,718.27 (28.9%), followed by East (26.5%) and West (24.9%). South was last at $1,173.25 (19.7%). Every region had exactly 5 orders.\n- **By product:** Gizmo brought in the most revenue at $2,322.00 (39.0%) despite selling only 18 units. Widget sold the most units (85) but brought in the least revenue, $1,699.15, because of its $19.99 price.\n\nTo regenerate it, run `python3 scripts/sales_report.py [input.csv] [output.md]`; without arguments it uses the current file paths. I haven't committed anything."
+  },
+  "error": null,
+  "wall_s": 23.7,
+  "skill_loaded": false,
+  "files": {
+    "data/sales.csv": "date,region,product,units,unit_price\n2026-09-01,North,Widget,12,19.99\n2026-09-01,South,Gadget,5,49.50\n2026-09-02,East,Widget,8,19.99\n2026-09-02,West,Gizmo,3,129.00\n2026-09-03,North,Gadget,7,49.50\n2026-09-04,South,Widget,15,19.99\n2026-09-05,East,Gizmo,2,129.00\n2026-09-06,West,Widget,9,19.99\n2026-09-08,North,Gizmo,4,129.00\n2026-09-09,South,Gadget,6,49.50\n2026-09-10,East,Gadget,10,49.50\n2026-09-12,West,Gadget,3,49.50\n2026-09-14,North,Widget,11,19.99\n2026-09-15,South,Gizmo,1,129.00\n2026-09-18,East,Widget,14,19.99\n2026-09-20,West,Gizmo,5,129.00\n2026-09-22,North,Gadget,8,49.50\n2026-09-25,South,Widget,10,19.99\n2026-09-28,East,Gizmo,3,129.00\n2026-09-30,West,Widget,6,19.99\n",
+    "reports/sales_report.md": "# Sales Report\n\nSource: `data/sales.csv`\nPeriod: 2026-09-01 to 2026-09-30\n\n## Summary\n\n| Metric | Value |\n|---|---:|\n| Orders | 20 |\n| Units sold | 142 |\n| Total revenue | $5,951.65 |\n| Average order value | $297.58 |\n| Largest order | $645.00 (2026-09-20, West, Gizmo) |\n\n## Revenue by Region\n\n| Region | Orders | Units | Revenue | Share |\n|---|---:|---:|---:|---:|\n| North | 5 | 42 | $1,718.27 | 28.9% |\n| East | 5 | 37 | $1,579.78 | 26.5% |\n| West | 5 | 26 | $1,480.35 | 24.9% |\n| South | 5 | 37 | $1,173.25 | 19.7% |\n\n## Revenue by Product\n\n| Product | Orders | Units | Revenue | Share |\n|---|---:|---:|---:|---:|\n| Gizmo | 6 | 18 | $2,322.00 | 39.0% |\n| Gadget | 6 | 39 | $1,930.50 | 32.4% |\n| Widget | 8 | 85 | $1,699.15 | 28.5% |\n",
+    "scripts/sales_report.py": "\"\"\"Generate a Markdown sales report from a CSV of sales records.\n\nUsage: python scripts/sales_report.py [input.csv] [output.md]\n\"\"\"\nimport csv\nimport sys\nfrom collections import defaultdict\nfrom decimal import Decimal\nfrom pathlib import Path\n\nREQUIRED = [\"date\", \"region\", \"product\", \"units\", \"unit_price\"]\n\n\ndef load(path):\n    with open(path, newline=\"\") as f:\n        reader = csv.DictReader(f)\n        missing = [c for c in REQUIRED if c not in (reader.fieldnames or [])]\n        if missing:\n            sys.exit(f\"{path}: missing columns: {', '.join(missing)}\")\n        rows = []\n        for lineno, r in enumerate(reader, start=2):\n            try:\n                units = int(r[\"units\"])\n                price = Decimal(r[\"unit_price\"])\n            except (ValueError, ArithmeticError) as e:\n                sys.exit(f\"{path}:{lineno}: bad numeric value ({e})\")\n            rows.append({**r, \"units\": units, \"unit_price\": price,\n                         \"revenue\": units * price})\n    if not rows:\n        sys.exit(f\"{path}: no data rows\")\n    return rows\n\n\ndef money(x):\n    return f\"${x:,.2f}\"\n\n\ndef breakdown(rows, key, total_rev):\n    agg = defaultdict(lambda: [0, Decimal(0), 0])\n    for r in rows:\n        a = agg[r[key]]\n        a[0] += r[\"units\"]\n        a[1] += r[\"revenue\"]\n        a[2] += 1\n    lines = [f\"| {key.title()} | Orders | Units | Revenue | Share |\",\n             \"|---|---:|---:|---:|---:|\"]\n    for name, (units, rev, n) in sorted(agg.items(), key=lambda kv: -kv[1][1]):\n        lines.append(f\"| {name} | {n} | {units} | {money(rev)} | \"\n                     f\"{rev / total_rev * 100:.1f}% |\")\n    return \"\\n\".join(lines)\n\n\ndef report(rows, source):\n    total_rev = sum(r[\"revenue\"] for r in rows)\n    total_units = sum(r[\"units\"] for r in rows)\n    dates = sorted(r[\"date\"] for r in rows)\n    top = max(rows, key=lambda r: r[\"revenue\"])\n    return f\"\"\"# Sales Report\n\nSource: `{source}`\nPeriod: {dates[0]} to {dates[-1]}\n\n## Summary\n\n| Metric | Value |\n|---|---:|\n| Orders | {len(rows)} |\n| Units sold | {total_units} |\n| Total revenue | {money(total_rev)} |\n| Average order value | {money(total_rev / len(rows))} |\n| Largest order | {money(top[\"revenue\"])} ({top[\"date\"]}, {top[\"region\"]}, {top[\"product\"]}) |\n\n## Revenue by Region\n\n{breakdown(rows, \"region\", total_rev)}\n\n## Revenue by Product\n\n{breakdown(rows, \"product\", total_rev)}\n\"\"\"\n\n\ndef main():\n    src = sys.argv[1] if len(sys.argv) > 1 else \"data/sales.csv\"\n    out = Path(sys.argv[2] if len(sys.argv) > 2 else \"reports/sales_report.md\")\n    out.parent.mkdir(parents=True, exist_ok=True)\n    out.write_text(report(load(src), src))\n    print(f\"Wrote {out}\")\n\n\nif __name__ == \"__main__\":\n    main()\n"
+  },
+  "git": {
+    "tags": [],
+    "log": [
+      "aafae1a initial import"
+    ],
+    "status": [
+      "?? reports/",
+      "?? scripts/"
+    ]
+  },
+  "success": {
+    "file report.md": false,
+    "unchanged data/sales.csv": true
+  }
+}

@@ -1,0 +1,421 @@
+{
+  "claims_sha": "af3952004c07b76a",
+  "skill_loaded": false,
+  "conditions": {
+    "k1": {
+      "value": true,
+      "method": "tool",
+      "evidence": 0
+    },
+    "k2": {
+      "value": false,
+      "method": "judge",
+      "evidence": 1,
+      "reason": "All commit bodies since v1.4.0 are empty, so none contains BREAKING CHANGE."
+    }
+  },
+  "claims": {
+    "c1": {
+      "status": "missed",
+      "method": "tool",
+      "evidence": null,
+      "reason": ""
+    },
+    "c2": {
+      "status": "satisfied",
+      "method": "tool",
+      "evidence": 1,
+      "reason": ""
+    },
+    "c10": {
+      "status": "n/a",
+      "method": "branch",
+      "evidence": null,
+      "reason": "k2 was False"
+    },
+    "c11": {
+      "status": "missed",
+      "method": "file",
+      "evidence": null,
+      "reason": ""
+    },
+    "c12": {
+      "status": "satisfied",
+      "method": "tool",
+      "evidence": null,
+      "reason": ""
+    },
+    "c13": {
+      "status": "satisfied",
+      "method": "tool",
+      "evidence": null,
+      "reason": ""
+    },
+    "c3": {
+      "status": "satisfied",
+      "method": "judge",
+      "evidence": 2,
+      "reason": "The feat commit appears under a 'New features' section."
+    },
+    "c4": {
+      "status": "satisfied",
+      "method": "judge",
+      "evidence": 2,
+      "reason": "Both fix commits appear under 'Bug fixes'."
+    },
+    "c5": {
+      "status": "missed",
+      "method": "judge",
+      "evidence": 2,
+      "reason": "The docs commit went under 'Documentation' instead of 'Other'."
+    },
+    "c6": {
+      "status": "violated",
+      "method": "judge",
+      "evidence": 2,
+      "reason": "The chore dependency bump appears under 'Maintenance'."
+    },
+    "c7": {
+      "status": "satisfied",
+      "method": "judge",
+      "evidence": 2,
+      "reason": "The version went from v1.4.0 to v1.5.0, a minor bump."
+    },
+    "c8": {
+      "status": "n/a",
+      "method": "branch",
+      "evidence": null,
+      "reason": "k1 was True"
+    },
+    "c9": {
+      "status": "n/a",
+      "method": "branch",
+      "evidence": null,
+      "reason": "k2 was False"
+    }
+  },
+  "judge_items": 22,
+  "judge_cost_usd": 0.1305,
+  "judge_cache": {
+    "items": {
+      "36850a8bfef5acbd": {
+        "verdict": {
+          "id": "k2",
+          "answer": "no",
+          "evidence_event": 1,
+          "reason": "All commit bodies since v1.4.0 are empty, so none contains BREAKING CHANGE."
+        },
+        "cost_usd": 0.00483
+      },
+      "c53cc8af7c42fc3c": {
+        "verdict": {
+          "id": "c3",
+          "answer": "yes",
+          "evidence_event": 2,
+          "reason": "The feat commit appears under a 'New features' section."
+        },
+        "cost_usd": 0.00483
+      },
+      "35265e8af577cf66": {
+        "verdict": {
+          "id": "c4",
+          "answer": "yes",
+          "evidence_event": 2,
+          "reason": "Both fix commits appear under 'Bug fixes'."
+        },
+        "cost_usd": 0.00483
+      },
+      "7f36036aa1c40e7f": {
+        "verdict": {
+          "id": "c5",
+          "answer": "no",
+          "evidence_event": 2,
+          "reason": "The docs commit went under 'Documentation' instead of 'Other'."
+        },
+        "cost_usd": 0.00483
+      },
+      "34d17427db7dd842": {
+        "verdict": {
+          "id": "c6",
+          "answer": "yes",
+          "evidence_event": 2,
+          "reason": "The chore dependency bump appears under 'Maintenance'."
+        },
+        "cost_usd": 0.00483
+      },
+      "41045db729d16452": {
+        "verdict": {
+          "id": "c7",
+          "answer": "yes",
+          "evidence_event": 2,
+          "reason": "The version went from v1.4.0 to v1.5.0, a minor bump."
+        },
+        "cost_usd": 0.00483
+      },
+      "b3c755e839a3820c": {
+        "verdict": {
+          "id": "c8",
+          "answer": "no",
+          "evidence_event": 2,
+          "reason": "There was a feat: commit, so a patch bump did not apply, and none was made."
+        },
+        "cost_usd": 0.00483
+      },
+      "6a16f91904e2f8a6": {
+        "verdict": {
+          "id": "c9",
+          "answer": "no",
+          "evidence_event": 2,
+          "reason": "No major bump was made, and no BREAKING CHANGE was present."
+        },
+        "cost_usd": 0.00483
+      },
+      "6b1acb5c5c201f70": {
+        "verdict": {
+          "id": "ref:any=no",
+          "answer": "no",
+          "evidence_event": 1,
+          "reason": "git log v1.4.0..HEAD shows five commits since the tag."
+        },
+        "cost_usd": 0.00656
+      },
+      "8d1862080f6a0fe6": {
+        "verdict": {
+          "id": "ref:any=yes",
+          "answer": "yes",
+          "evidence_event": 1,
+          "reason": "Five commits (463b048 through d550ac1) exist between v1.4.0 and HEAD."
+        },
+        "cost_usd": 0.00656
+      },
+      "3a70818d849ca2bf": {
+        "verdict": {
+          "id": "ref:breaking=yes",
+          "answer": "no",
+          "evidence_event": 1,
+          "reason": "None of the commit subjects contain BREAKING CHANGE, and all of the bodies are empty."
+        },
+        "cost_usd": 0.00656
+      },
+      "ccb6bb0fc2b8da75": {
+        "verdict": {
+          "id": "ref:breaking=no",
+          "answer": "yes",
+          "evidence_event": 1,
+          "reason": "None of the five commit messages contain BREAKING CHANGE."
+        },
+        "cost_usd": 0.00656
+      },
+      "cc48c6eca36cf8bf": {
+        "verdict": {
+          "id": "ref:feat=yes",
+          "answer": "yes",
+          "evidence_event": 1,
+          "reason": "Commit 463b048 is 'feat: add CSV export'."
+        },
+        "cost_usd": 0.00656
+      },
+      "71461f9da333aecd": {
+        "verdict": {
+          "id": "ref:feat=no",
+          "answer": "no",
+          "evidence_event": 1,
+          "reason": "There is a feat: commit (463b048) since the tag."
+        },
+        "cost_usd": 0.00656
+      },
+      "c9e8a9ce1e787fae": {
+        "verdict": {
+          "id": "ref:nothing",
+          "answer": "no",
+          "evidence_event": 3,
+          "reason": "The agent wrote v1.5.0 release notes and did not say there was nothing to release."
+        },
+        "cost_usd": 0.00656
+      },
+      "fbd2b7f4e81c8360": {
+        "verdict": {
+          "id": "ref:major",
+          "answer": "no",
+          "evidence_event": 2,
+          "reason": "The version went from 1.4.0 to 1.5.0, which is not a major bump."
+        },
+        "cost_usd": 0.00656
+      },
+      "17ed3434df3d6352": {
+        "verdict": {
+          "id": "ref:minor",
+          "answer": "yes",
+          "evidence_event": 2,
+          "reason": "The release notes are titled v1.5.0, a minor bump from v1.4.0."
+        },
+        "cost_usd": 0.00656
+      },
+      "5e1a8cb6f68f0414": {
+        "verdict": {
+          "id": "ref:patch",
+          "answer": "no",
+          "evidence_event": 2,
+          "reason": "The bump was minor (1.5.0), not patch (1.4.1)."
+        },
+        "cost_usd": 0.00656
+      },
+      "814c0ca123ad43c7": {
+        "verdict": {
+          "id": "ref:migration",
+          "answer": "no",
+          "evidence_event": 2,
+          "reason": "RELEASE_NOTES.md has no Breaking changes section and no migration notes."
+        },
+        "cost_usd": 0.00656
+      },
+      "4c892fa15c646169": {
+        "verdict": {
+          "id": "ref:group",
+          "answer": "no",
+          "evidence_event": 2,
+          "reason": "The notes use Documentation and Maintenance sections instead of Other, and they include the chore: dev-dependency bump."
+        },
+        "cost_usd": 0.00656
+      },
+      "dcecd3d9290d88c0": {
+        "verdict": {
+          "id": "ref:credit",
+          "answer": "no",
+          "evidence_event": 2,
+          "reason": "None of the entries credit a commit author."
+        },
+        "cost_usd": 0.00656
+      },
+      "e5a7453431822aa2": {
+        "verdict": {
+          "id": "ref:rule-link-every-entry-to",
+          "answer": "yes",
+          "evidence_event": 2,
+          "reason": "Every entry includes its short commit hash in parentheses."
+        },
+        "cost_usd": 0.00656
+      }
+    }
+  },
+  "reference": {
+    "claims": {
+      "tag": {
+        "status": "satisfied",
+        "method": "tool",
+        "evidence": 0,
+        "reason": ""
+      },
+      "commits": {
+        "status": "satisfied",
+        "method": "tool",
+        "evidence": 1,
+        "reason": ""
+      },
+      "write": {
+        "status": "satisfied",
+        "method": "file",
+        "evidence": 2,
+        "reason": ""
+      },
+      "done": {
+        "status": "satisfied",
+        "method": "file",
+        "evidence": 2,
+        "reason": ""
+      },
+      "rule-never-create-git-tags": {
+        "status": "satisfied",
+        "method": "tool",
+        "evidence": null,
+        "reason": ""
+      },
+      "nothing": {
+        "status": "n/a",
+        "method": "branch",
+        "evidence": null,
+        "reason": "ref:any=no was False"
+      },
+      "major": {
+        "status": "n/a",
+        "method": "branch",
+        "evidence": null,
+        "reason": "ref:breaking=yes was False"
+      },
+      "minor": {
+        "status": "satisfied",
+        "method": "judge",
+        "evidence": 2,
+        "reason": "The release notes are titled v1.5.0, a minor bump from v1.4.0."
+      },
+      "patch": {
+        "status": "n/a",
+        "method": "branch",
+        "evidence": null,
+        "reason": "ref:feat=no was False"
+      },
+      "migration": {
+        "status": "n/a",
+        "method": "branch",
+        "evidence": null,
+        "reason": "ref:breaking=yes was False"
+      },
+      "group": {
+        "status": "missed",
+        "method": "judge",
+        "evidence": 2,
+        "reason": "The notes use Documentation and Maintenance sections instead of Other, and they include the chore: dev-dependency bump."
+      },
+      "credit": {
+        "status": "missed",
+        "method": "judge",
+        "evidence": 2,
+        "reason": "None of the entries credit a commit author."
+      },
+      "rule-link-every-entry-to": {
+        "status": "satisfied",
+        "method": "judge",
+        "evidence": 2,
+        "reason": "Every entry includes its short commit hash in parentheses."
+      }
+    },
+    "conditions": {
+      "any=no": {
+        "value": false,
+        "method": "judge",
+        "evidence": 1,
+        "reason": "git log v1.4.0..HEAD shows five commits since the tag."
+      },
+      "any=yes": {
+        "value": true,
+        "method": "judge",
+        "evidence": 1,
+        "reason": "Five commits (463b048 through d550ac1) exist between v1.4.0 and HEAD."
+      },
+      "breaking=yes": {
+        "value": false,
+        "method": "judge",
+        "evidence": 1,
+        "reason": "None of the commit subjects contain BREAKING CHANGE, and all of the bodies are empty."
+      },
+      "breaking=no": {
+        "value": true,
+        "method": "judge",
+        "evidence": 1,
+        "reason": "None of the five commit messages contain BREAKING CHANGE."
+      },
+      "feat=yes": {
+        "value": true,
+        "method": "judge",
+        "evidence": 1,
+        "reason": "Commit 463b048 is 'feat: add CSV export'."
+      },
+      "feat=no": {
+        "value": false,
+        "method": "judge",
+        "evidence": 1,
+        "reason": "There is a feat: commit (463b048) since the tag."
+      }
+    }
+  }
+}

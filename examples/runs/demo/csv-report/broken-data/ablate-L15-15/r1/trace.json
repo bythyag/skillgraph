@@ -1,0 +1,96 @@
+{
+  "skill": "csv-report",
+  "task": "broken-data",
+  "task_prompt": "Create the sales report for data/sales.csv.",
+  "variant": {
+    "name": "ablate-L15-15",
+    "kind": "ablate",
+    "remove": [
+      [
+        15,
+        15
+      ]
+    ]
+  },
+  "rep": 1,
+  "model": "claude-opus-5-5",
+  "trigger": "invoke",
+  "enforce": false,
+  "init": {
+    "model": "claude-opus-5-5",
+    "skills": [
+      "csv-report"
+    ],
+    "tools": [
+      "Bash",
+      "Edit",
+      "Glob",
+      "Grep",
+      "Read",
+      "Skill",
+      "Write"
+    ],
+    "claude_code_version": "2.1.294",
+    "mcp_tools_visible": 67
+  },
+  "events": [
+    {
+      "i": 0,
+      "kind": "tool",
+      "id": "toolu_01K4zjc42RHME3cQP92fWxRg",
+      "tool": "Bash",
+      "input": {
+        "command": "cd \"$PWD\"; python3 .claude/skills/csv-report/scripts/validate.py data/sales.csv; echo \"exit=$?\"",
+        "description": "Validate the sales CSV"
+      },
+      "output": "ERROR line 4: empty region\nERROR line 5: units is not an integer ('three')\nERROR line 7: negative units (-15)\nERROR line 8: unit_price is not a number ('12O.00')\nexit=1",
+      "is_error": false
+    },
+    {
+      "i": 1,
+      "kind": "tool",
+      "id": "toolu_01HpoPV3YXUbwoYqtkTwddyF",
+      "tool": "Write",
+      "input": {
+        "file_path": "/workspace/ERRORS.md",
+        "content": "ERROR line 4: empty region\nERROR line 5: units is not an integer ('three')\nERROR line 7: negative units (-15)\nERROR line 8: unit_price is not a number ('12O.00')\n"
+      },
+      "output": "File created successfully at: /workspace/ERRORS.md (file state is current in your context — no need to Read it back)",
+      "is_error": false
+    },
+    {
+      "i": 2,
+      "kind": "text",
+      "text": "I didn't create the report because `data/sales.csv` failed validation. Following the skill's instructions, I copied the validator's errors into `ERRORS.md` and stopped there:\n\n```\nERROR line 4: empty region\nERROR line 5: units is not an integer ('three')\nERROR line 7: negative units (-15)\nERROR line 8: unit_price is not a number ('12O.00')\n```\n\nThe CSV is unchanged and I didn't try to repair it. I didn't produce any statistics, write `report.md`, or add a `CHANGELOG.md` entry.\n\nThe line 8 error looks like a typo: the price `12O.00` has a letter O where a zero should be. Once these four rows are fixed in the source data, run `/csv-report` again and it should produce the report."
+    }
+  ],
+  "blocked": [],
+  "result": {
+    "subtype": "success",
+    "is_error": false,
+    "num_turns": 3,
+    "duration_ms": 9620,
+    "cost_usd": 0.8505316,
+    "text": "I didn't create the report because `data/sales.csv` failed validation. Following the skill's instructions, I copied the validator's errors into `ERRORS.md` and stopped there:\n\n```\nERROR line 4: empty region\nERROR line 5: units is not an integer ('three')\nERROR line 7: negative units (-15)\nERROR line 8: unit_price is not a number ('12O.00')\n```\n\nThe CSV is unchanged and I didn't try to repair it. I didn't produce any statistics, write `report.md`, or add a `CHANGELOG.md` entry.\n\nThe line 8 error looks like a typo: the price `12O.00` has a letter O where a zero should be. Once these four rows are fixed in the source data, run `/csv-report` again and it should produce the report."
+  },
+  "error": null,
+  "wall_s": 13.0,
+  "skill_loaded": true,
+  "files": {
+    "ERRORS.md": "ERROR line 4: empty region\nERROR line 5: units is not an integer ('three')\nERROR line 7: negative units (-15)\nERROR line 8: unit_price is not a number ('12O.00')\n",
+    "data/sales.csv": "date,region,product,units,unit_price\n2026-09-01,North,Widget,12,19.99\n2026-09-01,South,Gadget,5,49.50\n2026-09-02,,Widget,8,19.99\n2026-09-02,West,Gizmo,three,129.00\n2026-09-03,North,Gadget,7,49.50\n2026-09-04,South,Widget,-15,19.99\n2026-09-05,East,Gizmo,2,12O.00\n2026-09-06,West,Widget,9,19.99\n2026-09-08,North,Gizmo,4,129.00\n2026-09-09,South,Gadget,6,49.50\n"
+  },
+  "git": {
+    "tags": [],
+    "log": [
+      "56cc5fb initial import"
+    ],
+    "status": [
+      "?? ERRORS.md"
+    ]
+  },
+  "success": {
+    "file ERRORS.md": true,
+    "unchanged data/sales.csv": true
+  }
+}

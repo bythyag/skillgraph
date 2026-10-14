@@ -1,0 +1,23 @@
+{
+  "suite": "../../suite.yaml",
+  "model": "claude:claude-opus-5-5",
+  "trigger": "invoke",
+  "skills": {
+    "csv-report": {
+      "dir": "../../skills/csv-report",
+      "claims": "../../claims/csv-report.claims.json",
+      "suite": "../../suite.yaml"
+    },
+    "bugfix-tdd": {
+      "dir": "../../skills/bugfix-tdd",
+      "claims": "../../claims/bugfix-tdd.claims.json",
+      "suite": "../../suite.yaml"
+    },
+    "release-notes": {
+      "suite": "../../suite.generated.yaml",
+      "dir": "../../skills/release-notes",
+      "claims": "../../claims/release-notes.claims.json",
+      "reference": "../../references/release-sop.ref.yaml"
+    }
+  }
+}
