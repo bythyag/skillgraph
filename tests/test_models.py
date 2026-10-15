@@ -31,7 +31,7 @@ def test_resolution_order(monkeypatch):
     assert str(config.resolve("judge", None, suite)) == "claude:claude-haiku-5-5"
     assert str(config.resolve("judge", "openrouter:x/y", suite)) == "openrouter:x/y"
     sources = {role: src for role, (_, src) in config.describe(suite, agent="claude:claude-fable-5-1").items()}
-    assert sources == {"agent": "flag", "extractor": "default", "judge": "SKILLGRAPH_JUDGE_MODEL"}
+    assert sources == {"agent": "flag", "extractor": "default", "judge": "SKILLGRAPH_JUDGE_MODEL", "digest": "default"}
 
 
 def test_extract_json_tolerates_fences_and_prose():

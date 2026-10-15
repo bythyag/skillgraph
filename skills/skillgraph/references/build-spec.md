@@ -50,11 +50,14 @@ src/skillgraph/
   graph.py                NetworkX graph, lint, Cypher/GraphML export (section 7)
   runner.py               suites, variants, workspaces, run matrix, enforcement (section 8)
   checker.py              mechanical checks, judge, branch/order logic, cache (section 9)
+  digest.py               turns, action index, intents, routing, windowed judging (section 9.1)
   aggregate.py            rates, verdicts, ablation analysis (section 10)
   report.py + templates/report.html   HTML report (section 11)
   scaffold.py             init + install-skill
   costs.py                estimates and the spend gate (section 12.1)
   summary.py, diff.py, show.py   result commands (section 12.2)
+  dashboard/              __init__.py (local server, JSON API, cache, static export) + static/ (index.html,
+                          core.js, pages.js, trace.js, app.js, app.css, tokens.css, favicon.svg) (section 11.1)
   trees/                  mapping.py, runs.py (import), reference.py, coverage.py, taskgen.py (section 13)
   providers/
     __init__.py           dispatch: structured(), run_agent()
@@ -68,6 +71,9 @@ examples/                 suite.yaml, skills/, fixtures/, claims/ (three sample 
 tests/                    pytest, no network
 docs/design.md            rationale and prior art
 examples/runs/demo/       a scrubbed, graded run set (no workspaces) for free demos and tests
+design/                   the dashboard's design system, made with OpenDesigner: DESIGN.md, PRODUCT.md and
+                          opendesigner/ (state, decisions, DTCG tokens); static/tokens.css is its CSS export
+scripts/validate_digest.py  checks windowed judging against full-trace verdicts on long traces (section 9.1)
 scripts/export_demo.py    regenerates it, rewriting workspace paths to /workspace, home dirs to ~, the login name to
                           "user", and dropping MCP tool names; fails if a local path survives
 .github/                  ci.yml (ruff + pytest on 3.10-3.14, then build the wheel and use it from a clean venv),
@@ -115,9 +121,10 @@ A model is written `provider:model`. Providers: `claude`, `openrouter`.
 (OpenRouter ids may contain further colons, e.g. `:free`). Otherwise, a spec
 containing `/` is OpenRouter and anything else is Claude.
 
-Three roles, resolved independently: `agent`, `extractor`, `judge`. Order: CLI flag
-> env var `SKILLGRAPH_<ROLE>_MODEL` > suite `models:` > default
-`claude:claude-opus-5-5`.
+Four roles, resolved independently: `agent`, `extractor`, `judge`, `digest`. Order: CLI flag
+> env var `SKILLGRAPH_<ROLE>_MODEL` > suite `models:` > default (`claude:claude-opus-5-5` for agent,
+extractor and judge; `claude:claude-haiku-5-5` for digest, a cheap helper that routes judge questions to turns
+and names a run's phases, and never grades).
 
 Provider interface:
 
@@ -629,7 +636,8 @@ Mechanical:
 Per trace:
 1. Conditions with a mechanical check that matches -> true. All others go to the judge with their judge question, or `During this run, did this condition hold: <text>?`.
 2. Claims with mechanical checks: `must_not` -> violated if matched else satisfied; other kinds -> satisfied if matched else missed. Judge claims go to the judge.
-3. One judge call for all pending items (skip if none; an empty trace answers "no").
+3. One judge call for all pending items (skip if none; an empty trace answers "no"). In windowed mode the
+   pending items go to `digest.judge_windowed` instead (section 9.1).
 4. Judge answers: for claims, `unclear` -> unclear; `must_not` yes -> violated, no -> satisfied; others yes -> satisfied, no -> missed. For conditions yes -> true, no -> false, unclear -> unknown.
 5. Branches: gates are `when_all` if present, else `when`. If any gate's condition is known and differs from its value -> `n/a`; else if any gate's condition is unknown -> unclear.
 6. Order: a satisfied, non-must_not claim whose evidence index is earlier than the evidence of any satisfied/out_of_order `after` claim becomes `out_of_order`.
@@ -640,7 +648,9 @@ Judge system prompt:
 You grade whether an AI agent followed specific instructions, using only the evidence in its execution trace and final files. You are strict about evidence: if the trace does not show something happened, it did not happen. Answer 'unclear' only when the evidence is genuinely ambiguous.
 ```
 
-Judge user prompt: `<trace>\n<rendered trace>\n</trace>\n\n<instructions>\n\nQuestions:\n<one line per item>`,
+Judge user prompt: `<trace>\n<rendered trace>\n</trace>\n\n<instructions>\n\nQuestions:\n<one line per item>`
+(in windowed mode the rendered trace is a window or the skeleton, and the instructions end with a space and that
+view's note),
 where each item line is `- id=<id>: <question>  (instruction: <claim or condition text>)` and instructions are:
 
 ```
@@ -705,9 +715,246 @@ judge (cost is split evenly across a call's questions), and reuse is skipped wit
 `[model_name, (effort if set)] + [[id, question, context] ...]` with `{"verdicts", "cost_usd"}`) are read for all pending
 items, or for the non-`ref:` subset, and converted.
 
-`check.json`: `{claims_sha, skill_loaded, conditions {id: {value, method, evidence, reason}},
-claims {id: {status, method, evidence, reason}}, judge_items, judge_cost_usd, judge_cache, reference? {claims, conditions}}`.
+`check.json`: `{claims_sha, skill_loaded, judge_mode, conditions {id: {value, method, evidence, reason, view?}},
+claims {id: {status, method, evidence, reason, view?}}, judge_items, judge_cost_usd, judge_cache, window?, digest_cost_usd?,
+reference? {claims, conditions}}`. `judge_mode` is `full` or `windowed` (older files without it count as full); `view`
+is `window` or `skeleton` for windowed verdicts. Windowed verdicts are cached under keys that add the mode after the
+effort (`[model_name, effort, "windowed", id, question, context]`), so they never mix with full-trace verdicts.
+`render_trace` is built from `event_lines(ev, field_limit=1200, output_limit=None, text_limit=None, user_limit=300)`:
+`output_limit` and `text_limit` default to `field_limit`, an output limit of 0 drops the output line (an error then shows
+`      output (error)`).
 Statuses: satisfied, missed, violated, out_of_order, n/a, unclear.
+
+### 9.1 Digests and windowed judging (`digest.py`)
+
+Long traces (a real session can reach hundreds of thousands of tokens) are judged on the parts that hold the evidence.
+Verdicts are still decided on raw events; summaries are never shown to the judge.
+
+`--judge-mode`: `full` (one call over the whole rendered trace), `windowed`, or `auto` (the default on the CLI: windowed
+when the full render is over 30,000 tokens, else full). Tokens are estimated as `(len(text) + 3) // 4`. Under `auto`,
+existing checks are kept whatever mode made them; an explicit `full` or `windowed` redoes checks made in the other mode.
+
+**Digest** (deterministic; `digest.json` next to the trace, rebuilt when `trace_sha` changes; version 1):
+- `trace_sha`: first 16 hex of sha256 over the JSON of `{p: task_prompt, e: events, f: files, r: result.text}` (sorted keys).
+- `actions`: one entry per tool event `{i, tool, target, error, agent?}`; target = Bash command, Read/Write/Edit
+  `file_path`, Glob/Grep pattern + path + glob, Skill name, Agent/Task description or prompt, else the first of url,
+  query, command, file_path, path, pattern, else the input JSON; whitespace collapsed, clipped to 300 characters.
+  Consecutive actions with the same tool, target and agent collapse into one line `[a-b] Tool ×n (identical calls): target`.
+- `turns`: a new turn starts at every agent text event, every user event, and whenever the event's `agent` differs from the
+  turn's. Turn = `{n, start, end, agent, kind (user | meta | agent), said (first text, clipped to 300), actions (event
+  indexes), files (Write/Edit paths), errors, tokens, summary}`. User events are `meta` when marked meta or starting with
+  `Base directory for this skill`, `<command-name>` or `<command-message>`. `summary` groups the turn's actions by tool:
+  `Tool ×n: target; target; +k more` (3 unique targets of 60 characters per tool), joined with ` | `.
+- Table of contents (what the router and intent model read): one line per turn, `[n] who: "said" | summary (k errors)`,
+  who = user, injected, agent or `subagent <id>`; consecutive identical agent turns collapse to `[a-b] ... (repeated)`.
+- `stats`: events, tool_calls, turns, agent_messages, collapsed_actions, tokens_full, tokens_skeleton.
+
+**Intents** (optional, `check --intents` or `digest --intents`; one call with the digest model; it never sees the skill).
+Prompt: `<run>\nTASK PROMPT:\n<prompt, clipped to 2000>\n\nTURNS:\n<table of contents>\n</run>\n\n<intent prompt>`.
+Phases outside the turn range and user turns that don't exist are dropped. Stored as `intents {model, prompt_version,
+cost_usd, data}`; reused while the model and prompt version match.
+
+Intent system prompt:
+
+```
+You describe what an AI agent did in a run, from a table of contents of its turns. Describe only what the turns show. Don't judge the work.
+```
+
+Intent prompt:
+
+```
+Name the task the user asked for. Split the run into phases of consecutive turns and give each phase an intent of at most 8 words, starting with a verb. Classify each user turn: new_task (asks for something new), follow_up (adds to or changes the current task), approval (says yes or go ahead), correction (says something was wrong), question, or other. Give the outcome in one sentence.
+```
+
+Intent schema:
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "task": {
+      "type": "string"
+    },
+    "outcome": {
+      "type": "string"
+    },
+    "phases": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "first": {
+            "type": "integer"
+          },
+          "last": {
+            "type": "integer"
+          },
+          "intent": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "first",
+          "last",
+          "intent"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "user_turns": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "turn": {
+            "type": "integer"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "new_task",
+              "follow_up",
+              "approval",
+              "correction",
+              "question",
+              "other"
+            ]
+          }
+        },
+        "required": [
+          "turn",
+          "kind"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "task",
+    "outcome",
+    "phases",
+    "user_turns"
+  ],
+  "additionalProperties": false
+}
+```
+
+**Routing** (per trace, for the pending judge items):
+- Lexical (free): search terms from the question and instruction text: quoted or backticked spans and path-, flag- or
+  identifier-like tokens weigh 2, other words of 4+ letters (minus stop words) weigh 1. Each turn's haystack is its
+  said text plus every event's input JSON (3000 chars), output (2000) and text (3000), lowercased. A term scores
+  `weight * (1 + ln(N / df))` in each turn containing it, where N is the number of turns and df the number containing
+  the term; terms found in more than a quarter of the turns score nothing once N >= 8. Turns scoring >= 2 route, the
+  top 4.
+- Router call (digest model): `<run>\nTASK PROMPT:\n<prompt, clipped to 2000>\n\nTURNS:\n<table of contents>\n\nFINAL FILES:
+  <paths>\n</run>\n\n<router prompt>\n\nQuestions:\n<one line per item, as for the judge>`. Unknown turns and files are
+  dropped; at most 8 turns per item.
+- A route is the union of both, plus final files whose path or basename appears in the item text. Routes are cached in
+  `digest.json` under the first 16 hex of sha256 over `[router model, version, [[id, question, context], ...]]`
+  (the last four keys are kept).
+
+Router system prompt:
+
+```
+You point to where the evidence is in an AI agent's run. You see a table of contents of the run, not the run itself. Favor recall: list every turn that could hold the evidence.
+```
+
+Router prompt:
+
+```
+For each question, list the turns whose events could answer it: where the action, its output, or a statement about it would appear. Also list the final files that could answer it. If nothing in the run relates to the question, return empty lists. List at most 8 turns per question, the closest to the evidence first.
+```
+
+Router schema:
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "routes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "turns": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "files": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "turns",
+          "files"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "routes"
+  ],
+  "additionalProperties": false
+}
+```
+
+**Views** (built from `event_lines`, so indexes are the trace's own):
+- Window: the routed turns plus one turn either side, in full; each run of other events becomes
+  `… [events a-b not shown: k tool calls, m agent messages, u injected/user messages] …`. The header is
+  `EVENTS (excerpt):`; final files are the routed ones (3000 chars each), other paths listed by name.
+- Skeleton: every event; events in focus are in full, the others shortened with (input, output, agent text) limits
+  (300, 160, 400), then (200, 0, 200), then (120, 0, 0) (agent text replaced by `(message omitted)`) until the text fits
+  60,000 tokens. Header `EVENTS (all events; long fields shortened except where shown in full):`; all final files at
+  1500 chars unless routes named some.
+- Both keep `TASK PROMPT`, `FINAL ANSWER` and `GIT` as in the full render.
+
+**Judging:**
+1. Conditions always get the episode opening (every turn up to and including the first agent turn) added to their window.
+2. `must_not` claims, and claims with no routed turn or file, go to the skeleton call. Everything else is packed into
+   window calls in trace order; a call grows while its union window stays within 24,000 tokens.
+3. Window calls run concurrently with the window note. A window answer stands when it is `yes`, or when it is `no` for
+   a condition. Any other answer for a claim (`no` or `unclear`: an excerpt can't show that something never happened)
+   escalates the item to the skeleton call.
+4. One skeleton call (with the skeleton note) for every remaining item; its focus is the union of those items' windows,
+   smallest first, while it stays within 20,000 tokens.
+5. `evidence_event` outside the trace becomes -1. The judge cost is the sum of all calls plus the router call.
+6. `check.json["window"]`: `{mode, calls, window_batches, skeleton_level, tokens_full, tokens_sent, router_model,
+   router_cost_usd, routes {id: [turns]}, unrouted [claim ids], escalated [ids], off_skill_turns}`; off-skill turns are
+   agent turns with actions that no question was routed to.
+
+Window note:
+
+```
+This trace is an excerpt: the events around the parts that matter for these questions are shown in full, and lines starting with … stand for events that are not shown. Answer yes only when the shown events support it. If they don't settle a question, answer unclear, not no.
+```
+
+Skeleton note:
+
+```
+This trace shows every event of the run. Some events are shown in full; the others have long inputs, outputs and messages shortened, so answer unclear if a shortened field would decide the question.
+```
+
+`skillgraph digest DIR [--run PATH] [--intents] [--validate [--lexical-only]] [--digest-model S] [--force] [--json]`
+writes `digest.json` for every trace and prints events, turns, tool calls, full and skeleton tokens, and what `auto`
+would pick. `--validate` routes the judge questions whose full-mode verdict cites an event and reports routing recall:
+the share of cited events inside the routed windows (opening included for conditions), for lexical routes, router
+routes, and both. Paid calls (intents, router) go through the spend gate.
+
+`scripts/validate_digest.py` embeds sampled demo runs in about 90,000 tokens of agent work over the repository's own
+source (a message, a Read of 50-130 lines, sometimes a Grep or `wc -l`), interleaved before each turn, and judges
+them windowed. It reports agreement with the demo's full-trace verdicts, mechanical agreement (noise must not trigger
+tool checks), routing recall, needle detection (an input-CSV edit and a deleted test spliced into the noise must
+come out violated), tokens sent and cost, and optionally compares a full-mode judgment of one long trace.
 
 ## 10. Aggregation
 
@@ -757,10 +1004,110 @@ Page, per skill tab (deep-linkable as `#<skill>`):
 Insert all model- and user-derived text with `textContent`. Support light and dark
 themes and phone widths.
 
+### 11.1 Dashboard (`dashboard/`)
+
+`skillgraph dashboard DIR [DIR ...] [--port 8765] [--no-open] [--export OUT]` serves a read-only app on 127.0.0.1
+(port 0 picks a free one) or writes a static copy. It never calls a model. The product spec is
+`docs/dashboard-prd.md` (journeys, page specs, copy, acceptance criteria).
+
+Run sets get ids from their folder names (non-word characters become `-`; duplicates get `-2`, `-3`). API, GET only,
+JSON with `Cache-Control: no-store`, `X-Content-Type-Options: nosniff` and `Referrer-Policy: no-referrer`:
+- `/api/sets`: `[{id, name, model, trigger, skills, runs, checked, tasks, has_reference, has_baseline, imported, updated}]`.
+- `/api/set/<id>`: `{id, data (report.build_data), summary (summary.summarize), runs, error}`. Each aggregate claim also has
+  `results`: `[{path, task, variant, rep, status, reason, evidence, method, view}]` for every graded run, and each
+  aggregate run has `ref_statuses`. `runs` has one row per trace: path, skill, task, variant, rep, model, prompt (160
+  chars), success, all_success, skill_loaded, error, imported, events, tool_calls, messages, turns, tokens (digest
+  `tokens_full` when the digest is current, else the full render), wall_s, duration_ms, blocked, cost_usd, judge_cost_usd,
+  checked, statuses (counts), failed (ids missed, violated or out of order), unclear, reference (counts), judge_mode,
+  tokens_sent, episode, task_intent. If report data can't be built, `error` says why and the run rows still load.
+- `/api/run/<id>?path=<skill>/<task>/<variant>/r<N>`: `{path, trace, check, digest (without routes), turn_of_event,
+  claims {id: {kind, text, span, check, after, when}}, conditions {id: {text, span}}, reference {id: {kind, text}}}`.
+  The path must match `^[\w.@+-]+/[\w.@+-]+/[\w.@+-]+/r\d+$`, contain no `.` or `..` segment, and resolve inside the
+  run set (400 / 404).
+- `/api/diff/<a>/<b>`: `diff.compare`. `/report/<id>`: the HTML report.
+- Responses are cached in memory per run set, keyed on the (path, mtime, size) of runset.json, every trace, check and
+  digest, and the skill's SKILL.md, claims, reference claims and coverage files; any change recomputes.
+- `/` and `/static/<name>` serve only index.html, core.js, pages.js, trace.js, app.js, app.css, tokens.css and
+  favicon.svg, with `Content-Security-Policy: default-src 'self'; img-src 'self' data:; style-src 'self'; script-src
+  'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'`.
+- Requests whose `Host` is not `127.0.0.1:<port>`, `localhost:<port>` or `[::1]:<port>` get 403 (DNS rebinding).
+
+Export writes index.html (asset paths made relative, `<script src="data.js">` before the first script), the assets,
+`data.js` (`window.SKILLGRAPH_DATA = {<api path>: <response>}` for sets, every set, every run and every ordered pair of
+sets, with `<` escaped) and `report-<id>.html` per run set with checked runs. It opens from disk.
+
+The app is plain scripts (no build step, no dependencies) sharing `window.SG`: core.js (API access, the `h()` DOM helper
+(text only, never HTML strings), icons, copy, badges, scores, bars, tables, tabs, drawer, help popovers, and
+`recommend()`), pages.js, trace.js (the run page) and app.js (shell and router). Layout: a left sidebar (Overview,
+Recommendations, Skills with one entry per skill, Runs, Compare; footer Glossary, claim graph report, theme), a top bar
+(run-set switcher, breadcrumbs, glossary). The sidebar is open at >= 1100px, a 56px icon rail that expands on hover
+or focus from 768px, and a slide-in drawer behind a menu button below 768px.
+
+Routes (hash; filters and selections are query parameters, so every view can be bookmarked and works in an export):
+`#/s/<set>` overview; `/recommendations?skill=&action=`; `/skills`; `/skill/<name>?tab=lines|claims|conditions|
+ablations|reference|lint&verdict=&line=&claim=&kind=&check=&q=&sort=&dir=&diag=&step=`; `/claim/<skill>/<id>`;
+`/runs?skill=&task=&variant=&outcome=passed|failed|unknown&status=&judge=&claim=&q=&problems=1&sort=&dir=&group=task`;
+`/run/<path>?event=&claim=&tab=detail|scores|prompt|answer|files|info&status=&q=`; `#/compare/<a>/<b>?skill=`
+(`#/diff/...` redirects); `#/glossary`. Filter changes use `history.replaceState`, so they don't add history entries.
+
+Pages:
+- Overview: run-set meta, four linked tiles (task success with the skill, linking to failed skill runs, plus the rate
+  without; lines that work; needs attention = high-priority recommendations; confidence = weak verdicts and stale
+  results), one row per skill with a health sentence, verdict bar and legend (each count links to the filtered claims),
+  success, cost, reference coverage, warnings and its recommendations, then the top three recommendations.
+  Health sentence, first rule that matches (W = working + followed, I = inert, G = ignored, F = interfering, n = claims):
+  no baseline: "{W} of {n} rules followed in {runs} runs; {k} run(s) broke a rule"; G+F = 0 and W/n >= 0.5: "Does real
+  work: {W} of {n} lines change behavior." plus "Task success {without} without → {with} with."; I/n >= 0.6: "Mostly
+  redundant: {I} of {n} lines describe what the agent does anyway." plus "{G} line(s) ignored." when G; G+F > 0: "{G+F}
+  line(s) need attention: {G} ignored, {F} interfering. {W} of {n} lines work."; else "{W} working, {I} inert,
+  {untested} untested of {n} lines."
+- Recommendations (`recommend(S)`, pure, no model calls), per skill: interfering claims (high, Investigate); ignored
+  claims (high, or medium when weak; Rewrite, with advice by kind and check type and up to 3 miss notes); reference
+  steps diagnosed gap or conflict (high) or partial (medium); ignored reference steps (high); lint errors (high, Fix);
+  skill runs that failed their success checks (medium, Check task); ablations where removal helped (medium, Consider
+  cutting); untested claims (medium, Add a task) and untested reference paths (medium); lint warnings (low); inert
+  non-`must_not` claims grouped into line ranges within 2 lines of each other, only with baseline runs (low, Consider
+  cutting, with the ablation verdict that covers them); weak verdicts (low, Add runs). Sorted by priority, then impact,
+  then line. Each item: priority, action, skill, lines, quoted SKILL.md text, why, what to do, links.
+- Skills: one row per skill. Skill: header (meta, summary, stale notices, health sentence, verdict counts linking to
+  the Claims tab) and tabs: Lines (SKILL.md with each line's left edge colored by its most severe claim verdict,
+  ignored > interfering > working > followed > inert > untested, lint errors underlined; clicking a line filters the
+  claim cards; verdict filters; under 768px a Text | Claims switch), Claims (sortable table: verdict, id, kind, lines,
+  text, with and without scores linking to the runs, scores per ablation labelled by the lines removed, check type,
+  weak and failure mode; filters by verdict, kind, check, search), Conditions, Ablations (cards with the removed text,
+  verdict, success with and without, effect table), Reference (coverage sentence, diagnosis filters, steps table with
+  expandable rows, paths with tested tags, findings), Lint.
+- Claim (drawer over the Skill page, Esc closes it; also a page): verdict, kind, lines, weak; the claim text; the
+  verdict explained in plain words; score chips per variant linking to the runs; the SKILL.md lines with one line of
+  context; how it is checked; every run's result with reason and evidence (row opens the run at that event); the
+  suggested change from `recommend()`.
+- Runs: filters (skill, task, variant, outcome, has status, judge mode, claim, search, only problems, group by task)
+  shown as removable chips, a count, and a sortable table (task with intent or prompt, skill, variant, the selected
+  claim's status per run, a status bar with the failed claim ids, outcome, tool calls and tokens, judge mode and tokens
+  sent, agent and judge cost). With `claim=`, a notice names the claim.
+- Run (trace viewer): header with meta, a score strip (status counts linking to the Scores tab, task outcome, judge
+  mode, window calls and tokens, episode, warnings) and the task and outcome from intents. Left: a tree of phases
+  (from intents) → turns → events. Turn rows show who, action count, errors, off-skill, the claims routed to it,
+  evidence dots coloured by result, and the agent's message; runs of consecutive off-skill turns collapse into one row;
+  events render when their turn opens. Filter by text, tool, or only evidence. Right: tabs Detail (the selected event's
+  input and output, or a turn's summary, with "Decided here": every result whose evidence is that event, with reason,
+  method and view), Scores (all claim, condition and reference results by status, each linking to its event), Prompt,
+  Answer, Files (reconstructed files, success checks, git), Info. Keys: j / k or arrows move, Enter opens a turn, /
+  filters. Under 900px a Timeline | Detail switch replaces the two panes.
+- Compare: before and after pickers, swap, a verdict (Improved, Regressed, Mixed, No change in verdicts) with per-skill
+  counts, then per skill: success, cost, runs and line counts before → after, change chips, changed claims first and
+  unchanged ones behind "Show n unchanged"; a row opens the claim in the after set (the before set when removed).
+- Glossary: verdicts, results, reference diagnoses, ablation verdicts and other terms, with what to do.
+
+The look follows `design/DESIGN.md` (OpenDesigner): compact density, flat surfaces with a faint ring, 6px controls and
+8px cards, one accent (`#2375d4`) for selection, links and focus; verdicts use the success, warning, danger and info
+ramps and always carry a word or glyph. Every value in app.css is a `--ds-*` token. No page scrolls sideways at 375px;
+tables scroll inside their wrapper.
+
 ## 12. CLI
 
 ```
-skillgraph doctor [SUITE] [--ping] [--agent-model S] [--extractor-model S] [--judge-model S]
+skillgraph doctor [SUITE] [--ping] [--agent-model S] [--extractor-model S] [--judge-model S] [--digest-model S]
 skillgraph models [--search T] [--limit 40] [--all]
 skillgraph init SKILL_DIR [--dir evals/<name>] [--force]
 skillgraph install-skill [--user | --project DIR] [--force]
@@ -771,18 +1118,24 @@ skillgraph estimate SUITE [--out DIR] [--top 1] [run, agent, extractor, judge op
 skillgraph run SUITE --out DIR [--variants skill,baseline] [--skills] [--tasks] [--trigger invoke|auto]
                [--enforce] [--force] [--retry-errors] [--agent-model S] [--effort E] [--runs 2] [--concurrency 4]
                [--max-turns 40] [--budget 3.0] [-y/--yes] [--max-total-usd USD]
-skillgraph check DIR [--judge-model S] [--judge-effort E] [--concurrency 4] [--force] [-y] [--max-total-usd USD]
+skillgraph check DIR [--judge-model S] [--judge-effort E] [--judge-mode auto|full|windowed] [--digest-model S] [--intents]
+               [--concurrency 4] [--force] [-y] [--max-total-usd USD]
 skillgraph ablate DIR [--top 1] [--lines a-b,c,...] [--skills] [agent, judge, run, spend options]
 skillgraph report DIR [-o PATH]
-skillgraph import SOURCES --suite S --skill NAME --out DIR [--format F] [--tool-map FILE] [--whole-session] [--include-unloaded] [--dry-run]
+skillgraph import SOURCES --suite S --skill NAME --out DIR [--format F] [--tool-map FILE] [--whole-session]
+               [--episodes all|first] [--episode-end load|user] [--include-unloaded] [--dry-run]
 skillgraph reference SOURCE [-o OUT] [--llm]
 skillgraph coverage SUITE [--skills a,b] [--force]                    # exit 1 on conflicts
 skillgraph tasks SUITE --skill NAME [--untested-in DIR | --paths 0,2] [-o OUT]
 skillgraph pipeline SUITE --out DIR [--strict] [all of the above options]   # one cost confirmation, then extract, lint, coverage (if any reference), run, check, ablate (unless --top 0), report
 skillgraph summary DIR [--json] [--junit FILE] [--fail-on LIST]
 skillgraph diff BEFORE AFTER [--skills a,b] [--json | --markdown]
-skillgraph show RUN_DIR [--full] [--no-color]
+skillgraph show RUN_DIR [--full] [--turns] [--no-color]
+skillgraph digest DIR [--run PATH] [--intents] [--validate [--lexical-only]] [--digest-model S] [--force] [--json] [-y]
+skillgraph dashboard DIR [DIR ...] [--port 8765] [--no-open] [--export OUT]
 ```
+
+`--judge-mode` and `--digest-model` are judge options, so `ablate` and `pipeline` take them too.
 
 `doctor` prints provider status (Claude SDK installed and auth source;
 OPENROUTER_API_KEY; git) and each role's resolved model with its source, marks
@@ -801,7 +1154,8 @@ typical tokens (agent 60k in / 4k out, judge 15k / 1.5k, extract 6k / 4k); else 
 extract): fable 2.50/0.60/0.80, opus 1.00/0.30/0.30, sonnet 0.50/0.15/0.15, haiku 0.12/0.03/0.04; unknown 0.50/0.10/0.15.
 An estimate has lines (what, count, each, basis) and a total. The gate prints it; refuses when the total exceeds
 `--max-total-usd`; passes with `--yes`; otherwise asks `[y/N]` on a terminal and refuses without one ("pass --yes").
-`run` estimates its planned jobs; `check` its pending traces (an upper bound, cached verdicts are free); `ablate` all
+`run` estimates its planned jobs; `check` its pending traces (an upper bound, cached verdicts are free) plus one
+digest call per trace that will be judged windowed and one per trace for `--intents`, priced like a judge call; `ablate` all
 planned ablation runs; `pipeline` confirms once for extraction/compile/coverage calls, runs, judging, and ablation
 counted at its maximum (3 spans x `--top` x tasks x runs per skill), then runs every step without asking again.
 
@@ -822,7 +1176,10 @@ counted at its maximum (3 spans x `--top` x tasks x runs per skill), then runs e
 - `show`: header (skill/task/variant/rep, model, turns, tool calls, cost, error), the prompt, each event indented by
   depth with tool name (and raw name when mapped), input summary (command, file_path, pattern, skill, or prompt) and
   output, the claim and reference results whose evidence is that event, the final answer, success checks, and all claim
-  and reference statuses with reasons. ANSI colors only on a terminal.
+  and reference statuses with reasons. ANSI colors only on a terminal. When the trace has a digest with intents, each
+  phase's first turn gets a `── <intent> (turns a-b) ──` header (`--turns` marks every turn); the header also shows the
+  episode (when a session had several) and, for windowed checks, the judge calls, tokens sent and off-skill turns. Claim
+  lines name the view (window or skeleton) that decided them.
 
 ## 13. Trees: run trees and reference trees
 
@@ -891,7 +1248,14 @@ Normalization (`to_trace`):
 4. Skill load = the first of: a Skill tool call whose input mentions the skill; a Read, or a Bash `cat|head|less|more|sed -n|bat`
    of `skills/<name>/SKILL.md`; a user event with `<command-name>/<name></command-name>`; a meta user event starting
    `Base directory for this skill` whose first line names the skill directory. Writing or editing SKILL.md is not a load.
-   Unless `--whole-session`, drop events before the load and use the last non-meta user text before it as the prompt.
+   Unless `--whole-session`, each load starts an episode, and each episode becomes its own trace (`--episodes all`, the
+   default; `first` keeps one trace from the first load to the end of the session, the old behavior). An episode ends at
+   the next load of the same skill, or with `--episode-end user` also at the next message a person typed (a depth-0,
+   non-meta user event not starting `<`, `Base directory`, `[Request interrupted` or `Caveat:`). A slash command and the
+   `Base directory` text injected right after it (or after a Skill call) count as one load. Each episode's prompt is the
+   last non-meta user text before its load; its events are renumbered from 0; with more than one episode the task gets
+   `-e<k>`, the final text is the episode's last depth-0 agent message, cost is unknown, and the trace records
+   `episode {index, of, start_event, end_event, session_events, end}`.
 5. Files: Write gives full content; Read output (with line-number prefixes stripped) seeds content; Edit applies to known
    content, otherwise the file is `null`. Paths are made relative to `cwd`. Set `files_reconstructed: true`.
 6. The trace has `trigger: "observed"`, `variant` skill (or baseline when imported with `--include-unloaded` and never
@@ -1574,6 +1938,9 @@ coverage hasn't run, is stale, or runs haven't been graded against the reference
 6. CLI, scaffold, the agent skill under `skills/skillgraph`, README, examples, CI.
 7. Trees: mapping helpers and importers (synthetic transcripts and spans in tests), reference model + Mermaid parser + compile (mocked model), coverage analysis and diagnoses, task generation (mocked model), the report panel, the CLI commands.
 
+8. Digests and windowed judging (mocked router and judge, a needle test), episodes, `digest`; the dashboard server,
+   export and app (data API and its new fields, cache invalidation, path and Host checks, export bundle).
+
 ## 15. Acceptance checklist
 
 - `uv sync --all-extras && uv run pytest` passes with no network access.
@@ -1586,3 +1953,8 @@ coverage hasn't run, is stale, or runs haven't been graded against the reference
 - With the user's approval: `extract` and `coverage` on the examples report the release SOP steps the release-notes skill lacks (the no-commits branch, crediting authors, linking commits).
 - `skillgraph summary examples/runs/demo`, `show` on one of its runs, `diff examples/runs/demo examples/runs/demo`, and `report examples/runs/demo` work offline; `summary ... --fail-on gap` exits 1.
 - `skillgraph run examples/suite.yaml --out /tmp/x --runs 1` in a non-interactive shell prints an estimate and refuses without `--yes`.
+- `skillgraph digest examples/runs/demo --validate --lexical-only` reports routing recall without spending anything.
+- `skillgraph dashboard examples/runs/demo --export /tmp/site` writes a site that opens from disk; `skillgraph dashboard
+  examples/runs/demo` serves it on 127.0.0.1.
+- With the user's approval of the cost: `scripts/validate_digest.py` reports at least 95% agreement with the full-trace
+  verdicts, no mechanical changes, and both needles violated.

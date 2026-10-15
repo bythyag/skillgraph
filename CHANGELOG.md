@@ -4,6 +4,39 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 [semantic versioning](https://semver.org/) (pre-1.0: minor versions may break things).
 
+## [0.4.0] - 2026-10-15
+
+### Added
+- Windowed judging for long traces (`check --judge-mode auto|full|windowed`; auto is windowed
+  above ~30k tokens). A digest splits each trace into turns and indexes every tool call; a cheap
+  router model (the new `digest` role, Claude Haiku by default) points each question at its turns;
+  the judge reads those turns as raw events. `must_not` rules, unrouted questions and window
+  answers of "not done" or "unclear" are settled on a skeleton of the whole trace. Verdicts record
+  which view decided them. Validated on long traces built from the demo: 96% agreement with
+  full-trace verdicts, 100% routing recall, both spliced needles caught (`scripts/validate_digest.py`).
+- `skillgraph digest DIR`: turns, action index and token counts per trace, written to `digest.json`;
+  `--intents` names each run's task and phases with a model that never sees the skill;
+  `--validate` measures routing recall against existing verdicts (free with `--lexical-only`).
+- `skillgraph dashboard DIR [DIR ...]`: a local, read-only web app in the style of tracing platforms, or
+  `--export OUT` for a static copy that opens from disk. Sidebar navigation; an Overview with a
+  plain-language health sentence per skill and linked numbers; Recommendations (a ranked to-do list
+  from verdicts, reference gaps, lint, ablations and untested branches); Skill pages with SKILL.md
+  marked by verdict and tabs for claims, conditions, ablations, reference and lint; a claim drawer with
+  every run's result; a filterable Runs table; a trace viewer (phases → turns → events, detail pane,
+  scores linked to their events, keyboard navigation); Compare; and a Glossary. Every filter lives in
+  the URL. Styled with a design system made with OpenDesigner (`design/`), light and dark, down to
+  375px. The product spec is `docs/dashboard-prd.md`.
+- `check --intents`, `show --turns` (phase headers when digested), `doctor --digest-model`.
+- `import` turns a session that loads the skill several times into one trace per load
+  (`--episodes all|first`, `--episode-end load|user`).
+
+### Changed
+- `check.json` records `judge_mode` and, for windowed checks, a `window` section (calls, tokens
+  sent, routes, escalations, off-skill turns). Windowed verdicts are cached apart from full ones.
+- Cost estimates for `check` include digest calls.
+- Importing a session that loaded the skill more than once now writes one trace per load
+  (`<session>-e1`, `-e2`); pass `--episodes first` for the previous single trace.
+
 ## [0.3.0] - 2026-10-14
 
 First public release.

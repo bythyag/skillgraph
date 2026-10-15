@@ -38,5 +38,5 @@ def examples():
 def no_real_keys(monkeypatch):
     """Tests never reach a real provider."""
     monkeypatch.delenv("OPENROUTER_API_KEY", raising=False)
-    for role in ("AGENT", "EXTRACTOR", "JUDGE"):
+    for role in ("AGENT", "EXTRACTOR", "JUDGE", "DIGEST"):
         monkeypatch.delenv(f"SKILLGRAPH_{role}_MODEL", raising=False)

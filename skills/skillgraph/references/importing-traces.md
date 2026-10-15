@@ -33,6 +33,11 @@ directories out of version control.
    (a `Skill` tool call, a `/skill-name` command, or a read of `skills/<name>/SKILL.md`).
    The user message just before the load becomes the task prompt. `--whole-session`
    keeps everything.
+   A session that loads the skill several times becomes one trace per load (an
+   *episode*), named `<session>-e1`, `-e2`, and so on. An episode ends at the next load of
+   the skill; `--episode-end user` also ends it at the next message the person typed, which
+   suits sessions where one person asks for several unrelated things. `--episodes first`
+   keeps the old behavior: one trace from the first load to the end of the session.
 2. **Skips traces that never loaded the skill**, unless you pass `--include-unloaded`.
    Then they are imported as `baseline` runs. These are different tasks from the
    skill runs, so treat with/without comparisons on imported data as rough.
@@ -46,6 +51,28 @@ directories out of version control.
    through Write or Read. Files the trace never shows in full are `null`, so `file`
    checks on them miss. Pass a judge question instead if that matters.
 6. **Keeps the tree**: every event has `parent`, `depth` and `agent` when the source had them.
+
+## Long sessions
+
+A real session can run to hundreds of thousands of tokens. `check` judges traces over
+about 30,000 tokens in *windowed* mode (`--judge-mode auto`, the default): a cheap digest
+model points each question at the turns that hold its evidence, and the judge reads those
+turns in full. `must_not` rules, and anything the window can't settle, are judged on a
+skeleton of the whole trace (every event, with long fields shortened). A missing step
+is never inferred from the router failing to find it. Verdicts record which view decided
+them (`window` or `skeleton`).
+
+```bash
+skillgraph digest runs/x                      # turns, tool calls, tokens, what auto would pick (free)
+skillgraph digest runs/x --validate --lexical-only   # how often routing finds the evidence (free)
+skillgraph check runs/x --judge-mode windowed --intents --yes   # also name each run's phases
+skillgraph show runs/x/<skill>/<task>/skill/r1 --turns
+skillgraph dashboard runs/x                   # browse it: timeline by turn, off-skill turns, results
+```
+
+`--judge-mode full` keeps one call over the whole trace; an explicit mode redoes checks
+made in the other mode. The digest model (`--digest-model`, `SKILLGRAPH_DIGEST_MODEL`,
+default Claude Haiku) never grades, and the intent call never sees the skill.
 
 ## Unmapped tools
 

@@ -1,0 +1,2611 @@
+{
+  "$schema": "opendesigner-state/1",
+  "schema_version": 1,
+  "engine_version": "1.0.0",
+  "levers_version": "levers/1.0 2026-09-23",
+  "mode": "standard",
+  "name": "skillgraph",
+  "summary": "",
+  "context": {
+    "product": "",
+    "audience": "people who use it all day for work, in screens full of data",
+    "surfaces": [
+      {
+        "name": "dashboard",
+        "mode": "Operate"
+      }
+    ],
+    "entryPath": "",
+    "memorable": "",
+    "scope": {
+      "in": [],
+      "out": []
+    },
+    "constraints": [],
+    "team": ""
+  },
+  "dials": {
+    "expression": null,
+    "brandPresence": null,
+    "density": {
+      "value": 80,
+      "set_by": "chosen",
+      "detached": true,
+      "decision": "D-0003"
+    },
+    "energy": null,
+    "roundness": null,
+    "depth": null,
+    "colorfulness": null,
+    "warmth": null
+  },
+  "preset": null,
+  "style": null,
+  "customStyles": {},
+  "macros": [
+    "modern",
+    "serious",
+    "minimal",
+    "deferential"
+  ],
+  "raw": {
+    "brandColor": "#3987e5",
+    "primaryActionColor": null,
+    "focusColor": null,
+    "neutralBase": null,
+    "contrastTarget": "AA",
+    "textFace": "system",
+    "displayFace": "=textFace",
+    "baseSize": null,
+    "spaceUnit": 4,
+    "platforms": [
+      "web"
+    ],
+    "inputs": [
+      "pointer",
+      "touch"
+    ],
+    "productType": "work-tool",
+    "marketingSurfaces": false,
+    "flags": {
+      "brandExact": true,
+      "tintTowardBrand": false,
+      "motionOff": false,
+      "darkMode": true,
+      "p3": true
+    },
+    "overrides": {},
+    "brandFace": null,
+    "fontLicence": {
+      "web": null,
+      "app": null,
+      "selfHost": null
+    },
+    "fontClass": null,
+    "accentCount": null,
+    "accentHarmony": "triadic",
+    "neutralTint": null,
+    "chartPalette": null,
+    "statusSet": "classic-4",
+    "stateMethod": "hybrid",
+    "darkBase": null,
+    "surfaceLayers": null,
+    "focusStyle": "brand",
+    "focusOffset": 2,
+    "fieldStyle": "outlined",
+    "textScaling": "full",
+    "lineHeightGrid": 4,
+    "tracking": "size-table",
+    "numericStyles": true,
+    "spaceLadder": "hybrid",
+    "spaceExtras": [],
+    "groupRatio": null,
+    "breakpoints": null,
+    "glass": null,
+    "borderWidths": [
+      1,
+      2,
+      4
+    ],
+    "scrim": null,
+    "stateOpacity": "material",
+    "reducedMotion": "replace",
+    "iconStroke": null,
+    "devices": [],
+    "situations": [],
+    "domain": null,
+    "minTarget": null,
+    "focusWidth": 2,
+    "borderDefault": null,
+    "texture": null,
+    "gradients": null,
+    "secondaryColors": [],
+    "monoFace": "ui-monospace",
+    "scripts": [
+      "Latn"
+    ],
+    "defaultTheme": "system"
+  },
+  "overrides": {
+    "motion.duration.instant": {
+      "value": 0,
+      "unit": "ms"
+    },
+    "motion.easing.linear": [
+      0,
+      0,
+      1,
+      1
+    ],
+    "motion.easing.hover": [
+      0.25,
+      0.1,
+      0.25,
+      1
+    ],
+    "motion.easing.enter": [
+      0.23,
+      1,
+      0.32,
+      1
+    ],
+    "motion.easing.exit": [
+      0.23,
+      1,
+      0.32,
+      1
+    ],
+    "motion.easing.standard": [
+      0.77,
+      0,
+      0.175,
+      1
+    ],
+    "motion.duration.micro": {
+      "value": 100,
+      "unit": "ms"
+    },
+    "motion.duration.short": {
+      "value": 150,
+      "unit": "ms"
+    },
+    "motion.duration.medium": {
+      "value": 200,
+      "unit": "ms"
+    },
+    "motion.duration.long": {
+      "value": 250,
+      "unit": "ms"
+    },
+    "motion.scale.enter": 0.95,
+    "motion.duration.tooltip": {
+      "value": 125,
+      "unit": "ms"
+    },
+    "motion.scale.enter-tooltip": 0.97,
+    "motion.duration.modal": {
+      "value": 250,
+      "unit": "ms"
+    },
+    "motion.scale.enter-modal": 0.96,
+    "motion.duration.stagger": {
+      "value": 50,
+      "unit": "ms"
+    },
+    "motion.duration.reveal": {
+      "value": 600,
+      "unit": "ms"
+    },
+    "motion.blur.crossfade": {
+      "value": 2,
+      "unit": "px"
+    },
+    "motion.easing.drawer": [
+      0.32,
+      0.72,
+      0,
+      1
+    ],
+    "motion.duration.drawer": {
+      "value": 500,
+      "unit": "ms"
+    },
+    "motion.spring.spatial.dampingRatio": 1.0,
+    "motion.spring.spatial.stiffness": 246.7,
+    "motion.spring.momentum": {
+      "dampingRatio": 0.8,
+      "stiffness": 246.7,
+      "mass": 1
+    },
+    "motion.spring.sheet": {
+      "dampingRatio": 0.8,
+      "stiffness": 438.6,
+      "mass": 1
+    },
+    "motion.spring.rotation": {
+      "dampingRatio": 0.8,
+      "stiffness": 246.7,
+      "mass": 1
+    },
+    "motion.gesture.deceleration-rate": 0.998,
+    "motion.gesture.dismiss-velocity": 0.11,
+    "motion.gesture.sheet-dismiss-fraction": 0.4,
+    "motion.gesture.rubberband-constant": 0.55,
+    "motion.gesture.direction-threshold": {
+      "value": 10,
+      "unit": "px"
+    },
+    "motion.duration.reduced-fade": {
+      "value": 200,
+      "unit": "ms"
+    },
+    "reduced:motion.transition.enter": {
+      "duration": "{motion.duration.reduced-fade}",
+      "delay": {
+        "value": 0,
+        "unit": "ms"
+      },
+      "timingFunction": [
+        0.25,
+        0.1,
+        0.25,
+        1
+      ]
+    },
+    "reduced:motion.transition.exit": {
+      "duration": "{motion.duration.reduced-fade}",
+      "delay": {
+        "value": 0,
+        "unit": "ms"
+      },
+      "timingFunction": [
+        0.25,
+        0.1,
+        0.25,
+        1
+      ]
+    },
+    "reduced:motion.transition.expand": {
+      "duration": "{motion.duration.reduced-fade}",
+      "delay": {
+        "value": 0,
+        "unit": "ms"
+      },
+      "timingFunction": [
+        0.25,
+        0.1,
+        0.25,
+        1
+      ]
+    },
+    "motion.duration.toast": {
+      "value": 400,
+      "unit": "ms"
+    },
+    "motion.easing.toast": [
+      0.25,
+      0.1,
+      0.25,
+      1
+    ],
+    "component.toast.gap": {
+      "value": 14,
+      "unit": "px"
+    },
+    "component.toast.visible": 3,
+    "component.toast.duration": {
+      "value": 4000,
+      "unit": "ms"
+    },
+    "component.toast.offset.desktop": {
+      "value": 32,
+      "unit": "px"
+    },
+    "component.toast.offset.mobile": {
+      "value": 16,
+      "unit": "px"
+    },
+    "motion.gesture.drag-lock-after-scroll": {
+      "value": 100,
+      "unit": "ms"
+    },
+    "motion.scale.press": 0.97,
+    "size.target.touch": {
+      "value": 44,
+      "unit": "px"
+    },
+    "size.target.min": {
+      "value": 44,
+      "unit": "px"
+    },
+    "font.size.input": {
+      "value": 16,
+      "unit": "px"
+    }
+  },
+  "answers": {
+    "Q-aud-01": {
+      "value": "dense",
+      "set_by": "chosen",
+      "decision": "D-0003",
+      "via": "sketch",
+      "locked": false
+    },
+    "Q-plat-01": {
+      "value": [
+        "web"
+      ],
+      "set_by": "chosen",
+      "decision": "D-0008",
+      "via": "sketch",
+      "locked": false
+    },
+    "Q-theme-01": {
+      "value": "system-light-dark",
+      "set_by": "chosen",
+      "decision": "D-0012",
+      "via": "sketch",
+      "locked": false
+    },
+    "Q-scope-06": {
+      "value": [
+        "dashboard:operate"
+      ],
+      "set_by": "chosen",
+      "decision": "D-0013",
+      "via": "sketch",
+      "locked": false
+    }
+  },
+  "principles": [],
+  "components": {
+    "base": null,
+    "inventory": [
+      "button",
+      "text-field",
+      "textarea",
+      "select",
+      "checkbox",
+      "radio",
+      "switch",
+      "slider",
+      "tabs",
+      "tooltip",
+      "popover",
+      "dialog",
+      "menu",
+      "progress-bar",
+      "spinner",
+      "banner",
+      "badge",
+      "avatar",
+      "card",
+      "list",
+      "table",
+      "link",
+      "breadcrumbs",
+      "side-navigation",
+      "accordion"
+    ],
+    "notes": {}
+  },
+  "hooks": {
+    "H-logo": {
+      "status": "pending",
+      "name": "Logo, wordmark, symbol, lockups",
+      "question": "Q-brand-03",
+      "files": [],
+      "note": ""
+    },
+    "H-appicon": {
+      "status": "pending",
+      "name": "App icon",
+      "question": "Q-icon-06",
+      "files": [],
+      "note": ""
+    },
+    "H-favicon": {
+      "status": "pending",
+      "name": "Favicon set",
+      "question": "Q-brand-03",
+      "files": [],
+      "note": ""
+    },
+    "H-icons": {
+      "status": "pending",
+      "name": "Custom icons, pictograms, spot icons",
+      "question": "Q-icon-01",
+      "files": [],
+      "note": ""
+    },
+    "H-illus": {
+      "status": "pending",
+      "name": "Illustration, characters, empty-state art",
+      "question": "Q-img-04",
+      "files": [],
+      "note": ""
+    },
+    "H-photo": {
+      "status": "pending",
+      "name": "Photography and art direction",
+      "question": "Q-img-01",
+      "files": [],
+      "note": ""
+    },
+    "H-type": {
+      "status": "pending",
+      "name": "Brand typeface files",
+      "question": "Q-type-02",
+      "files": [],
+      "note": ""
+    },
+    "H-color": {
+      "status": "pending",
+      "name": "Fixed brand colors",
+      "question": "Q-color-01",
+      "files": [],
+      "note": ""
+    },
+    "H-motion": {
+      "status": "pending",
+      "name": "Motion signature and rich media",
+      "question": "Q-img-06",
+      "files": [],
+      "note": ""
+    },
+    "H-motif": {
+      "status": "pending",
+      "name": "Graphic devices, patterns, textures, brand gradients, signature shape",
+      "question": "Q-img-07",
+      "files": [],
+      "note": ""
+    },
+    "H-sound": {
+      "status": "pending",
+      "name": "UI sounds and sonic logo",
+      "question": "Q-motion-08",
+      "files": [],
+      "note": ""
+    },
+    "H-haptic": {
+      "status": "pending",
+      "name": "Custom haptic patterns",
+      "question": "Q-motion-09",
+      "files": [],
+      "note": ""
+    },
+    "H-voice": {
+      "status": "pending",
+      "name": "Voice and tone guide",
+      "question": "Q-voice-01",
+      "files": [],
+      "note": ""
+    },
+    "H-brandbook": {
+      "status": "pending",
+      "name": "Brand guidelines PDF",
+      "question": "Q-ref-01",
+      "files": [],
+      "note": ""
+    }
+  },
+  "zoom": {},
+  "profile": {
+    "voice": "plain"
+  },
+  "blocks": {},
+  "references": {},
+  "taste": {
+    "feelWords": [
+      "technical",
+      "focused",
+      "calm"
+    ],
+    "brief": "a lab notebook for agent runs: quiet surfaces, sharp verdict colors"
+  },
+  "hashes": {
+    "DESIGN.md": "c7bad643f8b2c295",
+    "PRODUCT.md": "b59a39ea5a62e4b3"
+  },
+  "exports": {
+    "prefix": "ds",
+    "figmaPlan": "professional",
+    "tailwindReset": true
+  },
+  "locks": [
+    "overrides.motion.duration.instant",
+    "overrides.motion.easing.linear",
+    "overrides.motion.easing.hover",
+    "overrides.motion.easing.enter",
+    "overrides.motion.easing.exit",
+    "overrides.motion.easing.standard",
+    "overrides.motion.duration.micro",
+    "overrides.motion.duration.short",
+    "overrides.motion.duration.medium",
+    "overrides.motion.duration.long",
+    "overrides.motion.scale.enter",
+    "overrides.motion.duration.tooltip",
+    "overrides.motion.scale.enter-tooltip",
+    "overrides.motion.duration.modal",
+    "overrides.motion.scale.enter-modal",
+    "overrides.motion.duration.stagger",
+    "overrides.motion.duration.reveal",
+    "overrides.motion.blur.crossfade",
+    "overrides.motion.easing.drawer",
+    "overrides.motion.duration.drawer",
+    "overrides.motion.spring.spatial.dampingRatio",
+    "overrides.motion.spring.spatial.stiffness",
+    "overrides.motion.spring.momentum",
+    "overrides.motion.spring.sheet",
+    "overrides.motion.spring.rotation",
+    "overrides.motion.gesture.deceleration-rate",
+    "overrides.motion.gesture.dismiss-velocity",
+    "overrides.motion.gesture.rubberband-constant",
+    "overrides.motion.gesture.direction-threshold",
+    "raw.reducedMotion",
+    "overrides.motion.duration.reduced-fade",
+    "overrides.reduced:motion.transition.enter",
+    "overrides.reduced:motion.transition.exit",
+    "overrides.reduced:motion.transition.expand",
+    "overrides.motion.duration.toast",
+    "overrides.motion.easing.toast",
+    "overrides.component.toast.gap",
+    "overrides.component.toast.visible",
+    "overrides.component.toast.duration",
+    "overrides.component.toast.offset.desktop",
+    "overrides.component.toast.offset.mobile",
+    "overrides.motion.gesture.drag-lock-after-scroll",
+    "overrides.motion.scale.press",
+    "overrides.size.target.touch",
+    "overrides.size.target.min",
+    "overrides.font.size.input"
+  ],
+  "standards": {
+    "house_version": 3,
+    "applied": [
+      "STD-when-to-animate-01",
+      "STD-when-to-animate-03",
+      "STD-when-to-animate-04",
+      "STD-when-to-animate-05",
+      "STD-when-to-animate-06",
+      "STD-when-to-animate-07",
+      "STD-when-to-animate-08",
+      "STD-when-to-animate-09",
+      "STD-when-to-animate-10",
+      "STD-when-to-animate-11",
+      "STD-when-to-animate-13",
+      "STD-when-to-animate-15",
+      "STD-when-to-animate-16",
+      "STD-when-to-animate-17",
+      "STD-when-to-animate-20",
+      "STD-when-to-animate-22",
+      "STD-easing-duration-01",
+      "STD-easing-duration-02",
+      "STD-easing-duration-03",
+      "STD-easing-duration-06",
+      "STD-easing-duration-07",
+      "STD-easing-duration-09",
+      "STD-easing-duration-10",
+      "STD-easing-duration-11",
+      "STD-easing-duration-12",
+      "STD-easing-duration-13",
+      "STD-easing-duration-15",
+      "STD-easing-duration-17",
+      "STD-easing-duration-19",
+      "STD-enter-exit-origin-01",
+      "STD-enter-exit-origin-02",
+      "STD-enter-exit-origin-03",
+      "STD-enter-exit-origin-04",
+      "STD-enter-exit-origin-06",
+      "STD-enter-exit-origin-08",
+      "STD-enter-exit-origin-09",
+      "STD-enter-exit-origin-10",
+      "STD-enter-exit-origin-11",
+      "STD-enter-exit-origin-12",
+      "STD-enter-exit-origin-13",
+      "STD-enter-exit-origin-16",
+      "STD-enter-exit-origin-17",
+      "STD-enter-exit-origin-21",
+      "STD-enter-exit-origin-23",
+      "STD-enter-exit-origin-24",
+      "STD-enter-exit-origin-26",
+      "STD-enter-exit-origin-27",
+      "STD-enter-exit-origin-28",
+      "STD-enter-exit-origin-29",
+      "STD-enter-exit-origin-30",
+      "STD-enter-exit-origin-31",
+      "STD-enter-exit-origin-37",
+      "STD-enter-exit-origin-38",
+      "STD-enter-exit-origin-39",
+      "STD-enter-exit-origin-40",
+      "STD-enter-exit-origin-41",
+      "STD-enter-exit-origin-42",
+      "STD-enter-exit-origin-43",
+      "STD-enter-exit-origin-44",
+      "STD-springs-gestures-01",
+      "STD-springs-gestures-02",
+      "STD-springs-gestures-04",
+      "STD-springs-gestures-05",
+      "STD-springs-gestures-06",
+      "STD-springs-gestures-07",
+      "STD-springs-gestures-08",
+      "STD-springs-gestures-09",
+      "STD-springs-gestures-11",
+      "STD-springs-gestures-12",
+      "STD-springs-gestures-13",
+      "STD-springs-gestures-14",
+      "STD-springs-gestures-15",
+      "STD-springs-gestures-16",
+      "STD-springs-gestures-17",
+      "STD-springs-gestures-18",
+      "STD-springs-gestures-19",
+      "STD-springs-gestures-20",
+      "STD-springs-gestures-21",
+      "STD-springs-gestures-25",
+      "STD-springs-gestures-26",
+      "STD-springs-gestures-28",
+      "STD-springs-gestures-30",
+      "STD-springs-gestures-34",
+      "STD-springs-gestures-39",
+      "STD-springs-gestures-41",
+      "STD-springs-gestures-42",
+      "STD-springs-gestures-45",
+      "STD-springs-gestures-59",
+      "STD-springs-gestures-60",
+      "STD-springs-gestures-61",
+      "STD-springs-gestures-63",
+      "STD-performance-properties-01",
+      "STD-performance-properties-02",
+      "STD-performance-properties-06",
+      "STD-performance-properties-09",
+      "STD-performance-properties-10",
+      "STD-performance-properties-11",
+      "STD-performance-properties-12",
+      "STD-performance-properties-13",
+      "STD-performance-properties-14",
+      "STD-performance-properties-15",
+      "STD-performance-properties-16",
+      "STD-performance-properties-17",
+      "STD-performance-properties-24",
+      "STD-performance-properties-25",
+      "STD-accessibility-motion-01",
+      "STD-accessibility-motion-02",
+      "STD-accessibility-motion-05",
+      "STD-accessibility-motion-06",
+      "STD-accessibility-motion-07",
+      "STD-accessibility-motion-08",
+      "STD-accessibility-motion-09",
+      "STD-accessibility-motion-10",
+      "STD-accessibility-motion-11",
+      "STD-accessibility-motion-12",
+      "STD-accessibility-motion-13",
+      "STD-accessibility-motion-15",
+      "STD-accessibility-motion-16",
+      "STD-accessibility-motion-17",
+      "STD-accessibility-motion-18",
+      "STD-accessibility-motion-20",
+      "STD-accessibility-motion-23",
+      "STD-accessibility-motion-24",
+      "STD-accessibility-motion-26",
+      "STD-accessibility-motion-27",
+      "STD-components-toasts-drawers-03",
+      "STD-components-toasts-drawers-07",
+      "STD-components-toasts-drawers-10",
+      "STD-components-toasts-drawers-11",
+      "STD-components-toasts-drawers-12",
+      "STD-components-toasts-drawers-13",
+      "STD-components-toasts-drawers-14",
+      "STD-components-toasts-drawers-15",
+      "STD-components-toasts-drawers-16",
+      "STD-components-toasts-drawers-17",
+      "STD-components-toasts-drawers-18",
+      "STD-components-toasts-drawers-25",
+      "STD-components-toasts-drawers-29",
+      "STD-components-toasts-drawers-30",
+      "STD-components-toasts-drawers-33",
+      "STD-components-toasts-drawers-34",
+      "STD-components-toasts-drawers-37",
+      "STD-components-toasts-drawers-40",
+      "STD-components-toasts-drawers-44",
+      "STD-components-toasts-drawers-45",
+      "STD-components-toasts-drawers-48",
+      "STD-components-toasts-drawers-65",
+      "STD-components-toasts-drawers-72",
+      "STD-components-toasts-drawers-77",
+      "STD-mobile-touch-02",
+      "STD-mobile-touch-03",
+      "STD-mobile-touch-05",
+      "STD-mobile-touch-06",
+      "STD-mobile-touch-07",
+      "STD-mobile-touch-08",
+      "STD-mobile-touch-09",
+      "STD-mobile-touch-10",
+      "STD-mobile-touch-11",
+      "STD-mobile-touch-13",
+      "STD-mobile-touch-14",
+      "STD-mobile-touch-15",
+      "STD-mobile-touch-16",
+      "STD-mobile-touch-17",
+      "STD-mobile-touch-18",
+      "STD-mobile-touch-19",
+      "STD-mobile-touch-20",
+      "STD-mobile-touch-21",
+      "STD-mobile-touch-24",
+      "STD-mobile-touch-28",
+      "STD-mobile-touch-70",
+      "STD-visual-details-01",
+      "STD-visual-details-02",
+      "STD-visual-details-03",
+      "STD-visual-details-04",
+      "STD-visual-details-05",
+      "STD-visual-details-06",
+      "STD-visual-details-07",
+      "STD-visual-details-08",
+      "STD-visual-details-09",
+      "STD-visual-details-10",
+      "STD-visual-details-11",
+      "STD-visual-details-13",
+      "STD-visual-details-14",
+      "STD-visual-details-15",
+      "STD-visual-details-16",
+      "STD-visual-details-17",
+      "STD-visual-details-18",
+      "STD-visual-details-19",
+      "STD-visual-details-20",
+      "STD-visual-details-21",
+      "STD-visual-details-24",
+      "STD-visual-details-25",
+      "STD-visual-details-26",
+      "STD-visual-details-27",
+      "STD-visual-details-28",
+      "STD-visual-details-29",
+      "STD-visual-details-30",
+      "STD-visual-details-31",
+      "STD-visual-details-32",
+      "STD-visual-details-33",
+      "STD-visual-details-34",
+      "STD-visual-details-35",
+      "STD-visual-details-36",
+      "STD-visual-details-37",
+      "STD-visual-details-38",
+      "STD-visual-details-39",
+      "STD-visual-details-40",
+      "STD-visual-details-41",
+      "STD-visual-details-42",
+      "STD-visual-details-43",
+      "STD-visual-details-44",
+      "STD-visual-details-45",
+      "STD-visual-details-46",
+      "STD-visual-details-47",
+      "STD-visual-details-48",
+      "STD-visual-details-49",
+      "STD-visual-details-50",
+      "STD-visual-details-51",
+      "STD-visual-details-55",
+      "STD-visual-details-56",
+      "STD-visual-details-57",
+      "STD-visual-details-59",
+      "STD-visual-details-64",
+      "STD-process-review-taste-01",
+      "STD-process-review-taste-02",
+      "STD-process-review-taste-03",
+      "STD-process-review-taste-04",
+      "STD-process-review-taste-05",
+      "STD-process-review-taste-06",
+      "STD-process-review-taste-07",
+      "STD-process-review-taste-08",
+      "STD-process-review-taste-09",
+      "STD-process-review-taste-10",
+      "STD-process-review-taste-11",
+      "STD-process-review-taste-12",
+      "STD-process-review-taste-13",
+      "STD-process-review-taste-14",
+      "STD-process-review-taste-15",
+      "STD-process-review-taste-16",
+      "STD-process-review-taste-17",
+      "STD-process-review-taste-18",
+      "STD-process-review-taste-19",
+      "STD-process-review-taste-20",
+      "STD-process-review-taste-21",
+      "STD-process-review-taste-22",
+      "STD-process-review-taste-23",
+      "STD-process-review-taste-24",
+      "STD-process-review-taste-25",
+      "STD-process-review-taste-26",
+      "STD-process-review-taste-27",
+      "STD-process-review-taste-28",
+      "STD-process-review-taste-29",
+      "STD-process-review-taste-30",
+      "STD-process-review-taste-31",
+      "STD-process-review-taste-32",
+      "STD-process-review-taste-33",
+      "STD-process-review-taste-34",
+      "STD-process-review-taste-35",
+      "STD-process-review-taste-36",
+      "STD-process-review-taste-37",
+      "STD-process-review-taste-38",
+      "STD-process-review-taste-39",
+      "STD-process-review-taste-40",
+      "STD-process-review-taste-41",
+      "STD-process-review-taste-42",
+      "STD-process-review-taste-43",
+      "STD-process-review-taste-44",
+      "STD-process-review-taste-45",
+      "STD-process-review-taste-46",
+      "STD-process-review-taste-47",
+      "STD-process-review-taste-48",
+      "STD-process-review-taste-49",
+      "STD-process-review-taste-50",
+      "STD-process-review-taste-51",
+      "STD-process-review-taste-52",
+      "STD-process-review-taste-53",
+      "STD-process-review-taste-54",
+      "STD-process-review-taste-55",
+      "STD-process-review-taste-56",
+      "STD-process-review-taste-57",
+      "STD-process-review-taste-58",
+      "STD-process-review-taste-59",
+      "STD-process-review-taste-60",
+      "STD-process-review-taste-62",
+      "STD-process-review-taste-63",
+      "STD-process-review-taste-64",
+      "STD-process-review-taste-65",
+      "STD-process-review-taste-66",
+      "STD-process-review-taste-67"
+    ],
+    "overridden": {},
+    "project": [],
+    "retired_seen": [],
+    "records": {
+      "STD-when-to-animate-01": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-when-to-animate-03": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-when-to-animate-04": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-when-to-animate-05": {
+        "paths": {
+          "overrides.motion.duration.instant": {
+            "value": 0,
+            "unit": "ms"
+          }
+        },
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-when-to-animate-06": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-when-to-animate-07": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-when-to-animate-08": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-when-to-animate-09": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-when-to-animate-10": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-when-to-animate-11": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-when-to-animate-13": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-when-to-animate-15": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-when-to-animate-16": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-when-to-animate-17": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-when-to-animate-20": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-when-to-animate-22": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-easing-duration-01": {
+        "paths": {
+          "overrides.motion.easing.linear": [
+            0,
+            0,
+            1,
+            1
+          ],
+          "overrides.motion.easing.hover": [
+            0.25,
+            0.1,
+            0.25,
+            1
+          ]
+        },
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-easing-duration-02": {
+        "paths": {
+          "overrides.motion.easing.enter": [
+            0.23,
+            1,
+            0.32,
+            1
+          ],
+          "overrides.motion.easing.exit": [
+            0.23,
+            1,
+            0.32,
+            1
+          ],
+          "overrides.motion.easing.standard": [
+            0.77,
+            0,
+            0.175,
+            1
+          ]
+        },
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-easing-duration-03": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-easing-duration-06": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-easing-duration-07": {
+        "paths": {
+          "overrides.motion.duration.micro": {
+            "value": 100,
+            "unit": "ms"
+          },
+          "overrides.motion.duration.short": {
+            "value": 150,
+            "unit": "ms"
+          },
+          "overrides.motion.duration.medium": {
+            "value": 200,
+            "unit": "ms"
+          },
+          "overrides.motion.duration.long": {
+            "value": 250,
+            "unit": "ms"
+          }
+        },
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-easing-duration-09": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-easing-duration-10": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-easing-duration-11": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-easing-duration-12": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-easing-duration-13": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-easing-duration-15": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-easing-duration-17": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-easing-duration-19": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-enter-exit-origin-01": {
+        "paths": {
+          "overrides.motion.scale.enter": 0.95
+        },
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-enter-exit-origin-02": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-enter-exit-origin-03": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-enter-exit-origin-04": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-enter-exit-origin-06": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-enter-exit-origin-08": {
+        "paths": {
+          "overrides.motion.duration.medium": {
+            "value": 200,
+            "unit": "ms"
+          },
+          "overrides.motion.scale.enter": 0.95
+        },
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-enter-exit-origin-09": {
+        "paths": {
+          "overrides.motion.duration.tooltip": {
+            "value": 125,
+            "unit": "ms"
+          },
+          "overrides.motion.scale.enter-tooltip": 0.97
+        },
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-enter-exit-origin-10": {
+        "paths": {
+          "overrides.motion.duration.instant": {
+            "value": 0,
+            "unit": "ms"
+          }
+        },
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-enter-exit-origin-11": {
+        "paths": {
+          "overrides.motion.duration.modal": {
+            "value": 250,
+            "unit": "ms"
+          },
+          "overrides.motion.scale.enter-modal": 0.96
+        },
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-enter-exit-origin-12": {
+        "paths": {
+          "overrides.motion.duration.modal": {
+            "value": 250,
+            "unit": "ms"
+          }
+        },
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-enter-exit-origin-13": {
+        "paths": {
+          "overrides.motion.duration.stagger": {
+            "value": 50,
+            "unit": "ms"
+          }
+        },
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-enter-exit-origin-16": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-enter-exit-origin-17": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-enter-exit-origin-21": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-enter-exit-origin-23": {
+        "paths": {
+          "overrides.motion.duration.medium": {
+            "value": 200,
+            "unit": "ms"
+          }
+        },
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-enter-exit-origin-24": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-enter-exit-origin-26": {
+        "paths": {
+          "overrides.motion.duration.reveal": {
+            "value": 600,
+            "unit": "ms"
+          }
+        },
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-enter-exit-origin-27": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-enter-exit-origin-28": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-enter-exit-origin-29": {
+        "paths": {
+          "overrides.motion.blur.crossfade": {
+            "value": 2,
+            "unit": "px"
+          }
+        },
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-enter-exit-origin-30": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-enter-exit-origin-31": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-enter-exit-origin-37": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-enter-exit-origin-38": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-enter-exit-origin-39": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-enter-exit-origin-40": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-enter-exit-origin-41": {
+        "paths": {
+          "overrides.motion.easing.drawer": [
+            0.32,
+            0.72,
+            0,
+            1
+          ],
+          "overrides.motion.duration.drawer": {
+            "value": 500,
+            "unit": "ms"
+          }
+        },
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-enter-exit-origin-42": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-enter-exit-origin-43": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-enter-exit-origin-44": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-springs-gestures-01": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-springs-gestures-02": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-springs-gestures-04": {
+        "paths": {
+          "overrides.motion.spring.spatial.dampingRatio": 1.0,
+          "overrides.motion.spring.spatial.stiffness": 246.7
+        },
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-springs-gestures-05": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-springs-gestures-06": {
+        "paths": {
+          "overrides.motion.spring.momentum": {
+            "dampingRatio": 0.8,
+            "stiffness": 246.7,
+            "mass": 1
+          }
+        },
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-springs-gestures-07": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-springs-gestures-08": {
+        "paths": {
+          "overrides.motion.spring.sheet": {
+            "dampingRatio": 0.8,
+            "stiffness": 438.6,
+            "mass": 1
+          }
+        },
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-springs-gestures-09": {
+        "paths": {
+          "overrides.motion.spring.rotation": {
+            "dampingRatio": 0.8,
+            "stiffness": 246.7,
+            "mass": 1
+          }
+        },
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-springs-gestures-11": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-springs-gestures-12": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-springs-gestures-13": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-springs-gestures-14": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-springs-gestures-15": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-springs-gestures-16": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-springs-gestures-17": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-springs-gestures-18": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-springs-gestures-19": {
+        "paths": {
+          "overrides.motion.gesture.deceleration-rate": 0.998
+        },
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-springs-gestures-20": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-springs-gestures-21": {
+        "paths": {
+          "overrides.motion.gesture.dismiss-velocity": 0.11
+        },
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-springs-gestures-25": {
+        "paths": {
+          "overrides.motion.gesture.rubberband-constant": 0.55
+        },
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-springs-gestures-26": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-springs-gestures-28": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-springs-gestures-30": {
+        "paths": {
+          "overrides.motion.gesture.direction-threshold": {
+            "value": 10,
+            "unit": "px"
+          }
+        },
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-springs-gestures-34": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-springs-gestures-39": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-springs-gestures-41": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-springs-gestures-42": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-springs-gestures-45": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-springs-gestures-59": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-springs-gestures-60": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-springs-gestures-61": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-springs-gestures-63": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-performance-properties-01": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-performance-properties-02": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-performance-properties-06": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-performance-properties-09": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-performance-properties-10": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-performance-properties-11": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-performance-properties-12": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-performance-properties-13": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-performance-properties-14": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-performance-properties-15": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-performance-properties-16": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-performance-properties-17": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-performance-properties-24": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-performance-properties-25": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-accessibility-motion-01": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-accessibility-motion-02": {
+        "paths": {
+          "raw.reducedMotion": "replace",
+          "overrides.motion.duration.reduced-fade": {
+            "value": 200,
+            "unit": "ms"
+          },
+          "overrides.reduced:motion.transition.enter": {
+            "duration": "{motion.duration.reduced-fade}",
+            "delay": {
+              "value": 0,
+              "unit": "ms"
+            },
+            "timingFunction": [
+              0.25,
+              0.1,
+              0.25,
+              1
+            ]
+          },
+          "overrides.reduced:motion.transition.exit": {
+            "duration": "{motion.duration.reduced-fade}",
+            "delay": {
+              "value": 0,
+              "unit": "ms"
+            },
+            "timingFunction": [
+              0.25,
+              0.1,
+              0.25,
+              1
+            ]
+          },
+          "overrides.reduced:motion.transition.expand": {
+            "duration": "{motion.duration.reduced-fade}",
+            "delay": {
+              "value": 0,
+              "unit": "ms"
+            },
+            "timingFunction": [
+              0.25,
+              0.1,
+              0.25,
+              1
+            ]
+          }
+        },
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-accessibility-motion-05": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-accessibility-motion-06": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-accessibility-motion-07": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-accessibility-motion-08": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-accessibility-motion-09": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-accessibility-motion-10": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-accessibility-motion-11": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-accessibility-motion-12": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-accessibility-motion-13": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-accessibility-motion-15": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-accessibility-motion-16": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-accessibility-motion-17": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-accessibility-motion-18": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-accessibility-motion-20": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-accessibility-motion-23": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-accessibility-motion-24": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-accessibility-motion-26": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-accessibility-motion-27": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-components-toasts-drawers-03": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-components-toasts-drawers-07": {
+        "paths": {
+          "overrides.motion.duration.toast": {
+            "value": 400,
+            "unit": "ms"
+          },
+          "overrides.motion.easing.toast": [
+            0.25,
+            0.1,
+            0.25,
+            1
+          ]
+        },
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-components-toasts-drawers-10": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-components-toasts-drawers-11": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-components-toasts-drawers-12": {
+        "paths": {
+          "overrides.component.toast.gap": {
+            "value": 14,
+            "unit": "px"
+          }
+        },
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-components-toasts-drawers-13": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-components-toasts-drawers-14": {
+        "paths": {
+          "overrides.component.toast.visible": 3
+        },
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-components-toasts-drawers-15": {
+        "paths": {
+          "overrides.component.toast.duration": {
+            "value": 4000,
+            "unit": "ms"
+          }
+        },
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-components-toasts-drawers-16": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-components-toasts-drawers-17": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-components-toasts-drawers-18": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-components-toasts-drawers-25": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-components-toasts-drawers-29": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-components-toasts-drawers-30": {
+        "paths": {
+          "overrides.component.toast.offset.desktop": {
+            "value": 32,
+            "unit": "px"
+          },
+          "overrides.component.toast.offset.mobile": {
+            "value": 16,
+            "unit": "px"
+          }
+        },
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-components-toasts-drawers-33": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-components-toasts-drawers-34": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-components-toasts-drawers-37": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-components-toasts-drawers-40": {
+        "paths": {
+          "overrides.motion.easing.drawer": [
+            0.32,
+            0.72,
+            0,
+            1
+          ]
+        },
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-components-toasts-drawers-44": {
+        "paths": {
+          "overrides.motion.gesture.drag-lock-after-scroll": {
+            "value": 100,
+            "unit": "ms"
+          }
+        },
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-components-toasts-drawers-45": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-components-toasts-drawers-48": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-components-toasts-drawers-65": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-components-toasts-drawers-72": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-components-toasts-drawers-77": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-mobile-touch-02": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-mobile-touch-03": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-mobile-touch-05": {
+        "paths": {
+          "overrides.motion.scale.press": 0.97,
+          "overrides.motion.duration.micro": {
+            "value": 100,
+            "unit": "ms"
+          }
+        },
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-mobile-touch-06": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-mobile-touch-07": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-mobile-touch-08": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-mobile-touch-09": {
+        "paths": {
+          "overrides.size.target.touch": {
+            "value": 44,
+            "unit": "px"
+          },
+          "overrides.size.target.min": {
+            "value": 44,
+            "unit": "px"
+          }
+        },
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-mobile-touch-10": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-mobile-touch-11": {
+        "paths": {
+          "overrides.font.size.input": {
+            "value": 16,
+            "unit": "px"
+          }
+        },
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-mobile-touch-13": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-mobile-touch-14": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-mobile-touch-15": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-mobile-touch-16": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-mobile-touch-17": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-mobile-touch-18": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-mobile-touch-19": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-mobile-touch-20": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-mobile-touch-21": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-mobile-touch-24": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-mobile-touch-28": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-mobile-touch-70": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-visual-details-01": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-visual-details-02": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-visual-details-03": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-visual-details-04": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-visual-details-05": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-visual-details-06": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-visual-details-07": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-visual-details-08": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-visual-details-09": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-visual-details-10": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-visual-details-11": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-visual-details-13": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-visual-details-14": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-visual-details-15": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-visual-details-16": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-visual-details-17": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-visual-details-18": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-visual-details-19": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-visual-details-20": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-visual-details-21": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-visual-details-24": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-visual-details-25": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-visual-details-26": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-visual-details-27": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-visual-details-28": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-visual-details-29": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-visual-details-30": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-visual-details-31": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-visual-details-32": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-visual-details-33": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-visual-details-34": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-visual-details-35": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-visual-details-36": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-visual-details-37": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-visual-details-38": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-visual-details-39": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-visual-details-40": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-visual-details-41": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-visual-details-42": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-visual-details-43": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-visual-details-44": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-visual-details-45": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-visual-details-46": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-visual-details-47": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-visual-details-48": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-visual-details-49": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-visual-details-50": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-visual-details-51": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-visual-details-55": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-visual-details-56": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-visual-details-57": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-visual-details-59": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-visual-details-64": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-01": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-02": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-03": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-04": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-05": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-06": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-07": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-08": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-09": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-10": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-11": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-12": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-13": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-14": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-15": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-16": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-17": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-18": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-19": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-20": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-21": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-22": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-23": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-24": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-25": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-26": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-27": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-28": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-29": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-30": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-31": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-32": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-33": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-34": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-35": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-36": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-37": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-38": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-39": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-40": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-41": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-42": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-43": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-44": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-45": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-46": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-47": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-48": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-49": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-50": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-51": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-52": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-53": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-54": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-55": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-56": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-57": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-58": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-59": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-60": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-62": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-63": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-64": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-65": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-66": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      },
+      "STD-process-review-taste-67": {
+        "paths": {},
+        "decision": "D-0002",
+        "locked": true
+      }
+    },
+    "released": {},
+    "untouched": {},
+    "types": {
+      "motion.duration.instant": "duration",
+      "motion.easing.linear": "cubicBezier",
+      "motion.easing.hover": "cubicBezier",
+      "motion.easing.enter": "cubicBezier",
+      "motion.easing.exit": "cubicBezier",
+      "motion.duration.micro": "duration",
+      "motion.duration.short": "duration",
+      "motion.duration.medium": "duration",
+      "motion.duration.long": "duration",
+      "motion.scale.enter": "number",
+      "motion.duration.tooltip": "duration",
+      "motion.scale.enter-tooltip": "number",
+      "motion.duration.modal": "duration",
+      "motion.scale.enter-modal": "number",
+      "motion.duration.stagger": "duration",
+      "motion.duration.reveal": "duration",
+      "motion.blur.crossfade": "dimension",
+      "motion.easing.drawer": "cubicBezier",
+      "motion.duration.drawer": "duration",
+      "motion.spring.momentum": "transition",
+      "motion.spring.sheet": "transition",
+      "motion.spring.rotation": "transition",
+      "motion.gesture.deceleration-rate": "number",
+      "motion.gesture.dismiss-velocity": "number",
+      "motion.gesture.sheet-dismiss-fraction": "number",
+      "motion.gesture.rubberband-constant": "number",
+      "motion.gesture.direction-threshold": "dimension",
+      "motion.duration.reduced-fade": "duration",
+      "reduced:motion.transition.enter": "transition",
+      "reduced:motion.transition.exit": "transition",
+      "reduced:motion.transition.expand": "transition",
+      "motion.duration.toast": "duration",
+      "motion.easing.toast": "cubicBezier",
+      "component.toast.gap": "dimension",
+      "component.toast.visible": "number",
+      "component.toast.duration": "duration",
+      "component.toast.offset.desktop": "dimension",
+      "component.toast.offset.mobile": "dimension",
+      "motion.gesture.drag-lock-after-scroll": "duration",
+      "motion.scale.press": "number",
+      "size.target.touch": "dimension",
+      "size.target.min": "dimension",
+      "font.size.input": "dimension"
+    },
+    "snapshots": "standards-state.json"
+  }
+}

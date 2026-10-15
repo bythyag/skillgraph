@@ -63,6 +63,7 @@ Look at real results first; this costs nothing. `examples/runs/demo` is a finish
 uv run skillgraph summary examples/runs/demo                  # verdicts per skill, gaps against the SOP
 uv run skillgraph show examples/runs/demo/release-notes/minor-release/skill/r1   # one run, claim by claim
 uv run skillgraph report examples/runs/demo -o demo.html && open demo.html
+uv run skillgraph dashboard examples/runs/demo                # browse it in a local web app
 ```
 
 Then check your credentials:
@@ -108,16 +109,17 @@ openrouter:google/gemini-3.8-flash
 `skillgraph models --search <text>` lists what's available, with prices and whether a
 model supports tool calling (needed for the agent role).
 
-There are three roles:
+There are four roles:
 
 | Role | What it does | Flag | Env var |
 |---|---|---|---|
 | agent | runs the tasks: the model whose skill use you're measuring | `--agent-model` | `SKILLGRAPH_AGENT_MODEL` |
 | extractor | compiles SKILL.md into claims (once per skill change) | `--extractor-model` | `SKILLGRAPH_EXTRACTOR_MODEL` |
 | judge | grades claims that need judgment | `--judge-model` | `SKILLGRAPH_JUDGE_MODEL` |
+| digest | for long traces: points judge questions at the right turns, names phases; never grades | `--digest-model` | `SKILLGRAPH_DIGEST_MODEL` |
 
 A flag beats the env var, which beats the suite's `models:` block, which beats the
-default (`claude:claude-opus-5-5` for all three). For example:
+default (`claude:claude-opus-5-5`, and `claude:claude-haiku-5-5` for digest). For example:
 
 ```bash
 # measure how GPT follows the skill, with Claude extracting and a cheap model judging
@@ -200,6 +202,77 @@ and so on). Final files are rebuilt from the Write and Edit calls, and the tree 
 (parent, depth, subagent). Details, the mapping format, and limits are in
 [importing-traces.md](skills/skillgraph/references/importing-traces.md).
 
+### Long sessions
+
+A real session can run to hundreds of thousands of tokens. Above about 30,000 tokens,
+`check` judges a trace in **windowed** mode instead of handing the judge the whole thing:
+
+1. A deterministic **digest** splits the trace into turns (at each agent message) and indexes
+   every tool call, collapsing repeated polling into one line.
+2. A cheap model (Claude Haiku by default; `--digest-model`) reads only that table of
+   contents and points each judge question at the turns that hold its evidence. Plain
+   keyword matching adds its own guesses.
+3. The judge reads those turns, plus one turn either side, as raw events. A step it sees done,
+   or a rule it sees broken, stands.
+4. Everything an excerpt can't settle goes to one **skeleton** call that shows every event of
+   the trace with long fields shortened. That covers `must_not` rules, questions with no
+   routed turn, and window answers of "not done" or "unclear". Nothing is marked missed just
+   because the router didn't find it.
+
+```bash
+skillgraph digest runs/prod                     # turns, tool calls, tokens, which mode auto picks (free)
+skillgraph check runs/prod --yes                # auto: windowed above ~30k tokens (--judge-mode full|windowed)
+skillgraph check runs/prod --intents --yes      # also name each run's task and phases (never shown to the judge)
+skillgraph show runs/prod/<skill>/<task>/skill/r1 --turns
+```
+
+We checked this on the demo runs. Each was embedded in about 90,000 tokens of realistic agent
+work, and two "needles" (an edit to the input CSV, a deleted test) were spliced into the middle
+of the noise (`scripts/validate_digest.py`, Claude Opus 5.5 judging, Haiku routing):
+
+| | Result |
+|---|---|
+| judge verdicts matching the full-trace verdicts | 92 of 96 (96%); the 4 differences are borderline calls ("vacuously satisfied", unclear vs missed), not missed evidence |
+| cited evidence inside the routed windows | 82 of 82 |
+| mechanical verdicts unchanged by the noise | 100% |
+| needles caught | 2 of 2 |
+| tokens sent to the judge | 59% of the full traces at ~90k tokens; projected 32% at 200k and 21% at 400k |
+| judge cost on one 92k-token trace | $0.87 windowed vs $1.26 full |
+
+The skeleton is capped at 60,000 tokens and each window call at 24,000, so the
+saving grows with length. Full judging of very long sessions may not fit a model's
+context at all.
+
+A session that loads the skill several times becomes one trace per load (`-e1`, `-e2`);
+`--episode-end user` also ends an episode at the next message you typed.
+
+## Browse results
+
+```bash
+skillgraph dashboard runs/my-skill                          # http://127.0.0.1:8765, opens a browser
+skillgraph dashboard runs/before runs/after                 # adds a Diff tab
+skillgraph dashboard runs/my-skill --export site/           # static copy: open site/index.html or host it anywhere
+```
+
+The dashboard is read-only and never calls a model. It works like a tracing platform:
+
+- **Overview**: one plain-language sentence per skill ("Does real work: 10 of 16 lines change
+  behavior"), linked numbers, and what to change first.
+- **Recommendations**: a ranked to-do list. It covers ignored and interfering lines, gaps
+  against the reference process, lint errors, untested branches, and lines you could cut. Each
+  item quotes the SKILL.md lines, says why, and links to the runs behind it.
+- **Skills**: SKILL.md with each line marked by its verdict. Click a line or claim to see
+  every run's result and the judge's reason.
+- **Runs**: a filterable table. Pick a claim to see its result in every run.
+- **Trace view**: phases, turns and tool calls on the left; input, output and the claims each
+  event decided on the right. Off-skill turns are collapsed, and `j`/`k` move through events.
+- **Compare**: two run sets claim by claim, with a one-word verdict.
+- **Glossary**: every term explained.
+
+It serves only on 127.0.0.1, and refuses requests that don't come from there. Its look comes from
+a design system made with [OpenDesigner](https://github.com/ckryptickunal/OpenDesigner)
+([design/DESIGN.md](design/DESIGN.md)), in light and dark themes.
+
 ## Compare with a reference process
 
 ```bash
@@ -239,10 +312,10 @@ first; the command flags scripts that use absolute paths, the network, or `sudo`
 | `lint SUITE` | Static findings; exits 1 on errors |
 | `graph SUITE --skill X --format cypher\|graphml\|json` | Export the claim graph (Cypher loads into Neo4j) |
 | `run SUITE --out DIR` | Run the agent: `--variants skill,baseline,ablate-L<a>-<b>`, `--runs`, `--trigger invoke\|auto`, `--enforce` |
-| `check DIR` | Grade traces; judge verdicts are cached |
+| `check DIR` | Grade traces; judge verdicts are cached. `--judge-mode auto\|full\|windowed` (auto: windowed for long traces) |
 | `ablate DIR --top 1` | Remove the clearest working, inert, and ignored spans, rerun, grade |
 | `report DIR` | Write `DIR/report.html` |
-| `import SOURCES --suite S --skill X --out DIR` | Import traces from other tools as runs (`--dry-run`, `--format`, `--tool-map`, `--include-unloaded`) |
+| `import SOURCES --suite S --skill X --out DIR` | Import traces from other tools as runs, one per skill load (`--dry-run`, `--format`, `--tool-map`, `--episodes`, `--include-unloaded`) |
 | `reference SOURCE` | Convert an SOP, decision tree, or flowchart into a reference tree |
 | `coverage SUITE` | Compare each skill with its reference tree; exits 1 on conflicts |
 | `tasks SUITE --skill X` | Draft one eval task per reference path (`--untested-in DIR` for only the missing ones) |
@@ -250,7 +323,9 @@ first; the command flags scripts that use absolute paths, the network, or `sudo`
 | `estimate SUITE` | What a pipeline would cost, from earlier runs or model prices; spends nothing |
 | `summary DIR` | Results as text, `--json`, or `--junit FILE`; `--fail-on` sets the exit code |
 | `diff BEFORE AFTER` | Claim-by-claim changes between two run sets (`--json`, `--markdown`) |
-| `show RUN_DIR` | One run as a readable transcript with claim results inline |
+| `show RUN_DIR` | One run as a readable transcript with claim results inline (`--turns` marks turns) |
+| `digest DIR` | Turns, action index and token counts per trace; `--intents` names phases; `--validate` measures routing recall |
+| `dashboard DIR [DIR]` | Browse run sets in a local web app; `--export OUT` writes a static copy |
 
 Commands that spend money (`run`, `check`, `ablate`, `pipeline`) print an estimate and ask
 first; `-y/--yes` skips the question and `--max-total-usd` caps the spend.
@@ -310,7 +385,8 @@ this spends money, so keep `--runs` low and set `--max-total-usd`.
 - **Runs.** Each run copies the task's fixture into a fresh git workspace, installs the
   skill (or not, or with lines deleted), and runs the agent. The trace records every tool
   call with its input and output, the agent's text, the final files, and git state.
-- **Checks.** Mechanical checks run first; the rest go to one judge call per trace. Claims
+- **Checks.** Mechanical checks run first; the rest go to one judge call per trace (or, for
+  long traces, to calls on the turns that hold the evidence plus a skeleton of the whole trace). Claims
   on a branch that wasn't taken are `n/a`; a step done before something it must follow is
   `out_of_order`.
 - **Verdicts** compare follow rates with and without the skill. **Ablation** deletes a
@@ -418,19 +494,22 @@ tracks every prompt) and [CHANGELOG.md](CHANGELOG.md) for what changed.
 
 ```
 src/skillgraph/
-  cli.py  config.py  schema.py  extract.py  graph.py  runner.py  checker.py  aggregate.py  report.py  scaffold.py
+  cli.py  config.py  schema.py  extract.py  graph.py  runner.py  checker.py  digest.py  aggregate.py  report.py  scaffold.py
   providers/  base.py  claude.py  openrouter.py  harness.py  tools.py
   trees/      mapping.py  runs.py (import)  reference.py  coverage.py  taskgen.py
   templates/report.html
   costs.py (estimates, the spend gate)  summary.py  diff.py  show.py
+  dashboard/  __init__.py (server, API, export)  static/ (index.html, app.js, app.css, tokens.css)
+design/                   the dashboard's design system (OpenDesigner): DESIGN.md, PRODUCT.md, tokens
 skills/skillgraph/        agent skill: SKILL.md + references/ (build spec, writing suites, importing traces, reference trees)
 examples/                 suite.yaml, suite.generated.yaml, skills/, fixtures/, claims/, references/, runs/demo, demo-report.html
 scripts/export_demo.py    regenerates examples/runs/demo from a real run set, scrubbing paths and account details
+scripts/validate_digest.py  windowed vs full judging on long traces built from the demo (spends ~$10; asks first)
 tests/  docs/  .github/   Dockerfile
 ```
 
 If you change a prompt or schema (extractor, judge, harness, reference conversion and compilation,
-coverage alignment, task generation), update `skills/skillgraph/references/build-spec.md`;
+coverage alignment, task generation, digest intents and routing, window notes), update `skills/skillgraph/references/build-spec.md`;
 `tests/test_spec.py` fails until the spec quotes the new text.
 
 ## Limitations

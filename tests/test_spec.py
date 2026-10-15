@@ -4,7 +4,7 @@ import json
 
 from conftest import ROOT
 
-from skillgraph import checker, extract, schema
+from skillgraph import checker, digest, extract, schema
 from skillgraph.providers import harness
 from skillgraph.trees import coverage, reference, taskgen
 
@@ -18,7 +18,10 @@ def test_spec_quotes_prompts_and_schemas():
                  reference.CONVERT_SYSTEM, reference.CONVERT_PROMPT, json.dumps(reference.REFERENCE_SCHEMA, indent=2),
                  reference.COMPILE_SYSTEM, reference.COMPILE_PROMPT, json.dumps(reference.COMPILE_SCHEMA, indent=2),
                  coverage.ALIGN_SYSTEM, coverage.ALIGN_PROMPT, json.dumps(coverage.ALIGN_SCHEMA, indent=2),
-                 taskgen.TASK_SYSTEM, taskgen.TASK_PROMPT, json.dumps(taskgen.TASK_SCHEMA, indent=2)):
+                 taskgen.TASK_SYSTEM, taskgen.TASK_PROMPT, json.dumps(taskgen.TASK_SCHEMA, indent=2),
+                 digest.INTENT_SYSTEM, digest.INTENT_PROMPT, json.dumps(digest.INTENT_SCHEMA, indent=2),
+                 digest.ROUTER_SYSTEM, digest.ROUTER_PROMPT, json.dumps(digest.ROUTER_SCHEMA, indent=2),
+                 digest.WINDOW_NOTE, digest.SKELETON_NOTE):
         assert text in SPEC, f"build-spec.md is out of date; it no longer contains: {text[:80]!r}"
 
 

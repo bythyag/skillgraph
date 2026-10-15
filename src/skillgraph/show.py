@@ -29,13 +29,18 @@ def _one_line(value) -> str:
     return str(value)
 
 
-def render(run_dir: Path, *, width: int = 160, full: bool = False, color: bool | None = None) -> str:
+def render(run_dir: Path, *, width: int = 160, full: bool = False, color: bool | None = None, turns: bool = False) -> str:
     run_dir = Path(run_dir)
     tp = run_dir / "trace.json"
     if not tp.exists():
         raise FileNotFoundError(f"{tp} not found; pass a run directory like runs/x/<skill>/<task>/<variant>/r1")
     trace = json.loads(tp.read_text())
     check = json.loads((run_dir / "check.json").read_text()) if (run_dir / "check.json").exists() else {}
+    from skillgraph import digest as digests
+
+    dg = digests.load_or_build(run_dir / "digest.json", trace)
+    starts = {t["start"]: t for t in dg["turns"]}
+    phases = {p["first"]: p for p in ((dg.get("intents") or {}).get("data") or {}).get("phases", [])}
     on = sys.stdout.isatty() if color is None else color
     limit = 10_000 if full else width
 
@@ -54,10 +59,25 @@ def render(run_dir: Path, *, width: int = 160, full: bool = False, color: bool |
         + (f"  ·  ERROR {trace['error']}" if trace.get("error") else ""),
         "",
         _color("prompt", "1", on) + f"  {_clip(trace.get('task_prompt', ''), limit)}",
-        "",
     ]
+    ep = trace.get("episode")
+    if ep and ep.get("of", 1) > 1:
+        lines.append(f"episode {ep['index']} of {ep['of']} (session events {ep['start_event']}-{ep['end_event']})")
+    win = check.get("window")
+    if win:
+        lines.append(f"judged windowed: {win['calls']} judge calls on ~{win['tokens_sent']:,} of ~{win['tokens_full']:,} tokens"
+                     + (f"; {len(win['off_skill_turns'])} turns no question pointed to" if win.get("off_skill_turns") else ""))
+    if dg.get("intents"):
+        lines.append(_color("task", "1", on) + f"  {dg['intents']['data'].get('task', '')}")
+    lines.append("")
     for ev in trace["events"]:
         indent = "  " * int(ev.get("depth") or 0)
+        turn = starts.get(ev["i"])
+        if turn is not None and turn["n"] in phases:
+            ph = phases[turn["n"]]
+            lines.append(_color(f"── {ph['intent']} (turns {ph['first']}-{ph['last']}) ──", "1;34", on))
+        elif turn is not None and turns:
+            lines.append(_color(f"── turn {turn['n']} ──", "2", on))
         tag = f"[{ev['i']:>3}]"
         if ev["kind"] == "tool":
             name = ev["tool"] + (f" ({ev['raw_tool']})" if ev.get("raw_tool") and ev["raw_tool"] != ev["tool"] else "")
@@ -86,6 +106,8 @@ def render(run_dir: Path, *, width: int = 160, full: bool = False, color: bool |
         lines += ["", _color(title, "1", on)]
         for cid, r in sorted(results.items(), key=lambda kv: (kv[1]["status"] == "satisfied", kv[0])):
             where = f"event {r['evidence']}" if r.get("evidence") is not None else r.get("method", "")
+            if r.get("view"):
+                where += f" ({r['view']})"
             reason = f"  {_clip(r['reason'], limit)}" if r.get("reason") else ""
             lines.append("  " + _color(f"{STATUS_MARK.get(r['status'], '?')} {cid:<28} {r['status']:<12}", COLORS.get(r["status"], "0"), on)
                          + f" {where}{reason}")

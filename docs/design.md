@@ -61,6 +61,28 @@ extractor is told to write permissive alternatives, the lockfile review step exi
 to catch the rest, and the skill tells Claude to read a failing trace before
 calling a line ignored.
 
+### Long traces
+
+One judge call over a long session is slow and expensive. The judge's attention also thins out:
+a forbidden command at event 900 is easy to miss in 300k tokens. The obvious fix, summarizing
+the trace and judging the summary, is the wrong one. A summary is lossy in exactly the places
+that matter. "Ran the tests" hides whether they were run before the fix. A summarizer that
+knows the skill tends to find what it was told to look for.
+
+So the digest is a map, not a judge input:
+
+- Turns and the action index are built without a model, and the action index is exhaustive.
+- The one model call that sees everything is a cheap router reading a table of contents. It
+  only says where to look; it never decides anything. The optional intent call never sees the skill.
+- The judge always reads raw events: the routed turns in full, or a skeleton of every event
+  with long fields shortened.
+- An excerpt can prove that something happened, never that it didn't. So "not done" answers,
+  `must_not` rules and unrouted questions are settled on the skeleton, which shows everything.
+
+`scripts/validate_digest.py` measures this against full-trace verdicts. It builds long traces
+from the demo by interleaving realistic noise, and splices needles into the middle of them. Its
+results are in the README.
+
 ## Trees: real traces and reference processes
 
 Test runs answer "does the agent follow the skill?" Two questions remain: does it follow
@@ -139,3 +161,7 @@ with a baseline and ablation behind each verdict. That is skillgraph's job.
   traces, so a gap on a common path ranks above one on a rare path.
 - Cross-skill conflicts when several skills load in one session.
 - A container runner for untrusted skills.
+- Tune the skeleton for cost: at ~90k tokens it is about half of what windowed mode sends.
+  Dropping output snippets from unfocused events would halve it again, once validation
+  shows verdicts don't move.
+- Live-update the dashboard while a run set is being checked (today it reads on each page load).

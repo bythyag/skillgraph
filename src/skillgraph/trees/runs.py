@@ -573,26 +573,46 @@ def normalize_input(tool: str, inp: dict) -> dict:
     return inp
 
 
-def _skill_load_index(events: list[dict], skill: str) -> int | None:
+def _skill_load_indexes(events: list[dict], skill: str) -> list[int]:
+    """Every event that loads `skill`. A slash command and the skill text Claude Code injects
+    right after it count once."""
     pattern = re.compile(rf"(^|[/\\\s<]){re.escape(skill)}([/\\\s>]|$)")
+    found: list[int] = []
     for ev in events:
+        hit = False
         if ev["kind"] == "tool":
             blob = json.dumps(ev["input"], ensure_ascii=False)
             if ev["tool"] == "Skill" and skill in blob:
-                return ev["i"]
+                hit = True
             # Frameworks without a Skill tool load skills by reading SKILL.md; writing or
             # editing the file is authoring it, not loading it.
             reads = ev["tool"] == "Read" or (ev["tool"] == "Bash" and re.search(
                 r"\b(cat|head|less|more|sed\s+-n|bat)\b[^|;&]*SKILL\.md", str(ev["input"].get("command", ""))))
             if reads and re.search(rf"skills[/\\]+{re.escape(skill)}[/\\]+SKILL\.md", blob):
-                return ev["i"]
+                hit = True
         elif ev["kind"] == "user":
             text = ev["text"]
             if f"<command-name>/{skill}</command-name>" in text:
-                return ev["i"]
-            if text.startswith("Base directory for this skill") and pattern.search(text.splitlines()[0]):
-                return ev["i"]
-    return None
+                hit = True
+            elif text.startswith("Base directory for this skill") and pattern.search(text.splitlines()[0]):
+                # the text injected after a Skill call or slash command belongs to that load
+                prev = next((e for e in reversed(events[:ev["i"]]) if e["kind"] != "text"), None)
+                hit = not (found and prev is not None and prev["i"] == found[-1])
+        if hit:
+            found.append(ev["i"])
+    return found
+
+
+def _skill_load_index(events: list[dict], skill: str) -> int | None:
+    found = _skill_load_indexes(events, skill)
+    return found[0] if found else None
+
+
+def _is_human(ev: dict) -> bool:
+    """A message a person typed (not injected context, a command echo, or an interrupt marker)."""
+    text = ev.get("text", "")
+    return (ev["kind"] == "user" and not ev.get("meta") and ev.get("depth", 0) == 0
+            and not text.startswith(("<", "Base directory", "[Request interrupted", "Caveat:")))
 
 
 def _rel(path: str, cwd: str | None) -> str:
@@ -632,9 +652,7 @@ def reconstruct_files(events: list[dict], cwd: str | None) -> dict[str, str | No
     return files
 
 
-def to_trace(raw: RawTrace, *, skill: str, variant: str, rep: int, aliases: dict[str, str],
-             from_skill_load: bool = True) -> dict:
-    """Normalize a RawTrace into skillgraph's trace.json shape."""
+def _normalize_events(raw: RawTrace, aliases: dict[str, str]) -> list[dict]:
     known_ts = [e.ts for e in raw.events if e.ts is not None]
     if len(known_ts) == len(raw.events) and known_ts:
         ordered = sorted(raw.events, key=lambda e: (e.ts, e.order))
@@ -657,26 +675,41 @@ def to_trace(raw: RawTrace, *, skill: str, variant: str, rep: int, aliases: dict
         if e.ts is not None:
             ev["ts"] = e.ts
         events.append(ev)
+    return events
 
-    load = _skill_load_index(events, skill)
-    loaded = load is not None or bool(raw.skill_loaded)
-    prompt = raw.prompt
-    if from_skill_load and load is not None:
-        before = [e for e in events[:load] if e["kind"] == "user" and not e.get("meta")]
-        if before:
-            prompt = before[-1]["text"]
-        events = events[load:]
-        for n, ev in enumerate(events):
-            ev["i"] = n
 
+def episode_bounds(events: list[dict], loads: list[int], *, end: str = "load") -> list[tuple[int, int]]:
+    """[start, stop) event ranges, one per skill load. An episode runs until the next load
+    of the skill, or with end="user" until the next message a person typed, whichever is first."""
+    if end not in ("load", "user"):
+        raise ValueError(f"episode end must be load or user, not {end!r}")
+    out = []
+    for k, start in enumerate(loads):
+        stop = loads[k + 1] if k + 1 < len(loads) else len(events)
+        if end == "user":
+            # the load itself may be the person's slash command; the episode ends at the next one they type
+            nxt = next((e["i"] for e in events[start + 1:stop] if _is_human(e) and "<command-name>" not in e["text"]), None)
+            stop = nxt if nxt is not None else stop
+        out.append((start, stop))
+    return out
+
+
+def _assemble(raw: RawTrace, events: list[dict], *, skill: str, variant: str, rep: int, prompt: str,
+              loaded: bool, label_suffix: str = "", episode: dict | None = None) -> dict:
+    for n, ev in enumerate(events):
+        ev["i"] = n
     duration = None
     stamps = [e["ts"] for e in events if "ts" in e]
     if len(stamps) >= 2:
         duration = int((max(stamps) - min(stamps)) * 1000)
     files = reconstruct_files(events, raw.cwd)
-    return {
+    final_text = raw.final_text
+    if episode and episode["of"] > 1:
+        texts = [e["text"] for e in events if e["kind"] == "text" and not e.get("depth")]
+        final_text = texts[-1] if texts else ""
+    trace = {
         "skill": skill,
-        "task": f"{raw.format}-{raw.label}",
+        "task": f"{raw.format}-{raw.label}{label_suffix}",
         "task_prompt": prompt or "(no user prompt in the imported trace)",
         "variant": {"name": variant, "kind": variant, "remove": []},
         "rep": rep,
@@ -687,7 +720,9 @@ def to_trace(raw: RawTrace, *, skill: str, variant: str, rep: int, aliases: dict
         "events": events,
         "blocked": [],
         "result": {"subtype": "imported", "is_error": False, "num_turns": sum(e["kind"] == "text" for e in events),
-                   "duration_ms": duration, "cost_usd": raw.cost_usd, "text": clip(raw.final_text, 3000)},
+                   "duration_ms": duration,
+                   "cost_usd": raw.cost_usd if not episode or episode["of"] == 1 else None,
+                   "text": clip(final_text, 3000)},
         "error": None,
         "wall_s": round(duration / 1000, 1) if duration else None,
         "skill_loaded": loaded,
@@ -696,6 +731,44 @@ def to_trace(raw: RawTrace, *, skill: str, variant: str, rep: int, aliases: dict
         "git": {"tags": [], "log": [], "status": []},
         "success": {},
     }
+    if episode:
+        trace["episode"] = episode
+    return trace
+
+
+def to_traces(raw: RawTrace, *, skill: str, variant: str, rep: int, aliases: dict[str, str],
+              from_skill_load: bool = True, episodes: str = "all", episode_end: str = "load") -> list[dict]:
+    """Normalize a RawTrace into skillgraph traces: one per episode (each load of the skill),
+    or one for the whole session. episodes="first" keeps only the first episode."""
+    if episodes not in ("all", "first"):
+        raise ValueError(f"episodes must be all or first, not {episodes!r}")
+    events = _normalize_events(raw, aliases)
+    loads = _skill_load_indexes(events, skill)
+    loaded = bool(loads) or bool(raw.skill_loaded)
+    if not from_skill_load or not loads:
+        return [_assemble(raw, events, skill=skill, variant=variant, rep=rep, prompt=raw.prompt, loaded=loaded)]
+    bounds = episode_bounds(events, loads, end=episode_end)
+    if episodes == "first":
+        bounds = bounds[:1] if episode_end == "user" else [(bounds[0][0], len(events))]
+    out = []
+    for k, (start, stop) in enumerate(bounds):
+        before = [e for e in events[:start] if e["kind"] == "user" and not e.get("meta")]
+        prompt = before[-1]["text"] if before else raw.prompt
+        part = [dict(e) for e in events[start:stop]]
+        episode = {"index": k + 1, "of": len(bounds), "start_event": start, "end_event": stop - 1,
+                   "session_events": len(events), "end": episode_end}
+        suffix = f"-e{k + 1}" if len(bounds) > 1 else ""
+        out.append(_assemble(raw, part, skill=skill, variant=variant, rep=rep, prompt=prompt, loaded=loaded,
+                             label_suffix=suffix, episode=episode))
+    return out
+
+
+def to_trace(raw: RawTrace, *, skill: str, variant: str, rep: int, aliases: dict[str, str],
+             from_skill_load: bool = True) -> dict:
+    """The first episode (from the first load of the skill to the end of the session), or the
+    whole session. See to_traces for one trace per load."""
+    return to_traces(raw, skill=skill, variant=variant, rep=rep, aliases=aliases,
+                     from_skill_load=from_skill_load, episodes="first")[0]
 
 
 # Claude Code tools that aren't file or shell tools; known, so not reported as unmapped.

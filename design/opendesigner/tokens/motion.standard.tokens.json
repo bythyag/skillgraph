@@ -1,0 +1,56 @@
+{
+  "motion": {
+    "transition": {
+      "$type": "transition",
+      "$description": "Semantic transitions, standard motion. Reduced motion is a token mode: travel becomes opacity, feedback stays (DC-L04-25).",
+      "feedback": {
+        "$value": {
+          "duration": "{motion.duration.micro}",
+          "delay": {
+            "value": 0,
+            "unit": "ms"
+          },
+          "timingFunction": "{motion.easing.hover}"
+        },
+        "$description": "Hover, press, color changes."
+      },
+      "enter": {
+        "$value": {
+          "duration": "{motion.duration.medium}",
+          "delay": {
+            "value": 0,
+            "unit": "ms"
+          },
+          "timingFunction": "{motion.easing.enter}"
+        },
+        "$description": "Menus, popovers, toasts entering."
+      },
+      "exit": {
+        "$value": {
+          "duration": "{motion.duration.medium-exit}",
+          "delay": {
+            "value": 0,
+            "unit": "ms"
+          },
+          "timingFunction": "{motion.easing.exit}"
+        },
+        "$description": "Leaving the screen, shorter than entering (exit durations: STD-easing-duration-11)."
+      },
+      "move": {
+        "$value": "{motion.spring.spatial.default}",
+        "$description": "On-screen movement: spatial spring (web: linear() sample)."
+      },
+      "expand": {
+        "$value": {
+          "duration": "{motion.duration.long}",
+          "delay": {
+            "value": 0,
+            "unit": "ms"
+          },
+          "timingFunction": "{motion.easing.enter}"
+        },
+        "$description": "Dialogs, sheets, side panels entering."
+      }
+    }
+  }
+}

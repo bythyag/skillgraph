@@ -12,6 +12,9 @@
   results     skillgraph summary runs/x --fail-on ignored,gap   text / JSON / JUnit, CI exit code
               skillgraph diff runs/before runs/after         what changed after a skill edit
               skillgraph show runs/x/<skill>/<task>/skill/r1 one run as a readable transcript
+              skillgraph dashboard runs/x [runs/y]          browse results locally (or --export a static site)
+  long traces skillgraph digest runs/x --validate      turns, action index, routing recall
+              skillgraph check runs/x --judge-mode windowed   judge only the turns that hold the evidence
   costs       skillgraph estimate S                  what a pipeline would cost; runs ask before spending
   agent skill skillgraph install-skill --user     let Claude Code drive skillgraph for you
 
@@ -113,7 +116,7 @@ async def cmd_doctor(args) -> int:
 
     print("\nmodels" + (f" (suite: {args.suite})" if getattr(args, "suite", None) else ""))
     resolved = config.describe(_suite_models(args), agent=args.agent_model, extractor=args.extractor_model,
-                               judge=args.judge_model)
+                               judge=args.judge_model, digest=args.digest_model)
     for role, (ref, source) in resolved.items():
         usable = (ref.provider == "claude" and sdk_ok) or (ref.provider == "openrouter" and has_or)
         detail = f"{ref}  [{source}]" + ("" if usable else f"  <- {ref.provider} isn't set up")
@@ -302,17 +305,30 @@ async def cmd_run(args) -> None:
                      max_total_usd=getattr(args, "max_total_usd", None), jobs=jobs)
 
 
+def _digest_calls(todo: list[tuple], args) -> int:
+    """Router calls (one per windowed trace) plus intent calls (one per trace with --intents)."""
+    from skillgraph.digest import resolve_mode
+
+    mode = getattr(args, "judge_mode", "full")
+    windowed = sum(resolve_mode(mode, t[1]) == "windowed" for t in todo)
+    return windowed + (len(todo) if getattr(args, "intents", False) else 0)
+
+
 async def cmd_check(args) -> None:
     out = Path(args.out)
     meta, docs, ref_docs = _docs_for(out)
-    judge = config.resolve("judge", args.judge_model, load_suite(meta["suite"]).models if Path(meta["suite"]).exists() else {})
+    suite_models = load_suite(meta["suite"]).models if Path(meta["suite"]).exists() else {}
+    judge = config.resolve("judge", args.judge_model, suite_models)
+    digest = config.resolve("digest", args.digest_model, suite_models)
     run_dirs = [p.parent for p in sorted(out.glob("*/*/*/r*/trace.json")) if json.loads(p.read_text())["skill"] in docs]
-    todo = pending_checks(run_dirs, docs, ref_docs=ref_docs, force=args.force)
+    todo = pending_checks(run_dirs, docs, ref_docs=ref_docs, force=args.force, judge_mode=args.judge_mode)
     agent = parse_model(meta.get("model") or config.DEFAULTS["agent"])
-    _gate(args, costs.estimate(agent_runs=0, judge_calls=len(todo), agent=agent, judge=judge, history_dirs=[out]),
+    _gate(args, costs.estimate(agent_runs=0, judge_calls=len(todo), agent=agent, judge=judge, history_dirs=[out],
+                               digest_calls=_digest_calls(todo, args), digest=digest),
           f"the judge on {len(todo)} traces (cached verdicts are free, so this is an upper bound)")
     n = await check_run_dirs(run_dirs, docs, judge_model=str(judge), judge_effort=args.judge_effort,
-                             concurrency=args.concurrency, force=args.force, ref_docs=ref_docs)
+                             concurrency=args.concurrency, force=args.force, ref_docs=ref_docs,
+                             judge_mode=args.judge_mode, digest_model=str(digest), intents=getattr(args, "intents", False))
     print(f"checked {n} traces" if n else "all traces already checked")
 
 
@@ -352,7 +368,8 @@ async def cmd_ablate(args) -> None:
         dirs = await run_matrix(suite, out, variants=variants, runs=args.runs, cfg=cfg, concurrency=args.concurrency,
                                 max_total_usd=getattr(args, "max_total_usd", None), jobs=jobs)
         await check_run_dirs(dirs, docs, judge_model=str(judge), judge_effort=args.judge_effort,
-                             concurrency=args.concurrency, ref_docs=ref_docs)
+                             concurrency=args.concurrency, ref_docs=ref_docs, judge_mode=args.judge_mode,
+                             digest_model=str(config.resolve("digest", args.digest_model, main_suite.models)))
 
 
 def cmd_report(args) -> None:
@@ -453,7 +470,110 @@ def cmd_diff(args) -> None:
 def cmd_show(args) -> None:
     from skillgraph.show import render
 
-    print(render(Path(args.run_dir), full=args.full, color=None if not args.no_color else False), end="")
+    print(render(Path(args.run_dir), full=args.full, color=None if not args.no_color else False, turns=args.turns), end="")
+
+
+async def cmd_digest(args) -> int:
+    """Digest each trace (turns, action index, token counts); optionally name phases and
+    measure how well routing finds the evidence the full-trace judge cited."""
+    from skillgraph import digest as digests
+    from skillgraph.checker import judge_questions
+    from skillgraph.trees.reference import merge_docs
+
+    out = Path(args.out)
+    meta, docs, ref_docs = _docs_for(out)
+    suite_models = load_suite(meta["suite"]).models if Path(meta["suite"]).exists() else {}
+    model = config.resolve("digest", args.digest_model, suite_models)
+    pattern = f"{args.run.strip('/')}/trace.json" if args.run else "*/*/*/r*/trace.json"
+    run_dirs = [p.parent for p in sorted(out.glob(pattern))]
+    if not run_dirs:
+        raise FileNotFoundError(f"no traces under {out}" + (f" matching {args.run}" if args.run else ""))
+    paid = (len(run_dirs) if args.intents else 0) + (len(run_dirs) if args.validate and not args.lexical_only else 0)
+    if paid:
+        agent = parse_model(meta.get("model") or config.DEFAULTS["agent"])
+        _gate(args, costs.estimate(agent_runs=0, judge_calls=0, agent=agent, judge=model, history_dirs=[],
+                                   digest_calls=paid, digest=model), f"{paid} digest calls")
+    sem = asyncio.Semaphore(args.concurrency)
+    report: list[dict] = []
+    total_cost = 0.0
+
+    async def one(rd: Path) -> None:
+        nonlocal total_cost
+        trace = json.loads((rd / "trace.json").read_text())
+        dg = digests.load_or_build(rd / "digest.json", trace) if not args.force else digests.build(trace)
+        row = {"run": str(rd.relative_to(out)), **dg["stats"], "auto_mode": digests.resolve_mode("auto", trace)}
+        async with sem:
+            if args.intents:
+                try:
+                    total_cost += await digests.add_intents(dg, trace, model=model, force=args.force)
+                except LLMError as exc:
+                    row["intents_error"] = str(exc)[:160]
+            if args.validate:
+                cp = rd / "check.json"
+                check = json.loads(cp.read_text()) if cp.exists() else None
+                if check and check.get("judge_mode", "full") == "full" and trace["skill"] in docs:
+                    doc = merge_docs(docs[trace["skill"]], ref_docs.get(trace["skill"]))
+                    cited = {k for k, v in digests.flat_results(check).items()
+                             if v.get("method") == "judge" and v.get("evidence") is not None}
+                    items = [it for it in judge_questions(doc) if it["id"] in cited]
+                    if items:
+                        routes, cost = await digests.route(dg, trace, items, model=None if args.lexical_only else model)
+                        total_cost += cost
+                        row["recall"] = digests.routing_recall(dg, routes, check, {k["id"] for k in doc["conditions"]})
+        if dg.get("intents"):
+            row["task"] = dg["intents"]["data"].get("task")
+        digests_path = rd / "digest.json"
+        save_json(digests_path, dg)
+        report.append(row)
+
+    await asyncio.gather(*(one(rd) for rd in run_dirs))
+    report.sort(key=lambda r: r["run"])
+    rows = [x for r in report for x in r.get("recall", [])]
+    summary = {"traces": len(report), "cost_usd": round(total_cost, 4)}
+    if args.validate:
+        n = len(rows)
+        summary["routing"] = {
+            "verdicts": n,
+            "recall": round(sum(x["hit"] for x in rows) / n, 3) if n else None,
+            "lexical_recall": round(sum(x["lexical_hit"] for x in rows) / n, 3) if n else None,
+            "llm_recall": None if args.lexical_only or not n else round(sum(x["llm_hit"] for x in rows) / n, 3),
+            "misses": [{"run": r["run"], **x} for r in report for x in r.get("recall", []) if not x["hit"]],
+        }
+    if args.json:
+        print(json.dumps({"summary": summary, "traces": report}, indent=2))
+        return 0
+    for r in report:
+        note = f"  task: {r['task']}" if r.get("task") else ""
+        print(f"  {r['run']}: {r['events']} events, {r['turns']} turns, {r['tool_calls']} tool calls, "
+              f"~{r['tokens_full']:,} tokens (skeleton ~{r['tokens_skeleton']:,}); auto -> {r['auto_mode']}{note}")
+    print(f"digested {len(report)} traces" + (f" (${total_cost:.4f})" if total_cost else ""))
+    if args.validate:
+        rt = summary["routing"]
+        if not rt["verdicts"]:
+            print("no full-mode judge verdicts with a cited event to validate against (run `skillgraph check --judge-mode full` first)")
+            return 0
+        pct = lambda x: "n/a" if x is None else f"{x:.0%}"  # noqa: E731
+        print(f"routing recall: {pct(rt['recall'])} of {rt['verdicts']} cited events fall inside the routed windows "
+              f"(lexical alone {pct(rt['lexical_recall'])}, router alone {pct(rt['llm_recall'])})")
+        for m in rt["misses"][:20]:
+            print(f"    miss: {m['run']} {m['id']} cites event {m['evidence']}")
+        if not args.lexical_only and rt["recall"] is not None and rt["recall"] < 0.9:
+            print("  below the 90% target: windowed mode still confirms absences on the skeleton, but expect more escalations")
+    return 0
+
+
+def cmd_dashboard(args) -> None:
+    from skillgraph.dashboard import RunSets, export, serve
+
+    sets = RunSets(args.runs)
+    if args.export:
+        index = export(sets, Path(args.export))
+        print(f"wrote {index} (open it in a browser, or host the folder anywhere static)")
+        return
+    try:
+        serve(sets, port=args.port, open_browser=not args.no_open)
+    except OSError as exc:
+        raise ValueError(f"can't listen on port {args.port} ({exc}); pass --port") from None
 
 
 # ---------------------------------------------------------------- trees: import, reference, coverage, tasks
@@ -473,13 +593,14 @@ async def cmd_import(args) -> int:
         raws, mapping_aliases = importer.load_raw(src, args.format)
         aliases = importer.build_alias_map({**mapping_aliases, **extra_aliases})
         for raw in raws:
-            t = importer.to_trace(raw, skill=skill.name, variant="skill", rep=1, aliases=aliases,
-                                  from_skill_load=not args.whole_session)
-            if not t["skill_loaded"] and not args.include_unloaded:
-                continue
-            kind = "skill" if t["skill_loaded"] else "baseline"
-            t["variant"] = raw.variant or {"name": kind, "kind": kind, "remove": []}
-            traces.append(t)
+            for t in importer.to_traces(raw, skill=skill.name, variant="skill", rep=1, aliases=aliases,
+                                        from_skill_load=not args.whole_session, episodes=args.episodes,
+                                        episode_end=args.episode_end):
+                if not t["skill_loaded"] and not args.include_unloaded:
+                    continue
+                kind = "skill" if t["skill_loaded"] else "baseline"
+                t["variant"] = raw.variant or {"name": kind, "kind": kind, "remove": []}
+                traces.append(t)
     seen: dict[tuple, int] = {}
     for t in traces:  # two sources with the same label must not overwrite each other
         key = (t["task"], t["variant"]["name"])
@@ -487,7 +608,9 @@ async def cmd_import(args) -> int:
         if seen[key] > 1:
             t["task"] = f"{t['task']}-{seen[key]}"
     info = importer.summarize(traces)
-    print(f"{info['traces']} traces ({info['with_skill']} loaded {skill.name}), {info['tool_calls']} tool calls")
+    multi = sum(1 for t in traces if (t.get("episode") or {}).get("of", 1) > 1)
+    print(f"{info['traces']} traces ({info['with_skill']} loaded {skill.name}), {info['tool_calls']} tool calls"
+          + (f"; {multi} come from sessions that loaded the skill more than once (one trace per load)" if multi else ""))
     print("  tools: " + ", ".join(f"{k} x{v}" for k, v in sorted(info["tools"].items(), key=lambda kv: -kv[1])))
     if info["unmapped"]:
         print("  not mapped to a known tool (add them with --tool-map if they are shell/file tools): "
@@ -618,6 +741,11 @@ def build_parser() -> argparse.ArgumentParser:
     def judge_opts(sp):
         sp.add_argument("--judge-model", metavar="SPEC", help=f"model that grades judgment claims (default {config.DEFAULTS['judge']})")
         sp.add_argument("--judge-effort", choices=EFFORTS, help="lower is cheaper")
+        sp.add_argument("--judge-mode", choices=["auto", "full", "windowed"], default="auto",
+                        help="full: judge each whole trace in one call; windowed: judge the turns that hold the evidence "
+                             "(for long traces); auto (default): windowed above ~30k tokens")
+        sp.add_argument("--digest-model", metavar="SPEC",
+                        help=f"cheap model that routes questions to turns in windowed mode (default {config.DEFAULTS['digest']})")
 
     def run_opts(sp):
         sp.add_argument("--runs", type=int, default=2, help="repeats per task and variant (default %(default)s)")
@@ -646,6 +774,7 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--agent-model", metavar="SPEC", help="check this agent model instead")
     sp.add_argument("--extractor-model", metavar="SPEC", help="check this extractor model instead")
     sp.add_argument("--judge-model", metavar="SPEC", help="check this judge model instead")
+    sp.add_argument("--digest-model", metavar="SPEC", help="check this digest model instead")
 
     sp = sub.add_parser("models", help="list usable models (Claude, and OpenRouter models with tool calling)")
     sp.add_argument("--search", help="filter by substring")
@@ -672,6 +801,10 @@ def build_parser() -> argparse.ArgumentParser:
                     help="auto, claude-code, otel, langsmith, openai-agents, skillgraph, or a mapping .yaml")
     sp.add_argument("--tool-map", help="YAML of extra tool-name aliases, e.g. {execute_command: Bash}")
     sp.add_argument("--whole-session", action="store_true", help="keep events from before the skill loaded")
+    sp.add_argument("--episodes", choices=["all", "first"], default="all",
+                    help="all: one trace per load of the skill (default); first: only the first load")
+    sp.add_argument("--episode-end", choices=["load", "user"], default="load",
+                    help="an episode ends at the next load of the skill (default), or also at the next message you typed")
     sp.add_argument("--include-unloaded", action="store_true",
                     help="also import traces that never loaded the skill, as baseline runs")
     sp.add_argument("--dry-run", action="store_true", help="parse and summarize without writing")
@@ -735,6 +868,8 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("out")
     sp.add_argument("--concurrency", type=int, default=4, help="traces graded in parallel (default %(default)s)")
     sp.add_argument("--force", action="store_true", help="re-grade everything, ignoring cached verdicts")
+    sp.add_argument("--intents", action="store_true",
+                    help="also name each run's phases with the digest model (shown in the dashboard and `show`)")
     judge_opts(sp)
     spend_opts(sp)
 
@@ -784,9 +919,33 @@ def build_parser() -> argparse.ArgumentParser:
     fmt.add_argument("--json", action="store_true", help="print JSON")
     fmt.add_argument("--markdown", action="store_true", help="print Markdown (for pull-request comments)")
 
+    sp = sub.add_parser("digest", help="map long traces into turns and an action index; validate routing",
+                        description="Write digest.json next to each trace: turns, an index of every tool call, and token "
+                                    "counts. --intents names the phases of each run with a cheap model that never sees the "
+                                    "skill. --validate measures whether routing finds the events the full-trace judge cited.")
+    sp.add_argument("out")
+    sp.add_argument("--run", help="only this run, e.g. <skill>/<task>/<variant>/r1")
+    sp.add_argument("--intents", action="store_true", help="name the task and phases of each run (one cheap call per trace)")
+    sp.add_argument("--validate", action="store_true", help="routing recall against verdicts from `check --judge-mode full`")
+    sp.add_argument("--lexical-only", action="store_true", help="validate lexical routing only (free)")
+    sp.add_argument("--digest-model", metavar="SPEC", help=f"default {config.DEFAULTS['digest']}")
+    sp.add_argument("--concurrency", type=int, default=4)
+    sp.add_argument("--force", action="store_true", help="rebuild digests and redo intents")
+    sp.add_argument("--json", action="store_true", help="print JSON")
+    spend_opts(sp)
+
+    sp = sub.add_parser("dashboard", help="browse run sets in a local web app (or --export a static site)",
+                        description="Serve a read-only dashboard of one or more run directories on 127.0.0.1. It reads "
+                                    "results and never calls a model. Pass two run sets to compare them in the Diff tab.")
+    sp.add_argument("runs", nargs="+", help="run directories, e.g. runs/before runs/after")
+    sp.add_argument("--port", type=int, default=8765, help="default %(default)s (0 picks a free port)")
+    sp.add_argument("--no-open", action="store_true", help="don't open a browser")
+    sp.add_argument("--export", metavar="DIR", help="write a static copy to DIR instead of serving")
+
     sp = sub.add_parser("show", help="one run as a readable transcript with claim results inline")
     sp.add_argument("run_dir", help="e.g. runs/x/<skill>/<task>/<variant>/r1")
     sp.add_argument("--full", action="store_true", help="don't shorten long inputs and outputs")
+    sp.add_argument("--turns", action="store_true", help="mark where each turn starts (phases are marked when digested)")
     sp.add_argument("--no-color", action="store_true")
     return p
 
@@ -794,7 +953,7 @@ def build_parser() -> argparse.ArgumentParser:
 HANDLERS = {
     "doctor": cmd_doctor, "models": cmd_models, "init": cmd_init, "install-skill": cmd_install_skill,
     "import": cmd_import, "reference": cmd_reference, "coverage": cmd_coverage, "tasks": cmd_tasks,
-    "estimate": cmd_estimate, "summary": cmd_summary, "diff": cmd_diff, "show": cmd_show,
+    "estimate": cmd_estimate, "summary": cmd_summary, "diff": cmd_diff, "show": cmd_show, "digest": cmd_digest, "dashboard": cmd_dashboard,
     "extract": cmd_extract, "lint": cmd_lint, "graph": cmd_graph, "run": cmd_run, "check": cmd_check,
     "ablate": cmd_ablate, "report": cmd_report, "pipeline": cmd_pipeline,
 }

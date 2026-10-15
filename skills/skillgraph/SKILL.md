@@ -41,6 +41,7 @@ Ask again before anything that raises the cost: `--force`, more `--runs`, more t
    - agent: the model whose use of the skill is measured. Use the model the skill is written for.
    - extractor: compiles SKILL.md into claims. A strong model; it runs once per skill change.
    - judge: grades claims that need judgment. A cheaper model is fine for large suites.
+   - digest: a cheap helper for long traces that points judge questions at the right turns. It never grades.
 
 ## Evaluate a skill
 
@@ -56,7 +57,7 @@ Ask again before anything that raises the cost: `--force`, more `--runs`, more t
    - `skillgraph summary runs/<skill-name>` (or `--json`) for verdicts, weak verdicts, and reference diagnoses.
    - Before calling a line ignored, read one failing run with `skillgraph show runs/<skill-name>/<skill>/<task>/skill/r1` and confirm the miss is real. Mechanical checks can miss an equivalent way of doing the same thing.
    - Verdicts marked weak rest on fewer than 3 runs per variant; say so instead of acting on them.
-   - Point the user at the report: `open runs/<skill-name>/report.html` (macOS) or `xdg-open` (Linux).
+   - Point the user at the report: `open runs/<skill-name>/report.html` (macOS) or `xdg-open` (Linux), or at the dashboard: `skillgraph dashboard runs/<skill-name>` (local, read-only, free; `--export <dir>` writes a static copy). It runs until stopped, so start it in the background or let the user run it.
 7. Propose edits to the skill as diffs. Don't edit the user's skill until they agree.
    - ignored: make the instruction concrete (name the command, file, or exact output), give it a done-criterion, and put it where the agent needs it.
    - inert: candidate to cut, which saves context on every use. Keep safety rules even when inert.
@@ -71,8 +72,10 @@ Read `references/importing-traces.md` first.
 1. Make sure there is a suite and a reviewed claims file for the skill (**Evaluate a skill**, steps 1-3).
 2. `skillgraph import <files or dirs> --suite <suite> --skill <name> --out runs/<name>-prod --dry-run`. Ask before importing transcripts that aren't the user's own.
 3. If the format isn't detected, inspect a few records and write a mapping file as the reference describes. If unmapped tools run commands or touch files, add a `--tool-map`. Repeat the dry run until the summary looks right.
-4. Import for real, then `skillgraph check runs/<name>-prod --yes` and `skillgraph summary runs/<name>-prod`.
-5. Imported sessions have no "without the skill" twin, so report followed and ignored lines, not working or inert.
+4. Import for real. A session that loaded the skill several times becomes one trace per load (`-e1`, `-e2`); use `--episode-end user` when one session holds several unrelated requests.
+5. Long sessions: `skillgraph digest runs/<name>-prod` shows each trace's size and whether `check` will judge it windowed (over ~30k tokens). Include the digest calls in the cost you agree on; `check` counts them in its estimate.
+6. `skillgraph check runs/<name>-prod --yes` and `skillgraph summary runs/<name>-prod`. Verdicts from windowed checks say which view decided them; when a long-trace verdict looks wrong, read the run with `skillgraph show ... --turns` or in the dashboard before trusting it.
+7. Imported sessions have no "without the skill" twin, so report followed and ignored lines, not working or inert.
 
 ## Compare with a reference process
 

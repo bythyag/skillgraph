@@ -131,7 +131,8 @@ def history(run_dirs: list[Path], agent: ModelRef, judge: ModelRef) -> tuple[flo
 
 
 def estimate(*, agent_runs: int, agent: ModelRef, judge: ModelRef, history_dirs: list[Path],
-             judge_calls: int | None = None, extract_calls: int = 0, extractor: ModelRef | None = None) -> Estimate:
+             judge_calls: int | None = None, extract_calls: int = 0, extractor: ModelRef | None = None,
+             digest_calls: int = 0, digest: ModelRef | None = None) -> Estimate:
     est = Estimate()
     hist_agent, hist_judge, n = history(history_dirs, agent, judge)
     if hist_agent is not None:
@@ -148,6 +149,9 @@ def estimate(*, agent_runs: int, agent: ModelRef, judge: ModelRef, history_dirs:
     if extract_calls and extractor is not None:
         each, basis = per_call(extractor, "extract")
         est.add(f"extract/align calls ({extractor.model})", extract_calls, each, basis)
+    if digest_calls and digest is not None:
+        each, basis = per_call(digest, "judge")  # a router or intent call reads about as much as a judge call
+        est.add(f"digest calls ({digest.model})", digest_calls, each, basis)
     return est
 
 

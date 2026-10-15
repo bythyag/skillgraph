@@ -1,13 +1,16 @@
 """Which model plays which role.
 
-skillgraph uses three models, each chosen independently:
+skillgraph uses four models, each chosen independently:
 
     agent      runs the tasks (the model whose skill adherence you are measuring)
     extractor  compiles SKILL.md into claims
     judge      grades the claims that need judgment
+    digest     cheap helper for long traces: routes judge questions to the turns that
+               hold their evidence, and names the phases of a run (never grades)
 
 Resolution order, first match wins: command-line flag, environment variable
-(SKILLGRAPH_AGENT_MODEL, SKILLGRAPH_EXTRACTOR_MODEL, SKILLGRAPH_JUDGE_MODEL),
+(SKILLGRAPH_AGENT_MODEL, SKILLGRAPH_EXTRACTOR_MODEL, SKILLGRAPH_JUDGE_MODEL,
+SKILLGRAPH_DIGEST_MODEL),
 the suite's `models:` block, then the defaults below.
 """
 
@@ -17,11 +20,12 @@ import os
 
 from skillgraph.providers import ModelRef, parse_model
 
-ROLES = ("agent", "extractor", "judge")
+ROLES = ("agent", "extractor", "judge", "digest")
 DEFAULTS = {
     "agent": "claude:claude-opus-5-5",
     "extractor": "claude:claude-opus-5-5",
     "judge": "claude:claude-opus-5-5",
+    "digest": "claude:claude-haiku-5-5",
 }
 ENV = {role: f"SKILLGRAPH_{role.upper()}_MODEL" for role in ROLES}
 

@@ -85,6 +85,15 @@ def aggregate_skill(name: str, doc: dict, skill_dir: Path, rows: list[dict], *,
                 reasons.append(f"{r['trace']['task']}/r{r['trace']['rep']}: {res['reason']}")
         failures = {k: v for k, v in rates.get("skill", {}).get("counts", {}).items()
                     if k in ("missed", "violated", "out_of_order")}
+        results = []  # every run's result for this claim, so a viewer needs no per-run fetch
+        for v in variants:
+            for r in by_variant[v]:
+                res = r["check"]["claims"].get(c["id"])
+                if res is None:
+                    continue
+                results.append({"path": "/".join(Path(r["dir"]).parts[-4:]), "task": r["trace"]["task"], "variant": v,
+                                "rep": r["trace"]["rep"], "status": res.get("status"), "reason": res.get("reason", ""),
+                                "evidence": res.get("evidence"), "method": res.get("method"), "view": res.get("view")})
         n_skill = rates.get("skill", {}).get("n", 0)
         n_base = rates.get("baseline", {}).get("n", 0) if "baseline" in rates else None
         claims.append({
@@ -96,6 +105,7 @@ def aggregate_skill(name: str, doc: dict, skill_dir: Path, rows: list[dict], *,
             "weak": s is not None and (n_skill < MIN_RUNS or (n_base is not None and n_base < MIN_RUNS)),
             "failure_mode": max(failures, key=failures.get) if failures else None,
             "miss_notes": reasons[:6],
+            "results": results,
         })
 
     conditions = []
@@ -125,6 +135,7 @@ def aggregate_skill(name: str, doc: dict, skill_dir: Path, rows: list[dict], *,
             "blocked": len(t.get("blocked", [])),
             "error": t.get("error"),
             "statuses": {cid: res["status"] for cid, res in chk["claims"].items()},
+            "ref_statuses": {cid: res["status"] for cid, res in (chk.get("reference") or {}).get("claims", {}).items()},
             "path": "/".join(Path(r["dir"]).parts[-4:]),  # skill/task/variant/rN, no local paths
         })
     runs.sort(key=lambda x: (x["task"], variants.index(x["variant"]), x["rep"]))

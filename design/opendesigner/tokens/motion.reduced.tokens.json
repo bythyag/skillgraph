@@ -1,0 +1,96 @@
+{
+  "motion": {
+    "transition": {
+      "$type": "transition",
+      "$description": "Semantic transitions, reduced motion. Reduced motion is a token mode: travel becomes opacity, feedback stays (DC-L04-25).",
+      "feedback": {
+        "$value": {
+          "duration": "{motion.duration.micro}",
+          "delay": {
+            "value": 0,
+            "unit": "ms"
+          },
+          "timingFunction": "{motion.easing.hover}"
+        },
+        "$description": "Color and opacity feedback stays (reduced motion keeps feedback, DC-L04-25)."
+      },
+      "enter": {
+        "$value": {
+          "duration": "{motion.duration.reduced-fade}",
+          "delay": {
+            "value": 0,
+            "unit": "ms"
+          },
+          "timingFunction": [
+            0.25,
+            0.1,
+            0.25,
+            1
+          ]
+        },
+        "$description": "Fade only: no translate or scale.",
+        "$extensions": {
+          "opendesigner": {
+            "source": "standard",
+            "standard": "STD-accessibility-motion-02"
+          }
+        }
+      },
+      "exit": {
+        "$value": {
+          "duration": "{motion.duration.reduced-fade}",
+          "delay": {
+            "value": 0,
+            "unit": "ms"
+          },
+          "timingFunction": [
+            0.25,
+            0.1,
+            0.25,
+            1
+          ]
+        },
+        "$description": "Fade only.",
+        "$extensions": {
+          "opendesigner": {
+            "source": "standard",
+            "standard": "STD-accessibility-motion-02"
+          }
+        }
+      },
+      "move": {
+        "$value": {
+          "duration": "{motion.duration.instant}",
+          "delay": {
+            "value": 0,
+            "unit": "ms"
+          },
+          "timingFunction": "{motion.easing.standard}"
+        },
+        "$description": "Travel removed: position changes are instant."
+      },
+      "expand": {
+        "$value": {
+          "duration": "{motion.duration.reduced-fade}",
+          "delay": {
+            "value": 0,
+            "unit": "ms"
+          },
+          "timingFunction": [
+            0.25,
+            0.1,
+            0.25,
+            1
+          ]
+        },
+        "$description": "Fade only.",
+        "$extensions": {
+          "opendesigner": {
+            "source": "standard",
+            "standard": "STD-accessibility-motion-02"
+          }
+        }
+      }
+    }
+  }
+}

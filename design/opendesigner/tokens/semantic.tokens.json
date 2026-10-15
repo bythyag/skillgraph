@@ -1,0 +1,980 @@
+{
+  "font": {
+    "family": {
+      "$type": "fontFamily",
+      "text": {
+        "$value": [
+          "system-ui",
+          "-apple-system",
+          "Segoe UI",
+          "Roboto",
+          "Helvetica Neue",
+          "Arial",
+          "sans-serif"
+        ],
+        "$description": "Text face for UI and body (DC-L02-01)."
+      },
+      "display": {
+        "$value": "{font.family.text}",
+        "$description": "Display face for headings (Apple, Google and Linear split display and text faces, DC-L06-07)."
+      },
+      "mono": {
+        "$value": [
+          "ui-monospace",
+          "ui-monospace",
+          "SF Mono",
+          "Menlo",
+          "Consolas",
+          "Liberation Mono",
+          "monospace"
+        ],
+        "$description": "Code, tokens, tabular values."
+      }
+    },
+    "weight": {
+      "$type": "fontWeight",
+      "$description": "3 weights: body 400, labels 500, headings 600 (DC-L02-15; Energy sets heading weight, S-L06-031).",
+      "body": {
+        "$value": 400
+      },
+      "label": {
+        "$value": 500
+      },
+      "heading": {
+        "$value": 600
+      }
+    }
+  },
+  "text": {
+    "$type": "typography",
+    "$description": "Semantic text styles (role x size). lineHeight is a unitless multiplier as DTCG requires; px is in $extensions.",
+    "$extensions": {
+      "opendesigner": {
+        "evidence": [
+          "DC-L02-07",
+          "DC-L02-13",
+          "DC-L02-14",
+          "DC-L02-15",
+          "DC-L15-02"
+        ],
+        "scripts": {}
+      }
+    },
+    "body": {
+      "sm": {
+        "$value": {
+          "fontFamily": "{font.family.text}",
+          "fontSize": "{font.size.12}",
+          "fontWeight": "{font.weight.body}",
+          "letterSpacing": {
+            "value": 0.24,
+            "unit": "px"
+          },
+          "lineHeight": 1.3333
+        },
+        "$extensions": {
+          "opendesigner": {
+            "lineHeightPx": 16,
+            "letterSpacingEm": 0.02,
+            "use": "Helper text, timestamps, captions.",
+            "avoid": "Anything read at length.",
+            "lineHeightTightPx": 16
+          }
+        }
+      },
+      "md": {
+        "$value": {
+          "fontFamily": "{font.family.text}",
+          "fontSize": "{font.size.14}",
+          "fontWeight": "{font.weight.body}",
+          "letterSpacing": {
+            "value": 0.0,
+            "unit": "px"
+          },
+          "lineHeight": 1.4286
+        },
+        "$extensions": {
+          "opendesigner": {
+            "lineHeightPx": 20,
+            "letterSpacingEm": 0.0,
+            "use": "Default UI text: forms, tables, descriptions.",
+            "avoid": "Long articles when body.lg exists.",
+            "lineHeightTightPx": 18
+          }
+        }
+      },
+      "lg": {
+        "$value": {
+          "fontFamily": "{font.family.text}",
+          "fontSize": "{font.size.17}",
+          "fontWeight": "{font.weight.body}",
+          "letterSpacing": {
+            "value": 0.0,
+            "unit": "px"
+          },
+          "lineHeight": 1.4118
+        },
+        "$extensions": {
+          "opendesigner": {
+            "lineHeightPx": 24,
+            "letterSpacingEm": 0.0,
+            "use": "Long-form reading, onboarding copy.",
+            "avoid": "Dense tables and forms."
+          }
+        }
+      }
+    },
+    "label": {
+      "sm": {
+        "$value": {
+          "fontFamily": "{font.family.text}",
+          "fontSize": "{font.size.12}",
+          "fontWeight": "{font.weight.label}",
+          "letterSpacing": {
+            "value": 0.6,
+            "unit": "px"
+          },
+          "lineHeight": 1.3333
+        },
+        "$extensions": {
+          "opendesigner": {
+            "lineHeightPx": 16,
+            "letterSpacingEm": 0.05,
+            "use": "Overlines in capitals with wide tracking (DC-L02-18).",
+            "avoid": "Sentences; scripts without case.",
+            "textTransform": "uppercase",
+            "lineHeightTightPx": 16
+          }
+        }
+      },
+      "md": {
+        "$value": {
+          "fontFamily": "{font.family.text}",
+          "fontSize": "{font.size.12}",
+          "fontWeight": "{font.weight.label}",
+          "letterSpacing": {
+            "value": 0.24,
+            "unit": "px"
+          },
+          "lineHeight": 1.3333
+        },
+        "$extensions": {
+          "opendesigner": {
+            "lineHeightPx": 16,
+            "letterSpacingEm": 0.02,
+            "use": "Small control labels, badges, dense tabs.",
+            "avoid": "Body text.",
+            "lineHeightTightPx": 16
+          }
+        }
+      },
+      "lg": {
+        "$value": {
+          "fontFamily": "{font.family.text}",
+          "fontSize": "{font.size.14}",
+          "fontWeight": "{font.weight.label}",
+          "letterSpacing": {
+            "value": 0.0,
+            "unit": "px"
+          },
+          "lineHeight": 1.4286
+        },
+        "$extensions": {
+          "opendesigner": {
+            "lineHeightPx": 20,
+            "letterSpacingEm": 0.0,
+            "use": "Button and control labels.",
+            "avoid": "Headings.",
+            "lineHeightTightPx": 18
+          }
+        }
+      }
+    },
+    "code": {
+      "sm": {
+        "$value": {
+          "fontFamily": "{font.family.mono}",
+          "fontSize": "{font.size.12}",
+          "fontWeight": "{font.weight.body}",
+          "letterSpacing": {
+            "value": 0.24,
+            "unit": "px"
+          },
+          "lineHeight": 1.3333
+        },
+        "$extensions": {
+          "opendesigner": {
+            "lineHeightPx": 16,
+            "letterSpacingEm": 0.02,
+            "use": "Inline values, dense code rows.",
+            "avoid": "Paragraphs."
+          }
+        }
+      },
+      "md": {
+        "$value": {
+          "fontFamily": "{font.family.mono}",
+          "fontSize": "{font.size.14}",
+          "fontWeight": "{font.weight.body}",
+          "letterSpacing": {
+            "value": 0.0,
+            "unit": "px"
+          },
+          "lineHeight": 1.4286
+        },
+        "$extensions": {
+          "opendesigner": {
+            "lineHeightPx": 20,
+            "letterSpacingEm": 0.0,
+            "use": "Code blocks, token names.",
+            "avoid": "UI labels."
+          }
+        }
+      }
+    },
+    "title": {
+      "sm": {
+        "$value": {
+          "fontFamily": "{font.family.text}",
+          "fontSize": "{font.size.14}",
+          "fontWeight": "{font.weight.heading}",
+          "letterSpacing": {
+            "value": 0.0,
+            "unit": "px"
+          },
+          "lineHeight": 1.4286
+        },
+        "$extensions": {
+          "opendesigner": {
+            "lineHeightPx": 20,
+            "letterSpacingEm": 0.0,
+            "use": "Table headers, field-group titles.",
+            "avoid": "Paragraph emphasis."
+          }
+        }
+      },
+      "md": {
+        "$value": {
+          "fontFamily": "{font.family.text}",
+          "fontSize": "{font.size.17}",
+          "fontWeight": "{font.weight.heading}",
+          "letterSpacing": {
+            "value": 0.0,
+            "unit": "px"
+          },
+          "lineHeight": 1.4118
+        },
+        "$extensions": {
+          "opendesigner": {
+            "lineHeightPx": 24,
+            "letterSpacingEm": 0.0,
+            "use": "Card, panel and group titles.",
+            "avoid": "Page titles."
+          }
+        }
+      },
+      "lg": {
+        "$value": {
+          "fontFamily": "{font.family.text}",
+          "fontSize": "{font.size.20}",
+          "fontWeight": "{font.weight.heading}",
+          "letterSpacing": {
+            "value": 0.0,
+            "unit": "px"
+          },
+          "lineHeight": 1.4
+        },
+        "$extensions": {
+          "opendesigner": {
+            "lineHeightPx": 28,
+            "letterSpacingEm": 0.0,
+            "use": "Card, panel and group titles.",
+            "avoid": "Page titles."
+          }
+        }
+      }
+    },
+    "headline": {
+      "sm": {
+        "$value": {
+          "fontFamily": "{font.family.display}",
+          "fontSize": "{font.size.24}",
+          "fontWeight": "{font.weight.heading}",
+          "letterSpacing": {
+            "value": 0.0,
+            "unit": "px"
+          },
+          "lineHeight": 1.3333
+        },
+        "$extensions": {
+          "opendesigner": {
+            "lineHeightPx": 32,
+            "letterSpacingEm": 0.0,
+            "use": "Page and section titles.",
+            "avoid": "Card titles."
+          }
+        }
+      },
+      "md": {
+        "$value": {
+          "fontFamily": "{font.family.display}",
+          "fontSize": "{font.size.29}",
+          "fontWeight": "{font.weight.heading}",
+          "letterSpacing": {
+            "value": 0.0,
+            "unit": "px"
+          },
+          "lineHeight": 1.2414
+        },
+        "$extensions": {
+          "opendesigner": {
+            "lineHeightPx": 36,
+            "letterSpacingEm": 0.0,
+            "use": "Page and section titles.",
+            "avoid": "Card titles."
+          }
+        }
+      },
+      "lg": {
+        "$value": {
+          "fontFamily": "{font.family.display}",
+          "fontSize": "{font.size.35}",
+          "fontWeight": "{font.weight.heading}",
+          "letterSpacing": {
+            "value": -0.35,
+            "unit": "px"
+          },
+          "lineHeight": 1.2571
+        },
+        "$extensions": {
+          "opendesigner": {
+            "lineHeightPx": 44,
+            "letterSpacingEm": -0.01,
+            "use": "Page and section titles.",
+            "avoid": "Card titles."
+          }
+        }
+      }
+    },
+    "numeric": {
+      "md": {
+        "$value": {
+          "fontFamily": "{font.family.text}",
+          "fontSize": "{font.size.14}",
+          "fontWeight": "{font.weight.body}",
+          "letterSpacing": {
+            "value": 0.0,
+            "unit": "px"
+          },
+          "lineHeight": 1.4286
+        },
+        "$extensions": {
+          "opendesigner": {
+            "lineHeightPx": 20,
+            "letterSpacingEm": 0.0,
+            "use": "Amounts and table figures: tabular digits line up in columns; right-align numeric columns.",
+            "avoid": "Running text.",
+            "fontVariantNumeric": "tabular-nums"
+          }
+        }
+      },
+      "lg": {
+        "$value": {
+          "fontFamily": "{font.family.text}",
+          "fontSize": "{font.size.20}",
+          "fontWeight": "{font.weight.heading}",
+          "letterSpacing": {
+            "value": 0.0,
+            "unit": "px"
+          },
+          "lineHeight": 1.4
+        },
+        "$extensions": {
+          "opendesigner": {
+            "lineHeightPx": 28,
+            "letterSpacingEm": 0.0,
+            "use": "Key numbers: balances, KPIs.",
+            "avoid": "Headings.",
+            "fontVariantNumeric": "tabular-nums"
+          }
+        }
+      }
+    }
+  },
+  "space": {
+    "$type": "dimension",
+    "$description": "Spacing ladder: 4 x [0, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 8, 10, 12, 16, 20, 24], non-integers dropped (LEVERS B8; x24 added by spec 6.2). Names are pixel values.",
+    "$extensions": {
+      "opendesigner": {
+        "unit": 4,
+        "evidence": [
+          "DC-L03-01",
+          "DC-L03-02",
+          "S-L09-508"
+        ]
+      }
+    },
+    "target": {
+      "gap": {
+        "$value": {
+          "value": 12,
+          "unit": "px"
+        },
+        "$description": "Gap between adjacent targets: 12 coarse, 8 fine (Primer, S-L03-009)."
+      }
+    }
+  },
+  "size": {
+    "$type": "dimension",
+    "icon": {
+      "$description": "Icon sizes paired with text sizes 14/16/20 (DC-L05-05).",
+      "sm": {
+        "$value": {
+          "value": 16,
+          "unit": "px"
+        }
+      },
+      "md": {
+        "$value": {
+          "value": 20,
+          "unit": "px"
+        }
+      },
+      "lg": {
+        "$value": {
+          "value": 24,
+          "unit": "px"
+        }
+      },
+      "default": {
+        "$value": "{size.icon.sm}",
+        "$description": "Default icon size from the Density dial (DC-L05-05)."
+      }
+    },
+    "target": {
+      "$description": "Minimum hit areas per input. Density never changes these (L14 I-1, DC-L03-12, DC-L14-03).",
+      "pointer": {
+        "$value": {
+          "value": 24,
+          "unit": "px"
+        }
+      },
+      "touch": {
+        "$value": {
+          "value": 44,
+          "unit": "px"
+        },
+        "$extensions": {
+          "opendesigner": {
+            "source": "standard",
+            "standard": "STD-mobile-touch-09"
+          }
+        }
+      },
+      "min": {
+        "$value": {
+          "value": 44,
+          "unit": "px"
+        },
+        "$description": "Hit-area floor for the product's primary input; grow hit areas (not visuals) to reach it.",
+        "$extensions": {
+          "opendesigner": {
+            "source": "standard",
+            "standard": "STD-mobile-touch-09"
+          }
+        }
+      }
+    }
+  },
+  "icon": {
+    "stroke": {
+      "$type": "dimension",
+      "$description": "Icon stroke = round_to_0.5((size/12) x (label weight/400)), min 1 (LEVERS B12, [inferred] fit to Material 2px@24 and Octicons 1.5px@16).",
+      "sm": {
+        "$value": {
+          "value": 1.5,
+          "unit": "px"
+        }
+      },
+      "md": {
+        "$value": {
+          "value": 2.0,
+          "unit": "px"
+        }
+      },
+      "lg": {
+        "$value": {
+          "value": 2.5,
+          "unit": "px"
+        }
+      }
+    }
+  },
+  "radius": {
+    "$type": "dimension",
+    "$description": "Radius scale snapped to 0, 2, 4, 6, 8, 12, 16, 20, 24, 28, 32 plus full (LEVERS B9, [inferred] ratios checked against Atlassian).",
+    "$extensions": {
+      "opendesigner": {
+        "evidence": [
+          "DC-L04-02",
+          "DC-L04-03",
+          "DC-L04-05",
+          "S-L04-016",
+          "S-L04-007"
+        ]
+      }
+    },
+    "detail": {
+      "$value": "{radius.2}",
+      "$description": "Checkboxes, tags, small badges."
+    },
+    "control": {
+      "$value": "{radius.6}",
+      "$description": "Buttons, inputs, selects (Roundness dial, DC-L04-02)."
+    },
+    "control-sm": {
+      "$value": "{radius.4}",
+      "$description": "Controls under 32px tall drop one step (Fluent, S-L04-007)."
+    },
+    "container": {
+      "$value": "{radius.8}",
+      "$description": "Cards and panels."
+    },
+    "overlay": {
+      "$value": "{radius.12}",
+      "$description": "Dialogs, sheets, popovers."
+    },
+    "person": {
+      "$value": "{radius.full}",
+      "$description": "Avatars."
+    },
+    "nested": {
+      "$value": {
+        "value": 2,
+        "unit": "px"
+      },
+      "$description": "Inner radius for an element inset by space.inset.lg inside a container: max(outer - padding, smallest step) (DC-L04-05)."
+    },
+    "focus": {
+      "$value": {
+        "value": 8,
+        "unit": "px"
+      },
+      "$description": "Focus ring radius = control radius + ring offset (Atlassian radius + 2px, S-L04-016)."
+    }
+  },
+  "border": {
+    "$type": "dimension",
+    "width": {
+      "$description": "Border widths 1 / 2 / 4. Width changes on state use an inset shadow so layout does not jump (DC-L04-07).",
+      "default": {
+        "$value": "{border.width.1}"
+      },
+      "selected": {
+        "$value": "{border.width.2}"
+      },
+      "emphasis": {
+        "$value": "{border.width.4}"
+      }
+    }
+  },
+  "focus": {
+    "$type": "dimension",
+    "$description": "Focus indicator: 2px ring, 2px offset, color.border.focus; never color-only (DC-L04-09, WCAG 2.4.7, 2.4.13).",
+    "ring": {
+      "width": {
+        "$value": {
+          "value": 2,
+          "unit": "px"
+        }
+      },
+      "offset": {
+        "$value": {
+          "value": 2,
+          "unit": "px"
+        }
+      }
+    }
+  },
+  "elevation": {
+    "$type": "shadow",
+    "$description": "1px alpha ring plus an extra-small shadow (shadcn, Geist, Radix). Dark mode doubles shadow alpha and lifts surfaces (DC-L04-12, DC-L04-13).",
+    "$extensions": {
+      "opendesigner": {
+        "model": "ring+faint-shadow",
+        "depth": 30,
+        "shadowAlphaLight": 0.107,
+        "evidence": [
+          "DC-L04-10",
+          "DC-L04-12",
+          "DC-L04-13",
+          "L09-M7"
+        ]
+      }
+    },
+    "raised": {
+      "$value": [
+        {
+          "color": "{color.shadow.ring}",
+          "offsetX": {
+            "value": 0,
+            "unit": "px"
+          },
+          "offsetY": {
+            "value": 0,
+            "unit": "px"
+          },
+          "blur": {
+            "value": 0,
+            "unit": "px"
+          },
+          "spread": {
+            "value": 1,
+            "unit": "px"
+          }
+        }
+      ],
+      "$description": "Static cards and panels: a 1px ring, no shadow; shadows stay on floating layers, and dragged rows use elevation.floating (dense work tool default, DC-L23-05)."
+    },
+    "floating": {
+      "$value": [
+        {
+          "color": "{color.shadow.ring}",
+          "offsetX": {
+            "value": 0,
+            "unit": "px"
+          },
+          "offsetY": {
+            "value": 0,
+            "unit": "px"
+          },
+          "blur": {
+            "value": 0,
+            "unit": "px"
+          },
+          "spread": {
+            "value": 1,
+            "unit": "px"
+          }
+        },
+        {
+          "color": "{color.shadow.key}",
+          "offsetX": {
+            "value": 0,
+            "unit": "px"
+          },
+          "offsetY": {
+            "value": 1,
+            "unit": "px"
+          },
+          "blur": {
+            "value": 2,
+            "unit": "px"
+          },
+          "spread": {
+            "value": 0,
+            "unit": "px"
+          }
+        },
+        {
+          "color": "{color.shadow.ambient}",
+          "offsetX": {
+            "value": 0,
+            "unit": "px"
+          },
+          "offsetY": {
+            "value": 4,
+            "unit": "px"
+          },
+          "blur": {
+            "value": 12,
+            "unit": "px"
+          },
+          "spread": {
+            "value": 0,
+            "unit": "px"
+          }
+        }
+      ],
+      "$description": "Menus, popovers, dropdowns."
+    },
+    "overlay": {
+      "$value": [
+        {
+          "color": "{color.shadow.ring}",
+          "offsetX": {
+            "value": 0,
+            "unit": "px"
+          },
+          "offsetY": {
+            "value": 0,
+            "unit": "px"
+          },
+          "blur": {
+            "value": 0,
+            "unit": "px"
+          },
+          "spread": {
+            "value": 1,
+            "unit": "px"
+          }
+        },
+        {
+          "color": "{color.shadow.key}",
+          "offsetX": {
+            "value": 0,
+            "unit": "px"
+          },
+          "offsetY": {
+            "value": 1,
+            "unit": "px"
+          },
+          "blur": {
+            "value": 2,
+            "unit": "px"
+          },
+          "spread": {
+            "value": 0,
+            "unit": "px"
+          }
+        },
+        {
+          "color": "{color.shadow.ambient}",
+          "offsetX": {
+            "value": 0,
+            "unit": "px"
+          },
+          "offsetY": {
+            "value": 12,
+            "unit": "px"
+          },
+          "blur": {
+            "value": 32,
+            "unit": "px"
+          },
+          "spread": {
+            "value": 0,
+            "unit": "px"
+          }
+        }
+      ],
+      "$description": "Dialogs and sheets (with color.overlay.scrim)."
+    }
+  },
+  "$extensions": {
+    "opendesigner": {
+      "source": "formula",
+      "note": "Every value comes from references/levers.json formulas at the dials recorded in opendesigner.meta.json; tokens a person detached carry source: person."
+    }
+  },
+  "component": {
+    "toast": {
+      "duration": {
+        "$value": {
+          "value": 4000,
+          "unit": "ms"
+        },
+        "$type": "duration",
+        "$description": "Added by standard STD-components-toasts-drawers-15.",
+        "$extensions": {
+          "opendesigner": {
+            "source": "standard",
+            "standard": "STD-components-toasts-drawers-15"
+          }
+        }
+      },
+      "gap": {
+        "$value": {
+          "value": 14,
+          "unit": "px"
+        },
+        "$type": "dimension",
+        "$description": "Added by standard STD-components-toasts-drawers-12.",
+        "$extensions": {
+          "opendesigner": {
+            "source": "standard",
+            "standard": "STD-components-toasts-drawers-12"
+          }
+        }
+      },
+      "offset": {
+        "desktop": {
+          "$value": {
+            "value": 32,
+            "unit": "px"
+          },
+          "$type": "dimension",
+          "$description": "Added by standard STD-components-toasts-drawers-30.",
+          "$extensions": {
+            "opendesigner": {
+              "source": "standard",
+              "standard": "STD-components-toasts-drawers-30"
+            }
+          }
+        },
+        "mobile": {
+          "$value": {
+            "value": 16,
+            "unit": "px"
+          },
+          "$type": "dimension",
+          "$description": "Added by standard STD-components-toasts-drawers-30.",
+          "$extensions": {
+            "opendesigner": {
+              "source": "standard",
+              "standard": "STD-components-toasts-drawers-30"
+            }
+          }
+        }
+      },
+      "visible": {
+        "$value": 3,
+        "$type": "number",
+        "$description": "Added by standard STD-components-toasts-drawers-14.",
+        "$extensions": {
+          "opendesigner": {
+            "source": "standard",
+            "standard": "STD-components-toasts-drawers-14"
+          }
+        }
+      }
+    }
+  },
+  "motion": {
+    "blur": {
+      "crossfade": {
+        "$value": {
+          "value": 2,
+          "unit": "px"
+        },
+        "$type": "dimension",
+        "$description": "Added by standard STD-enter-exit-origin-29.",
+        "$extensions": {
+          "opendesigner": {
+            "source": "standard",
+            "standard": "STD-enter-exit-origin-29"
+          }
+        }
+      }
+    },
+    "gesture": {
+      "deceleration-rate": {
+        "$value": 0.998,
+        "$type": "number",
+        "$description": "Added by standard STD-springs-gestures-19.",
+        "$extensions": {
+          "opendesigner": {
+            "source": "standard",
+            "standard": "STD-springs-gestures-19"
+          }
+        }
+      },
+      "direction-threshold": {
+        "$value": {
+          "value": 10,
+          "unit": "px"
+        },
+        "$type": "dimension",
+        "$description": "Added by standard STD-springs-gestures-30.",
+        "$extensions": {
+          "opendesigner": {
+            "source": "standard",
+            "standard": "STD-springs-gestures-30"
+          }
+        }
+      },
+      "dismiss-velocity": {
+        "$value": 0.11,
+        "$type": "number",
+        "$description": "Added by standard STD-springs-gestures-21.",
+        "$extensions": {
+          "opendesigner": {
+            "source": "standard",
+            "standard": "STD-springs-gestures-21"
+          }
+        }
+      },
+      "drag-lock-after-scroll": {
+        "$value": {
+          "value": 100,
+          "unit": "ms"
+        },
+        "$type": "duration",
+        "$description": "Added by standard STD-components-toasts-drawers-44.",
+        "$extensions": {
+          "opendesigner": {
+            "source": "standard",
+            "standard": "STD-components-toasts-drawers-44"
+          }
+        }
+      },
+      "rubberband-constant": {
+        "$value": 0.55,
+        "$type": "number",
+        "$description": "Added by standard STD-springs-gestures-25.",
+        "$extensions": {
+          "opendesigner": {
+            "source": "standard",
+            "standard": "STD-springs-gestures-25"
+          }
+        }
+      },
+      "sheet-dismiss-fraction": {
+        "$value": 0.4,
+        "$type": "number",
+        "$description": "Added by a person (engine.py set).",
+        "$extensions": {
+          "opendesigner": {
+            "source": "person"
+          }
+        }
+      }
+    },
+    "scale": {
+      "enter": {
+        "$value": 0.95,
+        "$type": "number",
+        "$description": "Added by standard STD-enter-exit-origin-01.",
+        "$extensions": {
+          "opendesigner": {
+            "source": "standard",
+            "standard": "STD-enter-exit-origin-01"
+          }
+        }
+      },
+      "enter-modal": {
+        "$value": 0.96,
+        "$type": "number",
+        "$description": "Added by standard STD-enter-exit-origin-11.",
+        "$extensions": {
+          "opendesigner": {
+            "source": "standard",
+            "standard": "STD-enter-exit-origin-11"
+          }
+        }
+      },
+      "enter-tooltip": {
+        "$value": 0.97,
+        "$type": "number",
+        "$description": "Added by standard STD-enter-exit-origin-09.",
+        "$extensions": {
+          "opendesigner": {
+            "source": "standard",
+            "standard": "STD-enter-exit-origin-09"
+          }
+        }
+      },
+      "press": {
+        "$value": 0.97,
+        "$type": "number",
+        "$description": "Added by standard STD-mobile-touch-05.",
+        "$extensions": {
+          "opendesigner": {
+            "source": "standard",
+            "standard": "STD-mobile-touch-05"
+          }
+        }
+      }
+    }
+  }
+}

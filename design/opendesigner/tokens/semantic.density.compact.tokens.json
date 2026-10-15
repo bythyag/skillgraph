@@ -1,0 +1,134 @@
+{
+  "space": {
+    "$type": "dimension",
+    "$description": "Semantic spacing, compact density: aliases into the ladder, shifted -1 step (DC-L03-10, DC-L03-11). Parents own spacing; children never set outer margins (DC-L03-04).",
+    "$extensions": {
+      "opendesigner": {
+        "density": "compact",
+        "innerOuterRatio": 2.0,
+        "excluded": [
+          "menus",
+          "snackbars",
+          "dialogs"
+        ],
+        "evidence": [
+          "DC-L03-04",
+          "DC-L03-10",
+          "DC-L03-11",
+          "DC-L03-24",
+          "S-L03-029"
+        ]
+      }
+    },
+    "inset": {
+      "xs": {
+        "$value": "{space.2}"
+      },
+      "sm": {
+        "$value": "{space.6}"
+      },
+      "md": {
+        "$value": "{space.8}"
+      },
+      "lg": {
+        "$value": "{space.12}"
+      },
+      "xl": {
+        "$value": "{space.20}"
+      }
+    },
+    "stack": {
+      "xs": {
+        "$value": "{space.2}"
+      },
+      "sm": {
+        "$value": "{space.6}"
+      },
+      "md": {
+        "$value": "{space.8}"
+      },
+      "lg": {
+        "$value": "{space.12}"
+      },
+      "xl": {
+        "$value": "{space.20}"
+      }
+    },
+    "inline": {
+      "xs": {
+        "$value": "{space.2}"
+      },
+      "sm": {
+        "$value": "{space.6}"
+      },
+      "md": {
+        "$value": "{space.8}"
+      }
+    },
+    "section": {
+      "sm": {
+        "$value": "{space.16}",
+        "$description": "Outer gap between groups: at least ratio x the inner gap (inner < outer, L15 P16)."
+      },
+      "md": {
+        "$value": "{space.24}",
+        "$description": "Outer gap between groups: at least ratio x the inner gap (inner < outer, L15 P16)."
+      },
+      "lg": {
+        "$value": "{space.40}",
+        "$description": "Outer gap between groups: at least ratio x the inner gap (inner < outer, L15 P16)."
+      }
+    }
+  },
+  "size": {
+    "$type": "dimension",
+    "control": {
+      "$description": "Control heights, compact (DC-L03-07). Hit areas never shrink below size.target.min.",
+      "sm": {
+        "$value": {
+          "value": 24,
+          "unit": "px"
+        }
+      },
+      "md": {
+        "$value": {
+          "value": 32,
+          "unit": "px"
+        }
+      },
+      "lg": {
+        "$value": {
+          "value": 40,
+          "unit": "px"
+        }
+      }
+    },
+    "row": {
+      "$description": "List and table row heights, compact: one line dense (sm), default (md) and roomy (lg), and a row whose cells hold two lines. Hairlines between rows; hit areas follow size.target.min (DC-L23-06).",
+      "sm": {
+        "$value": {
+          "value": 36,
+          "unit": "px"
+        }
+      },
+      "md": {
+        "$value": {
+          "value": 40,
+          "unit": "px"
+        }
+      },
+      "lg": {
+        "$value": {
+          "value": 48,
+          "unit": "px"
+        }
+      },
+      "two-line": {
+        "$value": {
+          "value": 64,
+          "unit": "px"
+        }
+      }
+    }
+  }
+}

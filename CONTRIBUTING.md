@@ -16,12 +16,19 @@ uv run ruff check src tests
 - **Tests never touch the network or a paid model.** Mock `skillgraph.providers.structured`,
   script the harness's chat function, or use `httpx.MockTransport` (see `tests/test_openrouter.py`).
 - **Prompts and schemas are part of the spec.** If you change the extractor, judge, harness,
-  reference conversion or compilation, coverage alignment, or task generation prompts or
-  schemas, update `skills/skillgraph/references/build-spec.md` so it quotes the new text.
+  reference conversion or compilation, coverage alignment, task generation, or digest
+  (intents, routing, window and skeleton notes) prompts or schemas, update `skills/skillgraph/references/build-spec.md` so it quotes the new text.
   `tests/test_spec.py` fails until you do.
 - **Keep run data out of commits.** `runs/` is ignored. `examples/runs/demo` is a scrubbed
   run set regenerated with `scripts/export_demo.py`; don't hand-edit it.
 - **User-visible changes** go in `CHANGELOG.md` and, where relevant, the README.
+- **The dashboard** (`src/skillgraph/dashboard/static/`) is plain HTML, CSS and JavaScript with
+  no build step and no dependencies: `core.js` (helpers, copy, components, `recommend()`),
+  `pages.js`, `trace.js` and `app.js` (shell and router). Build DOM with `SG.h()` (never `innerHTML`),
+  keep filters in the URL, and take every style value from a `--ds-*` token in `tokens.css`.
+  `docs/dashboard-prd.md` is the product spec, with acceptance criteria to check in a browser.
+  The tokens come from `design/` (an [OpenDesigner](https://github.com/ckryptickunal/OpenDesigner)
+  design system); see `design/README.md` to change them.
 - Match the surrounding code: small functions, type hints, comments only where the code
   can't say it.
 
