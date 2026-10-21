@@ -37,7 +37,7 @@ Changelog = "https://github.com/bythyag/skillgraph/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 # The Claude provider runs agents through the Claude Agent SDK (bundles Claude Code).
-claude = ["claude-agent-sdk>=0.2.165"]
+claude = ["claude-agent-sdk>=0.2.168"]
 
 [project.scripts]
 skillgraph = "skillgraph.cli:main"
