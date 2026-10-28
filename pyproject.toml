@@ -43,7 +43,7 @@ claude = ["claude-agent-sdk>=0.2.165"]
 skillgraph = "skillgraph.cli:main"
 
 [dependency-groups]
-dev = ["pytest>=8", "ruff>=0.6"]
+dev = ["pytest>=8", "ruff>=0.17.2"]
 
 [build-system]
 requires = ["hatchling"]
